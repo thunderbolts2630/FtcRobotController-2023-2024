@@ -43,6 +43,7 @@ public class Constants {
         public static final double RobotMaxVelFront = 1.63; // m/s
         public static final double RobotMaxVelSide = 0.89; // m/s
         public static final double RobotMaxAccFront = 1.47; // m/s^2
+
         public static final BTTranslation2d FRW = new BTTranslation2d(0.145,0.137);
         public static final BTTranslation2d BRW = new BTTranslation2d(0.145,-0.137 );
         public static final BTTranslation2d FLW = new BTTranslation2d(-0.145,0.137);

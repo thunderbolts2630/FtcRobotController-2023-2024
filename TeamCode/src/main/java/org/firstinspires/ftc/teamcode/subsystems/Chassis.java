@@ -13,15 +13,18 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
+import org.firstinspires.ftc.teamcode.utils.Util;
 import org.firstinspires.ftc.teamcode.utils.geometry.*;
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.function.DoubleSupplier;
 
 public class Chassis implements Subsystem {
@@ -187,20 +190,21 @@ public class Chassis implements Subsystem {
 
     public void chassisSpeedDrive(ChassisSpeeds chassisSpeeds){
         //adjust the velocities to fit between +-1 (the input of the motor)
-        chassisSpeeds.vxMetersPerSecond/=maxVelocityX;
-        chassisSpeeds.vyMetersPerSecond/=maxVelocityY;
-        chassisSpeeds.omegaRadiansPerSecond/=maxVelocityTheta;
+        chassisSpeeds.vyMetersPerSecond/= RobotMaxVelFront;
+        chassisSpeeds.vxMetersPerSecond/=RobotMaxVelSide;
+        chassisSpeeds.omegaRadiansPerSecond/=robotThetaVelocityMax;
 
-        double velAfterFF=chassisSpeeds.vxMetersPerSecond+feedForward.calculate(chassisSpeeds.vxMetersPerSecond);
+        double velAfterFF=chassisSpeeds.vyMetersPerSecond+feedForward.calculate(chassisSpeeds.vyMetersPerSecond);
 
-        drive(chassisSpeeds.vyMetersPerSecond,velAfterFF,chassisSpeeds.omegaRadiansPerSecond);
+        drive(velAfterFF,chassisSpeeds.vxMetersPerSecond,chassisSpeeds.omegaRadiansPerSecond);
         dashboardTelemetry.addData("frontVelocityAuto", velAfterFF);
         dashboardTelemetry.addData("sideVelocityAuto", chassisSpeeds.vyMetersPerSecond);
         dashboardTelemetry.addData("OmegaSpeedAuto", chassisSpeeds.omegaRadiansPerSecond);
     }
     private void drive(double frontVel, double sidewayVel, double retaliation) {
-
-        dashboardTelemetry.addData("front vel in drive",frontVel);
+        frontVel= Util.calmp(frontVel,1,-1);
+        retaliation= Util.calmp(retaliation,1,-1);
+        sidewayVel= Util.calmp(sidewayVel,1,-1);
         double r = Math.hypot(retaliation, sidewayVel);
         double robotAngle = Math.atan2(retaliation, sidewayVel) - Math.PI / 4;//shifts by 90 degrees so that 0 is to the right
         double rightX = frontVel;

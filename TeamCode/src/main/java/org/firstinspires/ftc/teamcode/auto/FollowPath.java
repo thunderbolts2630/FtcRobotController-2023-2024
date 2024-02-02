@@ -121,10 +121,10 @@ public class FollowPath extends BTCommand {
         if (m_desiredRotation.get() == null){
             ChassisSpeeds targetChassisSpeeds =
                     m_controller.calculate(m_pose.get(), desiredState, m_trajectory.getStates().get(m_trajectory.getStates().size() - 1).poseMeters.getRotation());
-            m_outputChassisSpeeds.accept(targetChassisSpeeds);
             dashboard.addData("DfrontVelocity: ", targetChassisSpeeds.vyMetersPerSecond);
             dashboard.addData("DsideVelocity: ", targetChassisSpeeds.vxMetersPerSecond);
             dashboard.addData("DomegaVelocity: ", targetChassisSpeeds.omegaRadiansPerSecond);
+            m_outputChassisSpeeds.accept(targetChassisSpeeds);
             dashboard.update();
 
 
