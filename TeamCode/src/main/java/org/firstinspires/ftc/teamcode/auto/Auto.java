@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.Supplier;
+import java.util.function.Supplier;
 
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.arcrobotics.ftclib.geometry.Pose2d;
@@ -34,6 +34,7 @@ public class Auto extends LinearOpMode {
     ElapsedTime time;
     List<Trajectory.State> states; //?
     HolonomicOdometry pose; //a
+    Pose2d pose2d; //a
     PIDController xController; //a
     PIDController yController; //a
     ProfiledPIDController thetaController; //a
@@ -45,6 +46,7 @@ public class Auto extends LinearOpMode {
         time.startTime();
         m_chassis = chassis;
         pose = new HolonomicOdometry(Constants.ChassisConstants.TRACKWIDTH, Constants.ChassisConstants.WHEEL_OFFSET);
+        pose2d = new Pose2d(pose.getPose().getTranslation(), pose.getPose().getRotation());
         xController = new PIDController(Constants.ChassisConstants.PIDConstants.kpX,Constants.ChassisConstants.PIDConstants.kiX,Constants.ChassisConstants.PIDConstants.kdX);
         yController = new PIDController(Constants.ChassisConstants.PIDConstants.kpY,Constants.ChassisConstants.PIDConstants.kiY,Constants.ChassisConstants.PIDConstants.kdY);
         thetaController = new ProfiledPIDController(Constants.ChassisConstants.PIDConstants.kpT,Constants.ChassisConstants.PIDConstants.kiT,Constants.ChassisConstants.PIDConstants.kdT, Constants.ChassisConstants.PIDConstants.kcT);
@@ -54,12 +56,15 @@ public class Auto extends LinearOpMode {
         };
         states = new ArrayList<Trajectory.State>();
 
-        this.path = new FollowPath(new Trajectory(states), Supplier<new Pose2d(pose.getPose().getTranslation(), pose.getPose().getRotation())>, xController, yController, thetaController,
-                rotation2d, consumer, m_chassis);
+        this.path = new FollowPath(new Trajectory(states),
+                Supplier<pose2d>,
+                xController, yController, thetaController,
+                Supplier<rotation2d>, consumer, m_chassis);
     }
 
     @Override
     public void runOpMode() {
     waitForStart();
+    path.execute();
     }
 }
