@@ -76,6 +76,7 @@ public class Constants {
             public static double kpT = 0;
             public static double kiT = 0;
             public static double kdT = 0;
+            public static TrapezoidProfile.Constraints kcT = new TrapezoidProfile.Constraints(0,0);
             public static double kp = 0;
             public static double ki = 0;
             public static double kd = 0;

@@ -37,10 +37,10 @@ public class Chassis implements Subsystem {
     private HardwareMap map;
     private BTposeEstimator odometry;
     private Telemetry m_telemetry;
-    private MotorEx motor_FL;
-    private MotorEx motor_FR;
-    private MotorEx motor_BL;
-    private MotorEx motor_BR;
+    public MotorEx motor_FL;
+    public MotorEx motor_FR;
+    public MotorEx motor_BL;
+    public MotorEx motor_BR;
     private RevIMU gyro;
     private Motor leftEncoder;
     private Motor rightEncoder;
@@ -111,6 +111,7 @@ public class Chassis implements Subsystem {
         motor_BR.set(BR);
         motor_BL.set(BL);
     }
+
 
     ElapsedTime driveTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
