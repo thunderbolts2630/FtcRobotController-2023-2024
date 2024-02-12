@@ -16,8 +16,8 @@ public class Gripper implements Subsystem {
     public Gripper(HardwareMap map, Telemetry telemetry){
         this.map=map;
         this.telemetry=telemetry;
-        serv0=map.servo.get("serv0");
-        serv1=map.servo.get("serv1");
+        serv0=map.servo.get("gripper0");
+        serv1=map.servo.get("gripper1");
     }
     @Override
     public void periodic() {
