@@ -46,7 +46,7 @@ public class Arm implements Subsystem {
     private double current_pot2_voltage;
     private double arm1PID, arm1FF;
     private double arm2PID, arm2FF;
-    private boolean manual;
+    private boolean manual=true;
 
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
@@ -54,7 +54,7 @@ public class Arm implements Subsystem {
         this.m_telemetry = telemetry;
         this.arm1 = arm1;
         this.arm2 = arm2;
-        this.arm1.setInverted(true);
+        this.arm1.setInverted(false);
         this.arm2.setInverted(true);
         m_pid1 = new PIDController(a1KP, a1KI, a1KD);
         m_pid2 = new PIDController(a2KP, a2KI, a2KD);
@@ -66,7 +66,7 @@ public class Arm implements Subsystem {
     }
 
     public void setMotorFromAngle1() {
-        arm1PID = m_pid1.calculate(current_first_joint_angle, desired_second_joint_angle);
+        arm1PID = m_pid1.calculate(current_first_joint_angle, desired_first_joint_angle);
         arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
         dashboard.addData("first joint output:", arm1PID);
         arm1.set(c_arm1FF.calculate(arm1FF + arm1PID));
@@ -126,6 +126,10 @@ public class Arm implements Subsystem {
     public BTCommand armMoveManual(DoubleSupplier speedFirst, DoubleSupplier speedSecond, DoubleSupplier posServo) {
         return new RunCommand(() -> {
             manual = true;
+//            arm2PID = m_pid2.calculate(current_second_joint_angle, desired_second_joint_angle);
+//            arm2FF = calculateFeedForwardSecondJoint(current_second_joint_angle);
+//            arm1PID = m_pid1.calculate(current_first_joint_angle, desired_second_joint_angle);
+//            arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
             arm1.set(speedFirst.getAsDouble());
             arm2.set(speedSecond.getAsDouble());
             servo.setPosition(posServo.getAsDouble());
@@ -133,7 +137,7 @@ public class Arm implements Subsystem {
     }
     public BTCommand stopManual(){
         return  new RunCommand(()->{
-            manual=false;
+            manual=true;
         });
     }
     @Override

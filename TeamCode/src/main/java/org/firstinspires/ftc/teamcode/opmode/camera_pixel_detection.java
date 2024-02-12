@@ -29,8 +29,8 @@ public class camera_pixel_detection extends OpMode {
     WebcamName webcamName;
     OpenCvCamera camera;
     int l_or_u = 0;
-    double[] lowerYvals = new double[]{0, 145, 150};
-    double[] upperYvals = new double[]{35, 255, 215};
+    double[] lowerYvals = new double[]{0, 145, 100};
+    double[] upperYvals = new double[]{45, 255, 255};
     Scalar lowerY = new Scalar(0, 145, 150);
     Scalar upperY = new Scalar(35, 255, 215);
     
