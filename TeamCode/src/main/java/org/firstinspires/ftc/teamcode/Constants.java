@@ -41,6 +41,22 @@ public class Constants {
         public static final double vMin1 = 0.455;
         public static final double arm2Min = -90;
         public static final double vMax2 = 2.189;
+        public enum Positions{
+            DROP(1.848,1.797,0.65,0,0),
+            TAKE(2.124,2.549,0.6,0,0);
+            double v1,v2,servo;//this is checked 2/13/24 (m/d/y)
+            double ff1,ff2;//this is not yet checked 2/13/24 (m/d/y)
+
+            Positions(double v1, double v2, double servo, double ff1, double ff2) {
+                this.v1 = v1;
+                this.v2 = v2;
+                this.servo = servo;
+                this.ff1 = ff1;
+                this.ff2 = ff2;
+            }
+
+
+        }
 
         @Config
         public static class ArmPID{
