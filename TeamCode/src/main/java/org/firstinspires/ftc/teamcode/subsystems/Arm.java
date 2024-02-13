@@ -5,12 +5,16 @@ import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmPID.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.*;
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.BTController;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
@@ -20,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.Util;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.PID.*;
 
@@ -32,7 +37,7 @@ public class Arm implements Subsystem {
     private Telemetry m_telemetry;
     private MotorEx arm1;
     private MotorEx arm2;
-    private SimpleServo servo;
+    private Servo servo;
     private BTController m_controller;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
     private PIDController m_pid1;
@@ -60,7 +65,8 @@ public class Arm implements Subsystem {
         m_pid2 = new PIDController(a2KP, a2KI, a2KD);
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
-        servo = new SimpleServo(map, "armServo", 0, 280);
+        servo = map.servo.get("armServo");
+        servo.getController().pwmEnable();
         register();
 
     }
@@ -116,28 +122,31 @@ public class Arm implements Subsystem {
 //            arm2.set(secondSpeed);
 //
 //        }
-        servo.setPosition(servoPos);
+        servo.setPosition(0.6);
         arm2.set(secondSpeed);
         arm1.set(firstSpeed);
 
     }
 
 
-    public BTCommand armMoveManual(DoubleSupplier speedFirst, DoubleSupplier speedSecond, DoubleSupplier posServo) {
+    public Command armMoveManual(DoubleSupplier speedFirst, DoubleSupplier speedSecond, DoubleSupplier posServo) {
         return new RunCommand(() -> {
             manual = true;
 //            arm2PID = m_pid2.calculate(current_second_joint_angle, desired_second_joint_angle);
 //            arm2FF = calculateFeedForwardSecondJoint(current_second_joint_angle);
 //            arm1PID = m_pid1.calculate(current_first_joint_angle, desired_second_joint_angle);
 //            arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
-            arm1.set(speedFirst.getAsDouble());
-            arm2.set(speedSecond.getAsDouble());
-            servo.setPosition(posServo.getAsDouble());
+            arm1.set(calib.arm1);
+            arm2.set(calib.arm2);
+            servo.setPosition(calib.armServo);
         });
     }
     public BTCommand stopManual(){
         return  new RunCommand(()->{
             manual=true;
+            arm2.set(0);
+            arm1.set(0);
+
         });
     }
     @Override
@@ -146,10 +155,10 @@ public class Arm implements Subsystem {
         current_second_joint_angle = voltageToAngle2(potentiometer2.getVoltage());
         current_pot1_voltage = potentiometer1.getVoltage();
         current_pot2_voltage = potentiometer2.getVoltage();
-        if (!manual) {
-            setMotorFromAngle2();
-            setMotorFromAngle1();
-        }
+//        if (!manual) {
+//            setMotorFromAngle2();
+//            setMotorFromAngle1();
+//        }
         dashboard.addData("desired angle 1:", desired_first_joint_angle);
         dashboard.addData("desired angle 2:", desired_second_joint_angle);
         dashboard.addData("pot1:", current_pot1_voltage);

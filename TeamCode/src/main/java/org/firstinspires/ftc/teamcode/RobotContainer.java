@@ -59,12 +59,12 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                         m_controller.left_trigger),
                 true, LEFT_X, LEFT_Y, LEFT_TRIGGER).whenInactive(m_chassis.stopMotor());
 
-//        m_controller2.assignCommand(m_arm.armMoveManual(()->Math.pow(m_controller2.right_y.getAsDouble(),3)/2.5,()->Math.pow(m_controller2.left_y.getAsDouble(),3)/2.5,()-> Math.pow(-m_controller2.left_trigger.getAsDouble()
-//                + m_controller2.right_trigger.getAsDouble(),3)),false,RIGHT_TRIGGER,LEFT_TRIGGER,LEFT_Y,RIGHT_Y);
+        m_controller2.assignCommand(m_arm.armMoveManual(()->Math.pow(m_controller2.right_y.getAsDouble(),3)/2.5,()->Math.pow(m_controller2.left_y.getAsDouble(),3)/2.5,()-> Math.pow(-m_controller2.left_trigger.getAsDouble()
+                + m_controller2.right_trigger.getAsDouble(),3)),true,RIGHT_TRIGGER,LEFT_TRIGGER,LEFT_Y,RIGHT_Y).whenInactive(m_arm.stopManual());
 
         m_controller.assignCommand(m_climb.climb_manual(m_controller.right_y), true, RIGHT_Y).whenInactive(m_climb.climb_manual(()->0));
-        m_controller2.assignCommand(m_gripper.closeGripper(),false,BUMPER_LEFT);
-        m_controller2.assignCommand(m_gripper.openGripper(),false,BUMPER_RIGHT);
+        m_controller2.assignCommand(m_gripper.closeGripper(),true,BUMPER_LEFT).whenInactive(m_gripper.stop());
+        m_controller2.assignCommand(m_gripper.openGripper(),true,BUMPER_RIGHT).whenInactive(m_gripper.stop());
 //        m_controller2.assignCommand(m_plane.shootPlane(),false,DPAD_RIGHT);
 
 

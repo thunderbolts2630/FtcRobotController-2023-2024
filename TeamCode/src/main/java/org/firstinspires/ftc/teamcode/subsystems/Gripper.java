@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -26,18 +27,23 @@ public class Gripper implements Subsystem {
     public void setDefaultCommand(Command defaultCommand) {
         Subsystem.super.setDefaultCommand(defaultCommand);
     }
+
     public Command openGripper(){
-        return new RunCommand(()->{
-            serv0.setPosition(0);
-            serv1.setPosition(180);
-        },this);
+        return new InstantCommand(()->serv0.getController().pwmEnable()).andThen(new RunCommand(()->{
+
+            serv0.setPosition(0.8);
+//            serv1.setPosition(0.8);
+        },this));
     };
     public Command closeGripper(){
-        return new RunCommand(()->{
-            serv0.setPosition(180);
-            serv1.setPosition(0);
-        },this);
+        return new InstantCommand(()->serv0.getController().pwmEnable()).andThen( new RunCommand(()->{
+            serv0.setPosition(0.35);
+//            serv1.setPosition(0);
+        },this));
     };
+    public Command stop(){
+        return  new InstantCommand(()->serv0.getController().pwmDisable());
+    }
 //    todo: maybe add toggle option
 
 }

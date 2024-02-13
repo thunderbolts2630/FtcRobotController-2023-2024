@@ -44,13 +44,20 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-        public static double a1KP = 0.0;
-        public static double a2KP = 0.0;
-        public static double a1KI = 0.00;
-        public static double a2KI = 0.00;
-        public static double a1KD = 0;
-        public static double a2KD = 0;
-        public static double ffConv=12;
+            public static double a1KP = 0.0;
+            public static double a2KP = 0.0;
+            public static double a1KI = 0.00;
+            public static double a2KI = 0.00;
+            public static double a1KD = 0;
+            public static double a2KD = 0;
+            public static double ffConv=12;
+        }
+        @Config
+        public static class calib{
+            public static double armServo=0.6;
+            public static double arm1=0.0;
+            public static double arm2=0.0;
+
         }
 
 
