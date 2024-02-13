@@ -69,23 +69,23 @@ public class Arm implements Subsystem {
 
 
     public double angleToVoltageA1(double angle) {
-        double ptVoltage = (angle - arm1Min) * (vMax1 - vMin1) / (a1Max - arm1Min) + vMin1;
+        double ptVoltage = (angle - arm1SecondAngle) * (voltFirstAngle1 - voltSecondAngle1) / (arm1FirstAngle - arm1SecondAngle) + voltSecondAngle1;
         return ptVoltage;
     }
 
     public double voltageToAngle1(double voltage) {
-        double angle1 = (voltage - vMin1) * (a1Max - arm1Min) / (vMax1 - vMin1) + arm1Min;
+        double angle1 = (voltage - voltSecondAngle1) * (arm1FirstAngle - arm1SecondAngle) / (voltFirstAngle1 - voltSecondAngle1) + arm1SecondAngle;
         return angle1;
     }
 
     public double angleToVoltageA2(double angle) {
-        double ptVoltage = (angle - arm2Min) * (vMax1 - vMin1) / (a1Max - arm1Min) + vMin1;
+        double ptVoltage = (angle - arm2SecondAngle) * (voltFirstAngle1 - voltSecondAngle1) / (arm1FirstAngle - arm1SecondAngle) + voltSecondAngle1;
         return ptVoltage;
 
     }
 
     public double voltageToAngle2(double voltage) {
-        double angle2 = (voltage - vMin2) * (a2Max - arm2Min) / (vMax2 - vMin2) + arm2Min;
+        double angle2 = (voltage - voltSecondAngle2) * (arm2FirstAngle - arm2SecondAngle) / (voltFirstAngle2 - voltSecondAngle2) + arm2SecondAngle;
         return angle2;
     }
 
