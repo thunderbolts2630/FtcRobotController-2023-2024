@@ -5,10 +5,8 @@ import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisF
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.wpilibcontroller.ArmFeedforward;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
-import com.arcrobotics.ftclib.trajectory.constraint.MecanumDriveKinematicsConstraint;
 
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
@@ -43,6 +41,7 @@ public class Constants {
         public static final double vMax2 = 2.189;
         public enum Positions{
             DROP(1.848,1.797,0.65,0,0),
+            IDLE(0,0,0.6,0,0),
             TAKE(2.124,2.549,0.6,0,0);
             double v1,v2,servo;//this is checked 2/13/24 (m/d/y)
             double ff1,ff2;//this is not yet checked 2/13/24 (m/d/y)
