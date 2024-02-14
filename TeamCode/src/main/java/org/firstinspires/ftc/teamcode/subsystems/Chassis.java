@@ -190,22 +190,13 @@ public class Chassis implements Subsystem {
     }
 
     public void chassisSpeedDrive(ChassisSpeeds chassisSpeeds){
-        //adjust the velocities to fit between +-1 (the input of the motor)
-        chassisSpeeds.vyMetersPerSecond/= RobotMaxVelFront;
-        chassisSpeeds.vxMetersPerSecond/=RobotMaxVelSide;
-        chassisSpeeds.omegaRadiansPerSecond/=robotThetaVelocityMax;
 
-        double velAfterFF=chassisSpeeds.vyMetersPerSecond+feedForward.calculate(chassisSpeeds.vyMetersPerSecond);
-
-        drive(velAfterFF,chassisSpeeds.vxMetersPerSecond,chassisSpeeds.omegaRadiansPerSecond);
-        dashboardTelemetry.addData("frontVelocityAuto", velAfterFF);
+        drive(chassisSpeeds.vxMetersPerSecond,chassisSpeeds.vyMetersPerSecond,chassisSpeeds.omegaRadiansPerSecond);
+        dashboardTelemetry.addData("frontVelocityAuto", chassisSpeeds.vxMetersPerSecond);
         dashboardTelemetry.addData("sideVelocityAuto", chassisSpeeds.vyMetersPerSecond);
         dashboardTelemetry.addData("OmegaSpeedAuto", chassisSpeeds.omegaRadiansPerSecond);
     }
     private void drive(double frontVel, double sidewayVel, double retaliation) {
-        frontVel= Util.calmp(frontVel,1,-1);
-        retaliation= Util.calmp(retaliation,1,-1);
-        sidewayVel= Util.calmp(sidewayVel,1,-1);
         double r = Math.hypot(retaliation, sidewayVel);
         double robotAngle = Math.atan2(retaliation, sidewayVel) - Math.PI / 4;//shifts by 90 degrees so that 0 is to the right
         double rightX = frontVel;

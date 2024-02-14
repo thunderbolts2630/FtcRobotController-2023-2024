@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.auto;
 
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisFeedForward.*;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.RobotMaxVelFront;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.RobotMaxVelSide;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.feedForward;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.robotThetaVelocityMax;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
@@ -99,7 +102,6 @@ public class FollowPath extends BTCommand {
 //                in.get("kD")
 //        );
         m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
-        feedForward= new SimpleMotorFeedforward(ffks,ffkv,ffka);
         m_controller.reset();
         m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
 
@@ -117,23 +119,33 @@ public class FollowPath extends BTCommand {
         Trajectory.State desiredState = m_trajectory.sample(curTime);
         dashboard.addData("state velocity", desiredState.velocityMetersPerSecond);
         if (m_desiredRotation.get() == null){
-            ChassisSpeeds targetChassisSpeeds =
-                    m_controller.calculate(m_pose.get(), desiredState, m_trajectory.getStates().get(m_trajectory.getStates().size() - 1)
-                            .poseMeters.getRotation());
+            ChassisSpeeds targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, m_trajectory.getStates().get(m_trajectory.getStates().size() - 1).poseMeters.getRotation());
             dashboard.addData("DfrontVelocity: ", targetChassisSpeeds.vyMetersPerSecond);
             dashboard.addData("DsideVelocity: ", targetChassisSpeeds.vxMetersPerSecond);
             dashboard.addData("DomegaVelocity: ", targetChassisSpeeds.omegaRadiansPerSecond);
+            targetChassisSpeeds=addFeedForward(targetChassisSpeeds);
             m_outputChassisSpeeds.accept(targetChassisSpeeds);
             dashboard.update();
 
 
         } else {
-            ChassisSpeeds targetChassisSpeeds =
-                    m_controller.calculate(m_pose.get(), desiredState, m_desiredRotation.get());
+            ChassisSpeeds targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, m_desiredRotation.get());
+            targetChassisSpeeds= addFeedForward(targetChassisSpeeds);
             m_outputChassisSpeeds.accept(targetChassisSpeeds);
         }
+    }
 
+    private ChassisSpeeds addFeedForward(ChassisSpeeds chassisSpeeds){
+        ChassisSpeeds afterFF= new ChassisSpeeds();
+        afterFF.vyMetersPerSecond= chassisSpeeds.vyMetersPerSecond/RobotMaxVelFront;
+        afterFF.vxMetersPerSecond=chassisSpeeds.vxMetersPerSecond/RobotMaxVelSide;
+        afterFF.omegaRadiansPerSecond=chassisSpeeds.omegaRadiansPerSecond/robotThetaVelocityMax;
 
+        afterFF.vxMetersPerSecond=chassisSpeeds.vxMetersPerSecond+calculateFF(afterFF.vxMetersPerSecond);
+        return  afterFF;
+    }
+    private double calculateFF(double velocity) {
+        return ffks * Math.signum(velocity) + ffkv * velocity ;
     }
 
     @Override
