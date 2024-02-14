@@ -30,7 +30,6 @@ import java.util.function.DoubleSupplier;
 public class Chassis implements Subsystem {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
-    private PIDFController m_pidcontroller;
     private double prevTime = 0;
     private BTTransform2d velocity, prevVelocity = new BTTransform2d(), acceleration, prevAcceleration = new BTTransform2d();
     private BTPose2d prevPos;
@@ -148,7 +147,6 @@ public class Chassis implements Subsystem {
 
     @Override
     public void periodic() {
-        m_pidcontroller.setPIDF(kp, ki, kd, kff);
         odometry.updatePose();
         calcVA();
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());

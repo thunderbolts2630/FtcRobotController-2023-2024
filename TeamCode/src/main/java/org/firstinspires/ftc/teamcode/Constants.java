@@ -62,18 +62,25 @@ public class Constants {
         public static final ProfiledPIDController PIDt = new ProfiledPIDController(kpT,kiT,kdT,
                 new TrapezoidProfile.Constraints(RobotMaxVelFront,RobotMaxAccFront));
         public static final PIDController PIDx = new PIDController(kpX,kiX,kdX);
-        @Config
         public static class PIDConstants {
-
-            public static double kpX = 0;
-            public static double kiX = 0;
-            public static double kdX = 0;
-            public static double kpY = 0;
-            public static double kiY = 0;
-            public static double kdY = 0;
-            public static double kpT = 0;
-            public static double kiT = 0;
-            public static double kdT = 0;
+            @Config
+            public static class PIDFront {
+                public static double kpX = 0;
+                public static double kiX = 0;
+                public static double kdX = 0;
+            }
+            @Config
+            public static class PIDSide {
+                public static double kpY = 0;
+                public static double kiY = 0;
+                public static double kdY = 0;
+            }
+            @Config
+            public static class PIDTheta {
+                public static double kpT = 0;
+                public static double kiT = 0;
+                public static double kdT = 0;
+            }
             public static TrapezoidProfile.Constraints kcT = new TrapezoidProfile.Constraints(0,0);
             public static double kp = 0;
             public static double ki = 0;

@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.auto;
 
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisFeedForward.*;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.RobotMaxVelFront;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.RobotMaxVelSide;
-import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.feedForward;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.robotThetaVelocityMax;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -90,21 +90,13 @@ public class FollowPath extends BTCommand {
     @Override
     public void initialize() {
         m_timer.reset();
-        //        m_controller.m_thetaController.setConstraints(
-//                new TrapezoidProfile.Constraints(
-//                        in.get("maxV"),
-//                        Math.pow(in.get("maxV"),2)
-//                        0,0
-//                ));
-//        m_controller.m_thetaController.setPID(
-//                in.get("kP"),
-//                in.get("kI"),
-//                in.get("kD")
-//        );
+
         m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
         m_controller.reset();
         m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
-
+        m_controller.m_thetaController.setPID(PIDTheta.kpT,PIDTheta.kiT,PIDTheta.kdT);
+        m_controller.m_xController.setPID(PIDFront.kpX,PIDFront.kiX,PIDFront.kdX);
+        m_controller.m_yController.setPID(PIDSide.kpY,PIDSide.kiY,PIDSide.kdY);
 
     }
 
