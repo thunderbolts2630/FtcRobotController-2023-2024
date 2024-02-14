@@ -32,7 +32,6 @@ public class Gripper implements Subsystem {
     }
     @Override
     public void periodic() {
-        serv1.setPosition(GripperConstants.servoPos.gripServoPos);
     }
     @Override
     public void setDefaultCommand(Command defaultCommand) {
@@ -43,13 +42,13 @@ public class Gripper implements Subsystem {
         return new InstantCommand(()->serv0.getController().pwmEnable()).andThen(new RunCommand(()->{
 
             serv0.setPosition(0.8);
-            serv1.setPosition(0);
+            serv1.setPosition(0.05);
         },this));
     };
     public Command closeGripper(){
         return new InstantCommand(()->serv0.getController().pwmEnable()).andThen( new RunCommand(()->{
-            serv0.setPosition(0.35);
-            serv1.setPosition(0.4);
+            serv0.setPosition(0.3);
+            serv1.setPosition(0.33);
         },this));
     };
     public Command stop(){

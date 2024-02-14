@@ -6,10 +6,14 @@ import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.*;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.geometry.Translation2d;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.BTController;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
@@ -19,6 +23,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImpl;
 
 import org.firstinspires.ftc.teamcode.utils.PID.*;
 
@@ -62,8 +67,8 @@ public class Arm implements Subsystem {
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
         servo.getController().pwmEnable();
+        servo.setDirection(Servo.Direction.REVERSE);
         register();
-
     }
 
 
