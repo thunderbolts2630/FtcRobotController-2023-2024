@@ -47,7 +47,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_arm= new Arm(map, telemetry,armM2encoderL,armM1encoderR);
 
 
-        bindCommands();
+//        bindCommands();
     }
 
     //bind commands to trigger

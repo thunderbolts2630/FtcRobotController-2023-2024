@@ -43,13 +43,13 @@ public class Gripper implements Subsystem {
         return new InstantCommand(()->serv0.getController().pwmEnable()).andThen(new RunCommand(()->{
 
             serv0.setPosition(0.8);
-            serv1.setPosition(0.8);
+            serv1.setPosition(0);
         },this));
     };
     public Command closeGripper(){
         return new InstantCommand(()->serv0.getController().pwmEnable()).andThen( new RunCommand(()->{
             serv0.setPosition(0.35);
-            serv1.setPosition(0.35);
+            serv1.setPosition(0.4);
         },this));
     };
     public Command stop(){
