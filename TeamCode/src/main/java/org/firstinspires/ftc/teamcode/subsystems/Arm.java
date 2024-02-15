@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmPID.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.*;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
@@ -124,8 +125,8 @@ public class Arm implements Subsystem {
             }
         });
     }
-    public BTCommand stopManual(){
-        return  new RunCommand(()->{
+    public Command stopManual(){
+        return  new InstantCommand(()->{
             manual=true;
             arm2.set(0);
             arm1.set(0);

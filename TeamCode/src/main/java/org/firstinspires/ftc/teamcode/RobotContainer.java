@@ -64,10 +64,10 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 true, LEFT_X, LEFT_Y, LEFT_TRIGGER).whenInactive(m_chassis.stopMotor());
 
         m_controller2.assignCommand(m_arm.armMoveManual(()->Math.pow(m_controller2.right_y.getAsDouble(),3)/2.5,()->Math.pow(m_controller2.left_y.getAsDouble(),3)/2.5,()-> Math.pow(-m_controller2.left_trigger.getAsDouble()
-                + m_controller2.right_trigger.getAsDouble(),3)),true,RIGHT_Y).whenInactive(m_arm.stopManual());
-        m_controller2.assignCommand(m_arm.MoveArmToState(MIDDLE),true,DPAD_UP);
-        m_controller2.assignCommand(m_arm.MoveArmToState(PICKUP),true,DPAD_LEFT);
-        m_controller2.assignCommand(m_arm.MoveArmToState(DROP),true,DPAD_DOWN);
+                + m_controller2.right_trigger.getAsDouble(),3)),true,RIGHT_TRIGGER).whenInactive(m_arm.stopManual());
+        m_controller2.assignCommand(m_arm.MoveArmToState(MIDDLE),true,DPAD_UP).whenInactive(m_arm.stopManual());
+        m_controller2.assignCommand(m_arm.MoveArmToState(PICKUP),true,DPAD_LEFT).whenInactive(m_arm.stopManual());
+        m_controller2.assignCommand(m_arm.MoveArmToState(DROP),true,DPAD_DOWN).whenInactive(m_arm.stopManual());
 
 
 

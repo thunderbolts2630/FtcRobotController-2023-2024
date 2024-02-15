@@ -35,7 +35,7 @@ public class Constants {
         public static final double maxVolt1=0,maxVolt2=0;//not real 2/13
         public static final double minVolt1=0,minVolt2=0;//not real 2/13
         public enum Positions{
-            DROP(0.843,1.75,0.65,-0.1,0.475),
+            DROP(0.843,1.75,0.65,-0.125,0.5),
             idle(0,0,0.6,0,0),
             MIDDLE(0.976,2.267,0.33,0,0.2),
             PICKUP(0.536,2.372,0.33,-0.27,0.22);// 2/14 checked
@@ -55,9 +55,9 @@ public class Constants {
         @Config
         public static class ArmPID{
             public static double a1KP = 0.0;
-            public static double a2KP = 0.0;
+            public static double a2KP = -0.97;
             public static double a1KI = 0.00;
-            public static double a2KI = 0.00;
+            public static double a2KI = 0.002;
             public static double a1KD = 0;
             public static double a2KD = 0;
             public static double ffConv=12;
