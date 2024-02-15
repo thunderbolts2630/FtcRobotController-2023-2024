@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.Positions.*;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_LEFT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_RIGHT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_RIGHT;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_X;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_Y;
@@ -60,7 +64,13 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 true, LEFT_X, LEFT_Y, LEFT_TRIGGER).whenInactive(m_chassis.stopMotor());
 
         m_controller2.assignCommand(m_arm.armMoveManual(()->Math.pow(m_controller2.right_y.getAsDouble(),3)/2.5,()->Math.pow(m_controller2.left_y.getAsDouble(),3)/2.5,()-> Math.pow(-m_controller2.left_trigger.getAsDouble()
-                + m_controller2.right_trigger.getAsDouble(),3)),true,RIGHT_TRIGGER,LEFT_TRIGGER,LEFT_Y,RIGHT_Y).whenInactive(m_arm.stopManual());
+                + m_controller2.right_trigger.getAsDouble(),3)),true,RIGHT_Y).whenInactive(m_arm.stopManual());
+        m_controller2.assignCommand(m_arm.MoveArmToState(MIDDLE),true,DPAD_UP);
+        m_controller2.assignCommand(m_arm.MoveArmToState(PICKUP),true,DPAD_LEFT);
+        m_controller2.assignCommand(m_arm.MoveArmToState(DROP),true,DPAD_DOWN);
+
+
+
        m_controller.assignCommand(m_climb.climb_manual(m_controller.right_y), true, RIGHT_Y).whenInactive(m_climb.climb_manual(()->0));
         m_controller2.assignCommand(m_gripper.closeGripper(),true,BUMPER_LEFT).whenInactive(m_gripper.stop());
         m_controller2.assignCommand(m_gripper.openGripper(),true,BUMPER_RIGHT).whenInactive(m_gripper.stop());

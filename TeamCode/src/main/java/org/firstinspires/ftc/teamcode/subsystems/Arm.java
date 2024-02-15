@@ -51,7 +51,7 @@ public class Arm implements Subsystem {
     private double arm1PIDresult, arm1FF;
     private double arm2PIDresult, arm2FF;
     private boolean manual=true;
-    private Positions state = Positions.IDLE;
+    private Positions state = Positions.MIDDLE;
 
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
@@ -71,46 +71,27 @@ public class Arm implements Subsystem {
         register();
     }
 
-
-
-    public double angleToVoltageA1(double angle) {
-        double ptVoltage = (angle - arm1SecondAngle) * (voltFirstAngle1 - voltSecondAngle1) / (arm1FirstAngle - arm1SecondAngle) + voltSecondAngle1;
-        return ptVoltage;
-    }
-
-    public double voltageToAngle1(double voltage) {
-        double angle1 = (voltage - voltSecondAngle1) * (arm1FirstAngle - arm1SecondAngle) / (voltFirstAngle1 - voltSecondAngle1) + arm1SecondAngle;
-        return angle1;
-    }
-
-    public double angleToVoltageA2(double angle) {
-        double ptVoltage = (angle - arm2SecondAngle) * (voltFirstAngle1 - voltSecondAngle1) / (arm1FirstAngle - arm1SecondAngle) + voltSecondAngle1;
-        return ptVoltage;
-
-    }
-
-    public double voltageToAngle2(double voltage) {
-        double angle2 = (voltage - voltSecondAngle2) * (arm2FirstAngle - arm2SecondAngle) / (voltFirstAngle2 - voltSecondAngle2) + arm2SecondAngle;
-        return angle2;
-    }
-
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
-//        if (potentiometer1.getVoltage() > vMax1 || potentiometer1.getVoltage() < vMin1) {
-//            arm1.set(0);
-//
-//        } else {
-//            arm1.set(firstSpeed);
-//
-//        }
-//        if (potentiometer2.getVoltage() > vMax2 || potentiometer2.getVoltage() < vMin2) {
-//            arm2.set(0);
-//        } else {
-//            arm2.set(secondSpeed);
-//
-//        }
+        double vMax1 = 1.029;
+        double vMin1 = 0.306;
+        if ((firstSpeed<0&& potentiometer1.getVoltage() > vMin1) || (potentiometer1.getVoltage() > vMax1) &&firstSpeed>0) {
+            arm1.set(0);
+
+        } else {
+            arm1.set(firstSpeed);
+
+        }
+        double vMin2 = 1.841;
+        double vMax2 = 2.357;
+        if ((potentiometer2.getVoltage() > vMax2 && secondSpeed>0)||(secondSpeed<0 && potentiometer2.getVoltage() < vMin2)) {
+            arm2.set(0);
+        } else {
+            arm2.set(secondSpeed);
+
+        }
         servo.setPosition(0.6);
-        arm2.set(secondSpeed);
-        arm1.set(firstSpeed);
+//        arm2.set(secondSpeed);
+//        arm1.set(firstSpeed);
 
     }
 
@@ -127,18 +108,33 @@ public class Arm implements Subsystem {
             servo.setPosition(calib.armServo);
         });
     }
+    public Command MoveArmToState(Positions pos){
+        return new RunCommand(()-> {
+            if (pos == Positions.idle) {
+                arm1.set(0);
+                arm2.set(0);
+                servo.getController().pwmDisable();
+
+            } else {
+                servo.getController().pwmEnable();
+                double speed1= m_pid1.calculate(potentiometer1.getVoltage(), pos.v1) + pos.ff1;
+                double speed2= m_pid2.calculate(potentiometer2.getVoltage(), pos.v2) + pos.ff2;
+                double speedServo=pos.servo;
+                setMotors(speed1,speed2,speedServo);
+            }
+        });
+    }
     public BTCommand stopManual(){
         return  new RunCommand(()->{
             manual=true;
             arm2.set(0);
             arm1.set(0);
+            servo.getController().pwmDisable();
 
         });
     }
     @Override
     public void periodic() {
-        current_first_joint_angle = voltageToAngle1(potentiometer1.getVoltage());
-        current_second_joint_angle = voltageToAngle2(potentiometer2.getVoltage());
         current_pot1_voltage = potentiometer1.getVoltage();
         current_pot2_voltage = potentiometer2.getVoltage();
 //        if (!manual) {

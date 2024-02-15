@@ -31,23 +31,16 @@ public class Constants {
     public static class ArmConstants {
 
         public static final double motorMaxVolt = 12;
-        public static final double arm1FirstAngle = 90;//max
-        public static final double voltFirstAngle1 = 1.456;//max
-        public static final double arm2FirstAngle = 0;//max
-        public static final double voltSecondAngle2 = 1.632;//min
-        public static final double arm1SecondAngle = 0;//min
-        public static final double voltSecondAngle1 = 0.455;//min
-        public static final double arm2SecondAngle = -90;//min
-        public static final double voltFirstAngle2 = 2.189;//max
+
         public static final double maxVolt1=0,maxVolt2=0;//not real 2/13
         public static final double minVolt1=0,minVolt2=0;//not real 2/13
         public enum Positions{
-            DROP(1.848,1.797,0.65,0,0),
-            IDLE(0,0,0.6,0,0),
-            PICKUP(2.124,2.549,0.33,-0.22,0.225);
-            double v1,v2,servo;//this is checked 2/13/24 (m/d/y)
-            double ff1,ff2;//this is not yet checked 2/13/24 (m/d/y)
-
+            DROP(0.843,1.75,0.65,-0.1,0.475),
+            idle(0,0,0.6,0,0),
+            MIDDLE(0.976,2.267,0.33,0,0.2),
+            PICKUP(0.536,2.372,0.33,-0.27,0.22);// 2/14 checked
+            public double v1,v2,servo;
+            public double ff1,ff2;
             Positions(double v1, double v2, double servo, double ff1, double ff2) {
                 this.v1 = v1;
                 this.v2 = v2;
