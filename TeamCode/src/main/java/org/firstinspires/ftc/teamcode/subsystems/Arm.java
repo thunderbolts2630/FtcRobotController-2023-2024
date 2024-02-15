@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.*;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
@@ -132,6 +133,9 @@ public class Arm implements Subsystem {
                 dashboard.addData("desiredPT2", Positions.DROP.v2);
             }
         });
+    }
+    public double ApllyFeedForward(double currentPose, double targetPose, double feedforward, double tolerance){
+
     }
     public Command stopManual(){
         return  new InstantCommand(()->{
