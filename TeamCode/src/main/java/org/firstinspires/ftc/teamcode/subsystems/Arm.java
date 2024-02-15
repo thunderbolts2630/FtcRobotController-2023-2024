@@ -64,18 +64,24 @@ public class Arm implements Subsystem {
         this.arm2.setInverted(true);
         m_pid1 = new PIDController(a1KP, a1KI, a1KD);
         m_pid2 = new PIDController(a2KP, a2KI, a2KD);
+        m_pid1.setIntegratorRange(-0.1,0.1);
+        m_pid2.setIntegratorRange(-0.1,0.1);
+        m_pid2.setTolerance(0.2);
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
         servo.getController().pwmEnable();
         servo.setDirection(Servo.Direction.REVERSE);
+        dashboard.addData("desiredPT1", 0);
+        dashboard.addData("desiredPT2", 0);
+
         register();
     }
 
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
-        double vMax1 = 1.029;
+        double vMax1 = 1.5;
         double vMin1 = 0.306;
-        if ((firstSpeed<0&& potentiometer1.getVoltage() > vMin1) || (potentiometer1.getVoltage() > vMax1) &&firstSpeed>0) {
+        if ((/*firstSpeed<0&& */potentiometer1.getVoltage() > vMin1) || (potentiometer1.getVoltage() > vMax1) /*&&firstSpeed>0*/) {
             arm1.set(0);
 
         } else {
@@ -90,7 +96,7 @@ public class Arm implements Subsystem {
             arm2.set(secondSpeed);
 
         }
-        servo.setPosition(0.6);
+        servo.setPosition(servoPos);
 //        arm2.set(secondSpeed);
 //        arm1.set(firstSpeed);
 
@@ -122,6 +128,8 @@ public class Arm implements Subsystem {
                 double speed2= m_pid2.calculate(potentiometer2.getVoltage(), pos.v2) + pos.ff2;
                 double speedServo=pos.servo;
                 setMotors(speed1,speed2,speedServo);
+                dashboard.addData("desiredPT1", Positions.DROP.v1);
+                dashboard.addData("desiredPT2", Positions.DROP.v2);
             }
         });
     }
