@@ -38,24 +38,25 @@ public class Constants {
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap2 = new InterpolatingTreeMap<>();
 
         static {
-            kFFMap1.put(new InterpolatingDouble(Positions.DROP.v1),new InterpolatingDouble(Positions.DROP.ff1));
-            kFFMap1.put(new InterpolatingDouble(Positions.MIDDLE.v1),new InterpolatingDouble(Positions.MIDDLE.ff1));
-            kFFMap1.put(new InterpolatingDouble(Positions.PICKUP.v1),new InterpolatingDouble(Positions.PICKUP.ff1));
+            kFFMap1.put(new InterpolatingDouble(1.3),new InterpolatingDouble(-0.3));
+            kFFMap1.put(new InterpolatingDouble(1.484),new InterpolatingDouble(-0.27));
             kFFMap1.put(new InterpolatingDouble(1.6),new InterpolatingDouble(-0.22));
             kFFMap1.put(new InterpolatingDouble(1.8),new InterpolatingDouble(-0.2));
+            kFFMap1.put(new InterpolatingDouble(1.9),new InterpolatingDouble(-0.125));
             kFFMap1.put(new InterpolatingDouble(1.99),new InterpolatingDouble(-0.15));
+            kFFMap1.put(new InterpolatingDouble(2.1455),new InterpolatingDouble(0.0));
             kFFMap1.put(new InterpolatingDouble(2.167),new InterpolatingDouble(0.01));
             kFFMap1.put(new InterpolatingDouble(2.78),new InterpolatingDouble(0.1));
             kFFMap1.put(new InterpolatingDouble(2.78),new InterpolatingDouble(0.15));
 
-            kFFMap2.put(new InterpolatingDouble(Positions.DROP.v2),new InterpolatingDouble(Positions.DROP.ff2));
-            kFFMap2.put(new InterpolatingDouble(Positions.MIDDLE.v2),new InterpolatingDouble(Positions.MIDDLE.ff2));
-            kFFMap2.put(new InterpolatingDouble(Positions.PICKUP.v2),new InterpolatingDouble(Positions.PICKUP.ff2));
+            kFFMap2.put(new InterpolatingDouble(1.01),new InterpolatingDouble(0.2));
+            kFFMap2.put(new InterpolatingDouble(0.98),new InterpolatingDouble(0.25));
+            kFFMap2.put(new InterpolatingDouble(0.956),new InterpolatingDouble(0.22));
             kFFMap2.put(new InterpolatingDouble(0.904),new InterpolatingDouble(0.19));
-            kFFMap2.put(new InterpolatingDouble(0.974),new InterpolatingDouble(0.0));
             kFFMap2.put(new InterpolatingDouble(0.83),new InterpolatingDouble(0.3));
             kFFMap2.put(new InterpolatingDouble(0.7),new InterpolatingDouble(0.4));
             kFFMap2.put(new InterpolatingDouble(0.58),new InterpolatingDouble(0.45));
+            kFFMap2.put(new InterpolatingDouble(0.601),new InterpolatingDouble(0.5));
             kFFMap2.put(new InterpolatingDouble(0.37),new InterpolatingDouble(0.4));
             kFFMap2.put(new InterpolatingDouble(0.27),new InterpolatingDouble(0.3));
             kFFMap2.put(new InterpolatingDouble(0.2),new InterpolatingDouble(-0.1));
