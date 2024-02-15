@@ -28,6 +28,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImpl;
 
 import org.firstinspires.ftc.teamcode.utils.PID.*;
+import org.firstinspires.ftc.teamcode.utils.cheesy.InterpolatingDouble;
 
 import java.util.function.DoubleSupplier;
 
@@ -65,9 +66,9 @@ public class Arm implements Subsystem {
         this.arm2.setInverted(true);
         m_pid1 = new PIDController(a1KP, a1KI, a1KD);
         m_pid2 = new PIDController(a2KP, a2KI, a2KD);
-        m_pid1.setIntegratorRange(-0.1,0.1);
-        m_pid2.setIntegratorRange(-0.1,0.1);
-        m_pid2.setTolerance(0.2);
+
+//        m_pid2.setTolerance(0.1);
+//        m_pid1.setTolerance(0.1);
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
@@ -80,17 +81,17 @@ public class Arm implements Subsystem {
     }
 
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
-        double vMax1 = 1.5;
-        double vMin1 = 0.306;
-        if ((/*firstSpeed<0&& */potentiometer1.getVoltage() > vMin1) || (potentiometer1.getVoltage() > vMax1) /*&&firstSpeed>0*/) {
+        double vMax1 = 2.3;
+        double vMin1 = 1.25;
+        if ((firstSpeed<0&& potentiometer1.getVoltage() > vMin1) || (potentiometer1.getVoltage() > vMax1) &&firstSpeed>0) {
             arm1.set(0);
 
         } else {
             arm1.set(firstSpeed);
 
         }
-        double vMin2 = 1.841;
-        double vMax2 = 2.357;
+        double vMin2 = 0.3;
+        double vMax2 = 1;
         if ((potentiometer2.getVoltage() > vMax2 && secondSpeed>0)||(secondSpeed<0 && potentiometer2.getVoltage() < vMin2)) {
             arm2.set(0);
         } else {
@@ -125,17 +126,28 @@ public class Arm implements Subsystem {
 
             } else {
                 servo.getController().pwmEnable();
-                double speed1= m_pid1.calculate(potentiometer1.getVoltage(), pos.v1) + pos.ff1;
-                double speed2= m_pid2.calculate(potentiometer2.getVoltage(), pos.v2) + pos.ff2;
+                double ff1= kFFMap1.getInterpolated(new InterpolatingDouble(potentiometer1.getVoltage())).value;
+                double ff2= kFFMap2.getInterpolated(new InterpolatingDouble(potentiometer2.getVoltage())).value;
+                double speed1= m_pid1.calculate(potentiometer1.getVoltage()-Positions.MIDDLE.v1, pos.v1-Positions.MIDDLE.v1)+ff1;
+                double speed2= m_pid2.calculate(potentiometer2.getVoltage(), pos.v2)+ ff2;
                 double speedServo=pos.servo;
                 setMotors(speed1,speed2,speedServo);
                 dashboard.addData("desiredPT1", Positions.DROP.v1);
                 dashboard.addData("desiredPT2", Positions.DROP.v2);
+                dashboard.addData("speed1", speed1);
+                dashboard.addData("ff1", ff1);
+                dashboard.addData("ff2", ff2);
+                dashboard.addData("speed2", speed2);
+
             }
         });
     }
     public double ApllyFeedForward(double currentPose, double targetPose, double feedforward, double tolerance){
-
+        if(Math.abs(currentPose-targetPose)<tolerance){
+            return 0;
+        }else{
+            return feedforward;
+        }
     }
     public Command stopManual(){
         return  new InstantCommand(()->{
@@ -143,11 +155,15 @@ public class Arm implements Subsystem {
             arm2.set(0);
             arm1.set(0);
             servo.getController().pwmDisable();
+            m_pid2.reset();
+            m_pid1.reset();
 
         });
     }
     @Override
     public void periodic() {
+        m_pid1.setIntegratorRange(-Constants.ArmConstants.calib.MaxIntegreal,Constants.ArmConstants.calib.MaxIntegreal);
+        m_pid2.setIntegratorRange(-Constants.ArmConstants.calib.MaxIntegreal,Constants.ArmConstants.calib.MaxIntegreal);
         current_pot1_voltage = potentiometer1.getVoltage();
         current_pot2_voltage = potentiometer2.getVoltage();
 //        if (!manual) {

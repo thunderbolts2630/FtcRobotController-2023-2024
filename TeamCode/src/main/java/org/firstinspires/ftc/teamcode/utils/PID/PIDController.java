@@ -355,6 +355,4 @@ public class PIDController {
         m_velocityError = 0;
         m_haveMeasurement = false;
     }
-
-
 }

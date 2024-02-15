@@ -11,6 +11,8 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
+import org.firstinspires.ftc.teamcode.utils.cheesy.InterpolatingDouble;
+import org.firstinspires.ftc.teamcode.utils.cheesy.InterpolatingTreeMap;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 
 public class Constants {
@@ -32,13 +34,38 @@ public class Constants {
 
         public static final double motorMaxVolt = 12;
 
-        public static final double maxVolt1=0,maxVolt2=0;//not real 2/13
-        public static final double minVolt1=0,minVolt2=0;//not real 2/13
+        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap1 = new InterpolatingTreeMap<>();
+        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap2 = new InterpolatingTreeMap<>();
+
+        static {
+            kFFMap1.put(new InterpolatingDouble(Positions.DROP.v1),new InterpolatingDouble(Positions.DROP.ff1));
+            kFFMap1.put(new InterpolatingDouble(Positions.MIDDLE.v1),new InterpolatingDouble(Positions.MIDDLE.ff1));
+            kFFMap1.put(new InterpolatingDouble(Positions.PICKUP.v1),new InterpolatingDouble(Positions.PICKUP.ff1));
+            kFFMap1.put(new InterpolatingDouble(1.6),new InterpolatingDouble(-0.22));
+            kFFMap1.put(new InterpolatingDouble(1.8),new InterpolatingDouble(-0.2));
+            kFFMap1.put(new InterpolatingDouble(1.99),new InterpolatingDouble(-0.15));
+            kFFMap1.put(new InterpolatingDouble(2.167),new InterpolatingDouble(0.01));
+            kFFMap1.put(new InterpolatingDouble(2.78),new InterpolatingDouble(0.1));
+            kFFMap1.put(new InterpolatingDouble(2.78),new InterpolatingDouble(0.15));
+
+            kFFMap2.put(new InterpolatingDouble(Positions.DROP.v2),new InterpolatingDouble(Positions.DROP.ff2));
+            kFFMap2.put(new InterpolatingDouble(Positions.MIDDLE.v2),new InterpolatingDouble(Positions.MIDDLE.ff2));
+            kFFMap2.put(new InterpolatingDouble(Positions.PICKUP.v2),new InterpolatingDouble(Positions.PICKUP.ff2));
+            kFFMap2.put(new InterpolatingDouble(0.904),new InterpolatingDouble(0.19));
+            kFFMap2.put(new InterpolatingDouble(0.974),new InterpolatingDouble(0.0));
+            kFFMap2.put(new InterpolatingDouble(0.83),new InterpolatingDouble(0.3));
+            kFFMap2.put(new InterpolatingDouble(0.7),new InterpolatingDouble(0.4));
+            kFFMap2.put(new InterpolatingDouble(0.58),new InterpolatingDouble(0.45));
+            kFFMap2.put(new InterpolatingDouble(0.37),new InterpolatingDouble(0.4));
+            kFFMap2.put(new InterpolatingDouble(0.27),new InterpolatingDouble(0.3));
+            kFFMap2.put(new InterpolatingDouble(0.2),new InterpolatingDouble(-0.1));
+
+        }
         public enum Positions{
-            DROP(0.843,1.75,0.65,-0.125,0.5),
+            DROP(1.9,0.601,0.33,-0.125,0.5),
             idle(0,0,0.6,0,0),
-            MIDDLE(0.976,2.267,0.33,0,0.2),
-            PICKUP(0.536,2.372,0.33,-0.27,0.22);// 2/14 checked
+            MIDDLE(2.1455,1.0135,0.33,0,0.2),
+            PICKUP(1.484,0.956,0.33,-0.27,0.22);// 2/14 checked
             public double v1,v2,servo;
             public double ff1,ff2;
             Positions(double v1, double v2, double servo, double ff1, double ff2) {
@@ -54,10 +81,10 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-            public static double a1KP = 0.0;
+            public static double a1KP = -0.5;
             public static double a2KP = -0.97;
-            public static double a1KI = 0.00;
-            public static double a2KI = 0.002;
+            public static double a1KI = -0.01;
+            public static double a2KI = 0.00;
             public static double a1KD = 0;
             public static double a2KD = 0;
             public static double ffConv=12;
@@ -68,6 +95,7 @@ public class Constants {
             public static double arm1=0.0;
             public static double arm2=0.0;
 
+            public static double MaxIntegreal=0.5;
         }
 
 
