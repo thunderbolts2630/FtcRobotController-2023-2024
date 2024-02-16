@@ -64,7 +64,7 @@ public class Constants {
         }
         public enum Positions{
             DROP(1.9,0.601,0.33,-0.125,0.5),
-            idle(0,0,0.6,0,0),
+            idle(0,0,0.33,0,0),
             MIDDLE(2.1455,1.0135,0.33,0,0.2),
             PICKUP(1.484,0.956,0.33,-0.27,0.22);// 2/14 checked
             public double v1,v2,servo;

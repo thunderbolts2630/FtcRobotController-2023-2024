@@ -54,7 +54,7 @@ public class Arm implements Subsystem {
     private double arm1PIDresult, arm1FF;
     private double arm2PIDresult, arm2FF;
     private boolean manual=true;
-    private Positions state = Positions.MIDDLE;
+    private Positions state = Positions.idle;
 
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
@@ -105,16 +105,16 @@ public class Arm implements Subsystem {
     }
 
 
-    public Command armMoveManual(DoubleSupplier speedFirst, DoubleSupplier speedSecond, DoubleSupplier posServo) {
+    public Command armMoveManual(DoubleSupplier speedFirst, DoubleSupplier speedSecond) {
         return new RunCommand(() -> {
             manual = true;
 //            arm2PID = m_pid2.calculate(current_second_joint_angle, desired_second_joint_angle);
 //            arm2FF = calculateFeedForwardSecondJoint(current_second_joint_angle);
 //            arm1PID = m_pid1.calculate(current_first_joint_angle, desired_second_joint_angle);
 //            arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
-            arm1.set(calib.arm1);
-            arm2.set(calib.arm2);
-            servo.setPosition(calib.armServo);
+            arm1.set(speedFirst.getAsDouble()+state.ff1);
+            arm2.set(speedFirst.getAsDouble()+state.ff2);
+            servo.setPosition(state.servo);
         });
     }
     public Command MoveArmToState(Positions pos){
@@ -141,6 +141,9 @@ public class Arm implements Subsystem {
 
             }
         });
+    }
+    public Command setState(Positions state){
+        return  new InstantCommand(()->this.state=state);
     }
     public double ApllyFeedForward(double currentPose, double targetPose, double feedforward, double tolerance){
         if(Math.abs(currentPose-targetPose)<tolerance){
