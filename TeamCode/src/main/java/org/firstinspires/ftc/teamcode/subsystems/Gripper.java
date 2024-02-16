@@ -41,7 +41,7 @@ public class Gripper implements Subsystem {
     }
     @Override
     public void periodic() {
-        serv0.setPosition(isOpen0?0.8:0.3);
+        serv0.setPosition(isOpen0?0.8:0.32);
         serv1.setPosition(isOpen1?0.05:0.33);
     }
     @Override

@@ -126,8 +126,8 @@ public class Arm implements Subsystem {
 
             } else {
                 servo.getController().pwmEnable();
-                double ff1= kFFMap1.getInterpolated(new InterpolatingDouble(potentiometer1.getVoltage())).value;
-                double ff2= kFFMap2.getInterpolated(new InterpolatingDouble(potentiometer2.getVoltage())).value;
+                double ff1= 0;//kFFMap1.getInterpolated(new InterpolatingDouble(potentiometer1.getVoltage())).value;
+                double ff2= 0;//kFFMap2.getInterpolated(new InterpolatingDouble(potentiometer2.getVoltage())).value;
                 double speed1= m_pid1.calculate(potentiometer1.getVoltage()-Positions.MIDDLE.v1, pos.v1-Positions.MIDDLE.v1)+ff1;
                 double speed2= m_pid2.calculate(potentiometer2.getVoltage(), pos.v2)+ ff2;
                 double speedServo=pos.servo;

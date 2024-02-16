@@ -40,7 +40,7 @@ public class Constants {
         public static final double arm2SecondAngle = -90;//min
         public static final double voltFirstAngle2 =1.35;//max
         public static final double motorMaxVolt = 12;
-
+/*
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap1 = new InterpolatingTreeMap<>();
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap2 = new InterpolatingTreeMap<>();
 
@@ -69,6 +69,7 @@ public class Constants {
             kFFMap2.put(new InterpolatingDouble(0.2),new InterpolatingDouble(-0.1));
 
         }
+  */
         public enum Positions{
             DROP(2.018,0.831,0.33,-0.125,0.5),
             idle(0,0,0.33,0,0),
