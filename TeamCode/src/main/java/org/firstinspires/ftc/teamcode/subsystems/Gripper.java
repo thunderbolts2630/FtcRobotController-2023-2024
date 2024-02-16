@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import com.acmerobotics.dashboard.FtcDashboard;
 import org.firstinspires.ftc.teamcode.Constants;
 
 public class Gripper implements Subsystem {
@@ -16,6 +17,11 @@ public class Gripper implements Subsystem {
     Telemetry telemetry;
     Servo serv0;
     Servo serv1;
+    private boolean isOpen1;
+    private boolean isOpen2;
+    private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
+
+
 
     public static class GripperConstants{
         @Config public static class servoPos{
@@ -29,6 +35,8 @@ public class Gripper implements Subsystem {
         serv1=map.servo.get("gripper1");
         register();
         serv1.getController().pwmEnable();
+        isOpen1 = false;
+        isOpen2 = false;
     }
     @Override
     public void periodic() {
@@ -38,22 +46,62 @@ public class Gripper implements Subsystem {
         Subsystem.super.setDefaultCommand(defaultCommand);
     }
 
-    public Command openGripper(){
-        return new InstantCommand(()->serv0.getController().pwmEnable()).andThen(new RunCommand(()->{
+    public Command openGripper() {
+        return openGripper1().alongWith(openGripper2());
 
-            serv0.setPosition(0.8);
-            serv1.setPosition(0.05);
-        },this));
-    };
-    public Command closeGripper(){
-        return new InstantCommand(()->serv0.getController().pwmEnable()).andThen( new RunCommand(()->{
-            serv0.setPosition(0.3);
-            serv1.setPosition(0.33);
-        },this));
-    };
-    public Command stop(){
-        return  new InstantCommand(()->serv0.getController().pwmDisable());
     }
-//    todo: maybe add toggle option
+
+    public Command closeGripper() {
+        return closeGripper1().alongWith(closeGripper2());
+    }
+
+    public Command toggleGripper(){
+        return toggleGripper1().alongWith(toggleGripper2());
+    }
+    public Command toggleGripper1(){
+        if (isOpen1) return closeGripper1();
+        else return openGripper1();
+    }
+
+    public Command toggleGripper2(){
+        if (isOpen2) return closeGripper2();
+        else return openGripper2();
+    }
+
+    public Command openGripper1() {
+        return new InstantCommand(() -> {
+            serv0.setPosition(0);
+            isOpen1 = true;
+            dashboard.addData("isOpen1", isOpen1);
+            register();
+        });
+    }
+
+    public Command closeGripper1() {
+        return new InstantCommand(() -> {
+            serv0.setPosition(1);
+            isOpen1 = false;
+            dashboard.addData("isOpen1", isOpen1);
+            register();
+        });
+    }
+
+    public Command closeGripper2() {
+        return new InstantCommand(() -> {
+            serv1.setPosition(0);
+            isOpen2 = false;
+            dashboard.addData("isOpen1", isOpen2);
+            register();
+        });
+    }
+
+    public Command openGripper2() {
+        return new InstantCommand(() -> {
+            serv1.setPosition(1);
+            isOpen2 = true;
+            dashboard.addData("isOpen1", isOpen2);
+            register();
+        });
+    }
 
 }

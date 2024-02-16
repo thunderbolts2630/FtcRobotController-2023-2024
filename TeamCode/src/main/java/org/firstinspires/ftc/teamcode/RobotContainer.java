@@ -16,6 +16,8 @@ import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_Y;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_X;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_Y;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.TRIGGER_LEFT;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.TRIGGER_RIGHT;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -25,6 +27,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
+//import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
@@ -75,13 +78,13 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
 
 //        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,()->m_controller2.right_trigger.getAsDouble()-m_controller2.left_trigger.getAsDouble()),true,RIGHT_TRIGGER,RIGHT_Y,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
-        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,m_controller2.right_y),true,RIGHT_TRIGGER,RIGHT_Y,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
+        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,m_controller2.right_x),true,RIGHT_TRIGGER,RIGHT_X,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
         m_controller2.assignCommand(m_arm.setState(DROP),true,DPAD_UP);
         m_controller2.assignCommand(m_arm.setState(MIDDLE),true,DPAD_LEFT);
         m_controller2.assignCommand(m_arm.setState(idle),true,DPAD_RIGHT);
         m_controller2.assignCommand(m_arm.setState(PICKUP),true,DPAD_DOWN);
-        m_controller2.assignCommand(m_gripper.closeGripper(),true,BUMPER_LEFT).whenInactive(m_gripper.stop());
-        m_controller2.assignCommand(m_gripper.openGripper(),true,BUMPER_RIGHT).whenInactive(m_gripper.stop());
+        m_controller2.assignCommand(m_gripper.toggleGripper1(),false,BUMPER_LEFT);
+        m_controller2.assignCommand(m_gripper.toggleGripper2(),false,BUMPER_RIGHT);
         m_controller2.assignCommand(m_plane.shootPlane(),true,BUTTON_DOWN);
         m_controller2.assignCommand(m_plane.resetPlane(),true,BUTTON_UP);
 

@@ -31,7 +31,6 @@ public class plane implements Subsystem {
         return  new InstantCommand(()->{
             servoPlane.setPosition(0.4);
             telemetry.addLine("aaa reset");
-
         });
     }
     public Command shootPlane(){
