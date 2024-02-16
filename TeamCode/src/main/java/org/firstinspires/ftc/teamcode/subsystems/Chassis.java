@@ -129,11 +129,12 @@ public class Chassis implements Subsystem {
 
     public BTCommand fieldRelativeDrive(DoubleSupplier frontVel, DoubleSupplier sidewayVel, DoubleSupplier retaliation) {
         return new RunCommand(() -> {
-            m_telemetry.addData("front", frontVel);
+            m_telemetry.addData("frontvel", frontVel.getAsDouble());
+            m_telemetry.addData("sidevel", sidewayVel.getAsDouble());
             m_telemetry.update();
+
             BTTranslation2d vector = new BTTranslation2d(sidewayVel.getAsDouble(), frontVel.getAsDouble());
             BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(-gyro.getHeading()));
-
             drive(rotated.getY(), rotated.getX(),  retaliation.getAsDouble());
         }, this);
     }
@@ -201,6 +202,8 @@ public class Chassis implements Subsystem {
     private void drive(double frontVel, double sidewayVel, double retaliation) {
 
         dashboardTelemetry.addData("front vel in drive",frontVel);
+        dashboardTelemetry.addData("side vel in drive",sidewayVel);
+        dashboardTelemetry.addData("rot vel in drive",retaliation);
         double r = Math.hypot(retaliation, sidewayVel);
         double robotAngle = Math.atan2(retaliation, sidewayVel) - Math.PI / 4;//shifts by 90 degrees so that 0 is to the right
         double rightX = frontVel;

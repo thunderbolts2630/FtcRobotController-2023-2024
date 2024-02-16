@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_L
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_RIGHT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_DOWN;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_RIGHT;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_UP;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_RIGHT;
@@ -13,6 +14,7 @@ import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_TRI
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_X;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_Y;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_X;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_Y;
 
 import com.arcrobotics.ftclib.command.Command;
@@ -67,12 +69,13 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller.assignCommand(m_chassis.fieldRelativeDrive(
                         () -> -m_controller.left_y.getAsDouble(),
                         m_controller.left_x,
-                        m_controller.left_trigger),
-                true, LEFT_X, LEFT_Y, LEFT_TRIGGER).whenInactive(m_chassis.stopMotor());
-        m_controller.assignCommand(m_climb.climb_manual(m_controller.right_y), true, RIGHT_Y).whenInactive(m_climb.climb_manual(()->0));
+                         ()->m_controller.left_trigger.getAsDouble()-m_controller.right_trigger.getAsDouble()),
+                true, LEFT_X, LEFT_Y, LEFT_TRIGGER,RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
+        m_controller.assignCommand(m_climb.climb_manual(m_controller.right_x), true, RIGHT_X).whenInactive(m_climb.climb_manual(()->0));
 
 
-        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,()->m_controller2.right_trigger.getAsDouble()-m_controller2.left_trigger.getAsDouble()),true,RIGHT_TRIGGER,RIGHT_Y,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
+//        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,()->m_controller2.right_trigger.getAsDouble()-m_controller2.left_trigger.getAsDouble()),true,RIGHT_TRIGGER,RIGHT_Y,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
+        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,m_controller2.right_y),true,RIGHT_TRIGGER,RIGHT_Y,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
         m_controller2.assignCommand(m_arm.setState(DROP),true,DPAD_UP);
         m_controller2.assignCommand(m_arm.setState(MIDDLE),true,DPAD_LEFT);
         m_controller2.assignCommand(m_arm.setState(idle),true,DPAD_RIGHT);
@@ -80,6 +83,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2.assignCommand(m_gripper.closeGripper(),true,BUMPER_LEFT).whenInactive(m_gripper.stop());
         m_controller2.assignCommand(m_gripper.openGripper(),true,BUMPER_RIGHT).whenInactive(m_gripper.stop());
         m_controller2.assignCommand(m_plane.shootPlane(),true,BUTTON_DOWN);
+        m_controller2.assignCommand(m_plane.resetPlane(),true,BUTTON_UP);
 
 
     }

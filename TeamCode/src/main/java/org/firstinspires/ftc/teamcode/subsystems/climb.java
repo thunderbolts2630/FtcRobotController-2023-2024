@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
@@ -57,6 +58,7 @@ public class climb {
     public BTCommand climb_manual(DoubleSupplier speed){
         return new RunCommand(()->{
             climb_motor.set(speed.getAsDouble());
+            FtcDashboard.getInstance().getTelemetry().addData("climb asafsd",speed.getAsDouble());
 
         });
     }
