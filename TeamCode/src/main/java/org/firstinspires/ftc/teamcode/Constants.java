@@ -174,7 +174,9 @@ public class Constants {
         public static final double ki = 0;// todo: this is not calibrated
         public static final double kd = 0;// todo: this is not calibrated
         public static final double kf = 0;// todo: this is not calibrated
-        public static final int max_ticks = 0;// todo: this is not calibrated
+        public static final int max_ticks = 3000;
+        public static final int min_ticks = 0;
+
 
 //    public enum ArmStates {
 //        base(Arm.armBasePosition,false,ArmPlacingStates.base), // this doesn't need any boolean has a command on his own

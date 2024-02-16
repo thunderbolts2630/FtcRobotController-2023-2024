@@ -74,7 +74,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                         m_controller.left_x,
                          ()->m_controller.left_trigger.getAsDouble()-m_controller.right_trigger.getAsDouble()),
                 true, LEFT_X, LEFT_Y, LEFT_TRIGGER,RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
-        m_controller.assignCommand(m_climb.climb_manual(m_controller.right_x), true, RIGHT_X).whenInactive(m_climb.climb_manual(()->0));
+        m_controller.assignCommand(m_climb.climb_manual(()->-m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(()->0));
 
 
 //        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,()->m_controller2.right_trigger.getAsDouble()-m_controller2.left_trigger.getAsDouble()),true,RIGHT_TRIGGER,RIGHT_Y,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
