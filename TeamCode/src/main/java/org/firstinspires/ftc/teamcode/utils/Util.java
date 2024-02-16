@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 public class Util {
+    public static double clamp(double v,double min,double max){
+        return Math.max(min,Math.min(max,v));
+    }
     public static double cosInDegrees(double angle) {
         return Math.cos(angle * Math.PI / 180);
     }

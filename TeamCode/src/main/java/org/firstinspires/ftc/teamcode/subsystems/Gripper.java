@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
@@ -49,28 +50,19 @@ public class Gripper implements Subsystem {
         Subsystem.super.setDefaultCommand(defaultCommand);
     }
 
-    public Command openGripper() {
-        return openGripper1().alongWith(openGripper0());
 
-    }
-
-    public Command closeGripper() {
-        return closeGripper1().alongWith(closeGripper0());
-    }
-
-    public Command toggleGripper(){
-        return toggleGripper1().alongWith(toggleGripper0());
-    }
     public Command toggleGripper1(){
         return  new InstantCommand(()->{
            isOpen1=!isOpen1; 
         });
     }
 
-    public Command toggleGripper0(){
+    public Command toggleGripper0() {
         return new InstantCommand(()->{
            isOpen0=!isOpen0; 
         });
+
+
     }
 
     public Command openGripper1() {

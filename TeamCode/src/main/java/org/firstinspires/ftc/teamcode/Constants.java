@@ -18,8 +18,7 @@ import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 public class Constants {
     public static final double l1 = 0.378;// com distant from axis first arm METERS
     public static final double l2 = 0.355;// com distant from axis second arm METERS
-    public static final double first_arm_weight = 0.200; // first arm weight KG
-    public static final double second_arm_weight = 0.200; // second arm weight with gripper KG
+
     public static final double g = 9.806;
     public static final double hex_stall_current = 9.801;
     public static final double resistance = 12 / hex_stall_current; //volt
@@ -31,14 +30,18 @@ public class Constants {
     public static final double neo_Kt = hex_stall_torque / hex_stall_current;
 
     public static class ArmConstants {
+        @Config
+        public static class ArmOffset {
+            public static double volt1Offset = -0.2;
+        }
         public static final double arm1FirstAngle = 90;//max
-        public static final double voltFirstAngle1 = 1.555;//max
-        public static final double arm2FirstAngle = 0;//max
-        public static final double voltSecondAngle2 = 0.94;//min
+        public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
+        public static  double voltSecondAngle1 =1.2 + ArmOffset.volt1Offset;//min
         public static final double arm1SecondAngle = 0;//min
-        public static final double voltSecondAngle1 =0.6 ;//min
         public static final double arm2SecondAngle = -90;//min
-        public static final double voltFirstAngle2 =1.35;//max
+        public static final double voltSecondAngle2 = 1.58;//min
+        public static final double arm2FirstAngle = 0;//max
+        public static final double voltFirstAngle2 =1.13;//max
         public static final double motorMaxVolt = 12;
 /*
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap1 = new InterpolatingTreeMap<>();
@@ -90,20 +93,26 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-            public static double a1KP = -0.0;
+            public static double a1KP = 0.0;
             public static double a2KP = 0;
-            public static double a1KI = -0.0;
+            public static double a1KI = 0.0;
             public static double a2KI = 0.00;
             public static double a1KD = 0;
             public static double a2KD = 0;
             public static double ffConv=12;
         }
         @Config
+        public static class ArmWights {
+            public static  double first_arm_weight = 0.600; //KG   includes the second one
+            public static  double second_arm_weight = 0.350; //KG
+            public static double angelOffset1=90;
+            public static double angelOffset2=0;
+        }
+        @Config
         public static class calib{
             public static double armServo=0.6;
             public static double arm1=0.0;
             public static double arm2=0.0;
-
             public static double MaxIntegreal=0.5;
         }
 
