@@ -84,7 +84,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2.assignCommand(m_arm.setState(idle),true,DPAD_RIGHT);
         m_controller2.assignCommand(m_arm.setState(PICKUP),true,DPAD_DOWN);
         m_controller2.assignCommand(m_gripper.toggleGripper1(),false,BUMPER_LEFT);
-        m_controller2.assignCommand(m_gripper.toggleGripper2(),false,BUMPER_RIGHT);
+        m_controller2.assignCommand(m_gripper.toggleGripper0(),false,BUMPER_RIGHT);
         m_controller2.assignCommand(m_plane.shootPlane(),true,BUTTON_DOWN);
         m_controller2.assignCommand(m_plane.resetPlane(),true,BUTTON_UP);
 

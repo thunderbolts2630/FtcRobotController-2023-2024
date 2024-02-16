@@ -18,7 +18,7 @@ public class Gripper implements Subsystem {
     Servo serv0;
     Servo serv1;
     private boolean isOpen1;
-    private boolean isOpen2;
+    private boolean isOpen0;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
 
 
@@ -36,10 +36,13 @@ public class Gripper implements Subsystem {
         register();
         serv1.getController().pwmEnable();
         isOpen1 = false;
-        isOpen2 = false;
+        isOpen0 = false;
+
     }
     @Override
     public void periodic() {
+        serv0.setPosition(isOpen0?0.8:0.3);
+        serv1.setPosition(isOpen1?0.05:0.33);
     }
     @Override
     public void setDefaultCommand(Command defaultCommand) {
@@ -47,60 +50,54 @@ public class Gripper implements Subsystem {
     }
 
     public Command openGripper() {
-        return openGripper1().alongWith(openGripper2());
+        return openGripper1().alongWith(openGripper0());
 
     }
 
     public Command closeGripper() {
-        return closeGripper1().alongWith(closeGripper2());
+        return closeGripper1().alongWith(closeGripper0());
     }
 
     public Command toggleGripper(){
-        return toggleGripper1().alongWith(toggleGripper2());
+        return toggleGripper1().alongWith(toggleGripper0());
     }
     public Command toggleGripper1(){
-        if (isOpen1) return closeGripper1();
-        else return openGripper1();
+        return  new InstantCommand(()->{
+           isOpen1=!isOpen1; 
+        });
     }
 
-    public Command toggleGripper2(){
-        if (isOpen2) return closeGripper2();
-        else return openGripper2();
+    public Command toggleGripper0(){
+        return new InstantCommand(()->{
+           isOpen0=!isOpen0; 
+        });
     }
 
     public Command openGripper1() {
         return new InstantCommand(() -> {
-            serv0.setPosition(0);
             isOpen1 = true;
             dashboard.addData("isOpen1", isOpen1);
-            register();
         });
     }
 
     public Command closeGripper1() {
         return new InstantCommand(() -> {
-            serv0.setPosition(1);
             isOpen1 = false;
             dashboard.addData("isOpen1", isOpen1);
-            register();
         });
     }
 
-    public Command closeGripper2() {
+    public Command closeGripper0() {
         return new InstantCommand(() -> {
-            serv1.setPosition(0);
-            isOpen2 = false;
-            dashboard.addData("isOpen1", isOpen2);
-            register();
+            isOpen0 = false;
+            dashboard.addData("isOpen1", isOpen0);
         });
     }
 
-    public Command openGripper2() {
+    public Command openGripper0() {
         return new InstantCommand(() -> {
-            serv1.setPosition(1);
-            isOpen2 = true;
-            dashboard.addData("isOpen1", isOpen2);
-            register();
+            isOpen0 = true;
+            dashboard.addData("isOpen1", isOpen0);
         });
     }
 
