@@ -16,10 +16,15 @@ public class plane implements Subsystem {
     public plane(HardwareMap map, Telemetry telemetry){
         this.map=map;
         this.telemetry=telemetry;
-        servoPlane =map.servo.get("servoPlane");
+        servoPlane =map.servo.get("plane");
+        register();
+    }
+    public static class Plane{
+        public static  double servo;
     }
     @Override
     public void periodic() {
+        servoPlane.setPosition(Plane.servo);
     }
 
     public Command shootPlane(){

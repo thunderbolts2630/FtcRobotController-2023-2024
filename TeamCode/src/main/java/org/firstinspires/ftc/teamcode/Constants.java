@@ -31,7 +31,14 @@ public class Constants {
     public static final double neo_Kt = hex_stall_torque / hex_stall_current;
 
     public static class ArmConstants {
-
+        public static final double arm1FirstAngle = 90;//max
+        public static final double voltFirstAngle1 = 1.555;//max
+        public static final double arm2FirstAngle = 0;//max
+        public static final double voltSecondAngle2 = 0.94;//min
+        public static final double arm1SecondAngle = 0;//min
+        public static final double voltSecondAngle1 =0.6 ;//min
+        public static final double arm2SecondAngle = -90;//min
+        public static final double voltFirstAngle2 =1.35;//max
         public static final double motorMaxVolt = 12;
 
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap1 = new InterpolatingTreeMap<>();
@@ -63,10 +70,10 @@ public class Constants {
 
         }
         public enum Positions{
-            DROP(1.9,0.601,0.33,-0.125,0.5),
+            DROP(2.018,0.831,0.33,-0.125,0.5),
             idle(0,0,0.33,0,0),
-            MIDDLE(2.1455,1.0135,0.33,0,0.2),
-            PICKUP(1.484,0.956,0.33,-0.27,0.22);// 2/14 checked
+            MIDDLE(2.111,1.256,0.33,0,0.2),
+            PICKUP(1.501,1.169,0.33,-0.27,0.22);// 2/14 checked
             public double v1,v2,servo;
             public double ff1,ff2;
             Positions(double v1, double v2, double servo, double ff1, double ff2) {
@@ -82,9 +89,9 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-            public static double a1KP = -0.5;
-            public static double a2KP = -0.97;
-            public static double a1KI = -0.01;
+            public static double a1KP = -0.0;
+            public static double a2KP = 0;
+            public static double a1KI = -0.0;
             public static double a2KI = 0.00;
             public static double a1KD = 0;
             public static double a2KD = 0;
