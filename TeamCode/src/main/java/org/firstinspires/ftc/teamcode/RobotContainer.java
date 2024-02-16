@@ -66,9 +66,10 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
 
         m_controller2.assignCommand(m_arm.armMoveManual(()->Math.pow(m_controller2.right_y.getAsDouble(),3)/2,()->Math.pow(m_controller2.left_y.getAsDouble(),3)/2),true,RIGHT_Y,LEFT_Y,RIGHT_TRIGGER,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
-        m_controller2.assignCommand(m_arm.setState(DROP),true,DPAD_UP).whenInactive(m_arm.setState(idle));
-        m_controller2.assignCommand(m_arm.setState(MIDDLE),true,DPAD_LEFT).whenInactive(m_arm.setState(idle));
-        m_controller2.assignCommand(m_arm.setState(PICKUP),true,DPAD_DOWN).whenInactive(m_arm.setState(idle));
+        m_controller2.assignCommand(m_arm.setState(DROP),true,DPAD_UP);
+        m_controller2.assignCommand(m_arm.setState(MIDDLE),true,DPAD_LEFT);
+        m_controller2.assignCommand(m_arm.setState(idle),true,DPAD_LEFT);
+        m_controller2.assignCommand(m_arm.setState(PICKUP),true,DPAD_DOWN);
         m_controller2.assignCommand(m_gripper.closeGripper(),true,BUMPER_LEFT).whenInactive(m_gripper.stop());
         m_controller2.assignCommand(m_gripper.openGripper(),true,BUMPER_RIGHT).whenInactive(m_gripper.stop());
 //        m_controller2.assignCommand(m_plane.shootPlane(),false,DPAD_RIGHT);
