@@ -363,10 +363,12 @@ public class Arm implements Subsystem {
             m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
             if (a1DesAngle > 80 || a1DesAngle < 140) {
                 desired_first_joint_angle = a1DesAngle;
+                m_pid1.reset(current_first_joint_angle);
                 m_pid1.setGoal(a1DesAngle);
             }
             if (a2DesAngle > -100 || a2DesAngle < 30) {
                 desired_second_joint_angle = a2DesAngle;
+                m_pid2.reset(current_second_joint_angle);
                 m_pid2.setGoal(a2DesAngle);
             }
         });

@@ -124,7 +124,7 @@ public class Constants {
             public static double armServo=0.32;
             public static double arm1=0.0;
             public static double arm2=0.0;
-            public static double MaxIntegreal=0.5;
+            public static double MaxIntegreal=0.1;
         }
 
 
