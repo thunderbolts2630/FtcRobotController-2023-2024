@@ -84,7 +84,7 @@ public class Arm implements Subsystem {
     }
 
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
-        double vMax1 = 2.2+ArmOffset.volt1Offset;
+        double vMax1 = 2.3+ArmOffset.volt1Offset;
         double vMin1 = 0.6+ ArmOffset.volt1Offset;
         if ((firstSpeed<0 && potentiometer1.getVoltage() < vMin1)) {
             arm1.set(firstSpeed-driverAdjust1*0.2);
@@ -95,7 +95,7 @@ public class Arm implements Subsystem {
             dashboard.addData("stpped",firstSpeed);
 
         }
-//        double vMin2 = 0.96;
+        double vMin2 = 0.96;
 //        double vMax2 = 1.7;
 //        if ((potentiometer2.getVoltage() > vMax2 && secondSpeed>0)||(secondSpeed>0 && potentiometer2.getVoltage() < vMin2)) {
 //            arm2.set(secondSpeed-driverAdjust2*0.2);

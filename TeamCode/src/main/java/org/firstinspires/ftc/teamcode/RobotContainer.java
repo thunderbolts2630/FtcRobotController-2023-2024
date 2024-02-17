@@ -78,7 +78,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
 
 //        m_controller2.assignCommand(m_arm.armMoveManual(m_controller2.left_y,()->m_controller2.right_trigger.getAsDouble()-m_controller2.left_trigger.getAsDouble()),true,RIGHT_TRIGGER,RIGHT_Y,LEFT_Y,LEFT_TRIGGER).whenInactive(m_arm.stopManual());
-        m_controller2.assignCommand(m_arm.armMoveDriver(()->-m_controller2.left_y.getAsDouble()*0.75,()->-m_controller2.right_x.getAsDouble()*0.75),true,RIGHT_X,LEFT_Y).whenInactive(m_arm.stopAdjust());
+        m_controller2.assignCommand(m_arm.armMoveDriver(()->-m_controller2.left_y.getAsDouble()*0.7,()->-m_controller2.right_x.getAsDouble()*0.7),true,RIGHT_X,LEFT_Y).whenInactive(m_arm.stopAdjust());
         m_controller2.assignCommand(m_arm.setState(DROP),true,DPAD_UP);
         m_controller2.assignCommand(m_arm.setState(MIDDLE),true,DPAD_LEFT);
         m_controller2.assignCommand(m_arm.setState(idle),true,DPAD_RIGHT);
