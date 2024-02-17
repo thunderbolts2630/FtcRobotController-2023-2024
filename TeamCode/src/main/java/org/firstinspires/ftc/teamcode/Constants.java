@@ -8,6 +8,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 
+import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
@@ -32,7 +33,7 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = 0.624;
+            public static double volt1Offset = 0.1;
         }
         public static final double arm1FirstAngle = 90;//max
         public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
@@ -74,18 +75,15 @@ public class Constants {
         }
   */
         public enum Positions{
-            DROP(2.018,0.831,0.33,-0.125,0.5),
-            idle(0,0,0.33,0,0),
-            MIDDLE(2.111,1.256,0.33,0,0.2),
-            PICKUP(1.501,1.169,0.33,-0.27,0.22);// 2/14 checked
-            public double v1,v2,servo;
-            public double ff1,ff2;
-            Positions(double v1, double v2, double servo, double ff1, double ff2) {
-                this.v1 = v1;
-                this.v2 = v2;
+            DROP(134,-76.7,0.36),
+            idle(0,0,0.33),
+            MIDDLE(2.111,1.256,0.33),
+            PICKUP(134,-76.7,0.36);// 2/14 checked
+            public double angle1,angle2,servo;
+            Positions(double v1, double v2, double servo) {
+                this.angle1 = v1;
+                this.angle2 = v2;
                 this.servo = servo;
-                this.ff1 = ff1;
-                this.ff2 = ff2;
             }
 
 
@@ -93,38 +91,47 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-            public static double a1KP = 0.002;
-            public static double a2KP = 0.0;
+            public static double a1KP = 0.042;
+            public static double a2KP = 0.035;
             public static double a1KI = 0.0;
             public static double a2KI = 0.0;
             public static double a1KD = 0.0;
             public static double a2KD = 0.0;
-            public static double a1DesAngle=0;
-            public static double a2DesAngle=0;
+            public static double aIzone1=7;
+            public static double aIzone2=7;
+
+            public static double a1DesAngle=90;
+            public static double a2DesAngle=-90;
+            public static double MaxIntegreal1=10;
+            public static double MinIntegreal1=10;
+            public static double MaxIntegreal2=10;
+            public static double MinIntegreal2=10;
+
         }
         @Config
         public static class ArmProfile{
-            public static double maxVelocity1=10;
-            public static double maxAcceleration1=10;
+            public static double maxVelocity1=200;
+            public static double maxAcceleration1=200;
 
-            public static double maxVelocity2=0.1;
-            public static double maxAcceleration2=0.2;
+            public static double maxVelocity2=200;
+            public static double maxAcceleration2=200;
         }
         public static double ffConv=12;
 
 
+        @Config
         public static class ArmWights {
             public static  double first_arm_weight = 0.600; //KG   includes the second one
-            public static  double second_arm_weight = 0.300; //KG
+            public static  double second_arm_weight = 0.290; //KG
             public static double angelOffset1=90;
             public static double angelOffset2=0;
         }
 
+        @Config
         public static class calib{
             public static double armServo=0.32;
             public static double arm1=0.0;
             public static double arm2=0.0;
-            public static double MaxIntegreal=0.1;
         }
 
 

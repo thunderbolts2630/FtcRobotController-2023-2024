@@ -44,7 +44,7 @@ public class ProfiledPIDController  {
    */
   public ProfiledPIDController(
       double Kp, double Ki, double Kd, TrapezoidProfile.Constraints constraints, double period) {
-    m_controller = new PIDController(Kp, Ki, Kd, period);
+    m_controller = new PIDController(Kp, Ki, Kd, 0,period);
     m_constraints = constraints;
     instances++;
 
@@ -373,8 +373,15 @@ public class ProfiledPIDController  {
    * @param measuredPosition The current measured position of the system. The velocity is assumed to
    *     be zero.
    */
+
   public void reset(double measuredPosition) {
     reset(measuredPosition, 0.0);
   }
+  public void setIzone(double Izone){
+    m_controller.setIzone(Izone);
+  }
 
+  public double getTotalError() {
+    return m_controller.getTotalError();
+  }
 }

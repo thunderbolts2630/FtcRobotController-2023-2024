@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package org.firstinspires.ftc.teamcode.utils.PID;
+import com.acmerobotics.dashboard.FtcDashboard;
+
 import org.firstinspires.ftc.teamcode.utils.Math.*;
 /** Implements a PID control loop. */
 public class PIDController {
@@ -16,6 +18,7 @@ public class PIDController {
 
     // Factor for "derivative" control
     private double m_kd;
+    private double m_izone;
 
     // The period (in seconds) of the loop that calls the controller
     private final double m_period;
@@ -51,6 +54,7 @@ public class PIDController {
     private boolean m_haveMeasurement;
     private boolean m_haveSetpoint;
 
+
     /**
      * Allocates a PIDController with the given constants for kp, ki, and kd and a default period of
      * 0.02 seconds.
@@ -60,7 +64,7 @@ public class PIDController {
      * @param kd The derivative coefficient.
      */
     public PIDController(double kp, double ki, double kd) {
-        this(kp, ki, kd, 0.02);
+        this(kp, ki, kd,0);
     }
 
     /**
@@ -71,17 +75,21 @@ public class PIDController {
      * @param kd The derivative coefficient.
      * @param period The period between controller updates in seconds. Must be non-zero and positive.
      */
-    public PIDController(double kp, double ki, double kd, double period) {
+    public PIDController(double kp, double ki, double kd, double izone,double period) {
         m_kp = kp;
         m_ki = ki;
         m_kd = kd;
-
+        m_izone=izone;
         if (period <= 0) {
             throw new IllegalArgumentException("Controller period must be a non-zero positive number!");
         }
         m_period = period;
 
         instances++;
+    }
+
+    public PIDController(double kp, double ki, double kd, double izone) {
+        this(kp,ki,kd,izone,0.02);
     }
 
     /**
@@ -153,6 +161,9 @@ public class PIDController {
         return m_kd;
     }
 
+    public void setIzone(double izone){
+        m_izone=izone;
+    }
     /**
      * Returns the period of this controller.
      *
@@ -302,6 +313,7 @@ public class PIDController {
     public double getVelocityError() {
         return m_velocityError;
     }
+    public double getTotalError(){return m_totalError;}
 
     /**
      * Returns the next output of the PID controller.
@@ -336,13 +348,14 @@ public class PIDController {
 
         m_velocityError = (m_positionError - m_prevError) / m_period;
 
-        if (m_ki != 0) {
-            m_totalError =
-                    MathUtil.clamp(
-                            m_totalError + m_positionError * m_period,
-                            m_minimumIntegral / m_ki,
-                            m_maximumIntegral / m_ki);
+        if(Math.abs(measurement-m_setpoint)<m_izone){
+                m_totalError =
+                        MathUtil.clamp(
+                                m_totalError + m_positionError * m_period,
+                                m_minimumIntegral,
+                                m_maximumIntegral);
         }
+
 
         return m_kp * m_positionError + m_ki * m_totalError + m_kd * m_velocityError;
     }
