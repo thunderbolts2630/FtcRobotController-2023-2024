@@ -60,8 +60,9 @@ public class Arm implements Subsystem {
     private double driverAdjust1 = 0, driverAdjust2 = 0;
     private SlewRateLimiter rateLimiter;
 
-    private boolean sensor1LimitReached=false;
-    private boolean sensor2LimitReached=false;
+    private boolean sensor1LimitReached = false;
+    private boolean sensor2LimitReached = false;
+
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
         this.m_telemetry = telemetry;
@@ -90,11 +91,10 @@ public class Arm implements Subsystem {
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
         double vMax1 = 1.7 + ArmOffset.volt1Offset;
         double vMin1 = 0.6 + ArmOffset.volt1Offset;
-        if (potentiometer1.getVoltage()<0.4 || potentiometer1.getVoltage()>2.9 || sensor1LimitReached){
+        if (potentiometer1.getVoltage() < 0.4 || potentiometer1.getVoltage() > 2.9 || sensor1LimitReached) {
             arm1.set(0);
-            sensor1LimitReached=true;
-        }
-        else if ((firstSpeed < 0 && potentiometer1.getVoltage() < vMin1) ||potentiometer1.getVoltage()>vMax1) {
+            sensor1LimitReached = true;
+        } else if ((firstSpeed < 0 && potentiometer1.getVoltage() < vMin1) || potentiometer1.getVoltage() > vMax1) {
             arm1.set(firstSpeed - (driverAdjust1 * 0.9));
             dashboard.addData("stpped", 0);
         } else {
@@ -105,11 +105,10 @@ public class Arm implements Subsystem {
         }
         double vMin2 = 0.96;
         double vMax2 = 1.8;
-        if(potentiometer2.getVoltage()<0.5 || potentiometer2.getVoltage()>2.9 || sensor2LimitReached){
+        if (potentiometer2.getVoltage() < 0.5 || potentiometer2.getVoltage() > 2.9 || sensor2LimitReached) {
             arm2.set(0);
-            sensor2LimitReached=true;
-        }
-        else if ((potentiometer2.getVoltage() > vMax2 && secondSpeed > 0)) {
+            sensor2LimitReached = true;
+        } else if ((potentiometer2.getVoltage() > vMax2 && secondSpeed > 0)) {
             arm2.set(driverAdjust2);
         } else {
 
@@ -193,13 +192,13 @@ public class Arm implements Subsystem {
         dashboard.addData("desired angle 2:", desired_second_joint_angle);
         dashboard.addData("pot1:", current_pot1_voltage);
         dashboard.addData("pot2:", current_pot2_voltage);
-        dashboard.addData("first angle ", current_first_joint_angle+angelOffset1);
-        dashboard.addData("second angle", current_second_joint_angle+angelOffset2);
+        dashboard.addData("first angle ", current_first_joint_angle + angelOffset1);
+        dashboard.addData("second angle", current_second_joint_angle + angelOffset2);
         dashboard.addData("arm1PID", arm1PIDresult);
         dashboard.addData("arm2PID", arm2PIDresult);
         dashboard.addData("power to arm 1", desired_arm1_motor_value);
         dashboard.addData("power to arm 2", desired_arm2_motor_value);
-        dashboard.addData("arm1 ticks",arm1.getCurrentPosition());
+        dashboard.addData("arm1 ticks", arm1.getCurrentPosition());
 
         dashboard.update();
         m_pid1.setPID(a1KP, a1KI, a1KD);
@@ -362,14 +361,16 @@ public class Arm implements Subsystem {
         return new InstantCommand(() -> {
             m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration2));
             m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
-            desired_first_joint_angle = a1DesAngle;
-            desired_second_joint_angle = a2DesAngle;
-            m_pid1.setGoal(a1DesAngle);
-            m_pid2.setGoal(a2DesAngle);
+            if (a1DesAngle > 80 || a1DesAngle < 140) {
+                desired_first_joint_angle = a1DesAngle;
+                m_pid1.setGoal(a1DesAngle);
+            }
+            if (a2DesAngle > -100 || a2DesAngle < 30) {
+                desired_second_joint_angle = a2DesAngle;
+                m_pid2.setGoal(a2DesAngle);
+            }
         });
     }
-
-
 }
 
 

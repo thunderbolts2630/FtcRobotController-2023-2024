@@ -93,12 +93,12 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-            public static double a1KP = 0.0;
-            public static double a2KP = 0;
+            public static double a1KP = 0.002;
+            public static double a2KP = 0.0;
             public static double a1KI = 0.0;
-            public static double a2KI = 0.00;
-            public static double a1KD = 0;
-            public static double a2KD = 0;
+            public static double a2KI = 0.0;
+            public static double a1KD = 0.0;
+            public static double a2KD = 0.0;
             public static double a1DesAngle=0;
             public static double a2DesAngle=0;
         }
