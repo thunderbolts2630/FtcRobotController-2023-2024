@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.BTController;
+import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
 
 
@@ -42,8 +43,8 @@ public class Arm implements Subsystem {
     private Servo servo;
     private BTController m_controller;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
-    private PIDController m_pid1;
-    private PIDController m_pid2;
+    private ProfiledPIDController m_pid1;
+    private ProfiledPIDController m_pid2;
     private double desired_first_joint_angle = 0;
     private double desired_second_joint_angle = 0;
     private Translation2d current_desired_point;
@@ -53,12 +54,14 @@ public class Arm implements Subsystem {
     private double current_pot2_voltage;
     private double arm1PIDresult, arm1FF;
     private double arm2PIDresult, arm2FF;
-    private boolean manual=true;
-    double desired_arm1_motor_value,desired_arm2_motor_value;
+    private boolean manual = true;
+    double desired_arm1_motor_value, desired_arm2_motor_value;
     private Positions state = Positions.idle;
-    private double driverAdjust1=0,driverAdjust2=0;
+    private double driverAdjust1 = 0, driverAdjust2 = 0;
+    private SlewRateLimiter rateLimiter;
 
-
+    private boolean sensor1LimitReached=false;
+    private boolean sensor2LimitReached=false;
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
         this.m_telemetry = telemetry;
@@ -66,9 +69,9 @@ public class Arm implements Subsystem {
         this.arm2 = arm2;
         this.arm1.setInverted(false);
         this.arm2.setInverted(true);
-        m_pid1 = new PIDController(a1KP, a1KI, a1KD);
-        m_pid2 = new PIDController(a2KP, a2KI, a2KD);
-
+        m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
+        m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
+        rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
 //        m_pid2.setTolerance(0.1);
 //        m_pid1.setTolerance(0.1);
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
@@ -80,32 +83,41 @@ public class Arm implements Subsystem {
         dashboard.addData("desiredPT2", 0);
         arm1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         arm2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
         register();
     }
 
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
-        double vMax1 = 2.3+ArmOffset.volt1Offset;
-        double vMin1 = 0.6+ ArmOffset.volt1Offset;
-        if ((firstSpeed<0 && potentiometer1.getVoltage() < vMin1)) {
-            arm1.set(firstSpeed-driverAdjust1*0.2);
-            dashboard.addData("stpped",0);
+        double vMax1 = 1.7 + ArmOffset.volt1Offset;
+        double vMin1 = 0.6 + ArmOffset.volt1Offset;
+        if (potentiometer1.getVoltage()<0.1 || potentiometer1.getVoltage()>3.2 || sensor1LimitReached){
+            arm1.set(0);
+            sensor1LimitReached=true;
+        }
+        else if ((firstSpeed < 0 && potentiometer1.getVoltage() < vMin1) ||potentiometer1.getVoltage()>vMax1) {
+            arm1.set(firstSpeed - (driverAdjust1 * 0.9));
+            dashboard.addData("stpped", 0);
         } else {
             arm1.set(firstSpeed);
 
-            dashboard.addData("stpped",firstSpeed);
+            dashboard.addData("stpped", firstSpeed);
 
         }
         double vMin2 = 0.96;
-//        double vMax2 = 1.7;
-//        if ((potentiometer2.getVoltage() > vMax2 && secondSpeed>0)||(secondSpeed>0 && potentiometer2.getVoltage() < vMin2)) {
-//            arm2.set(secondSpeed-driverAdjust2*0.2);
-//        } else {
-//
-//            arm2.set(secondSpeed);
-//
-//        }
+        double vMax2 = 1.8;
+        if(potentiometer1.getVoltage()<0.1 || potentiometer1.getVoltage()>3.2 || sensor2LimitReached){
+            arm2.set(0);
+            sensor2LimitReached=true;
+        }
+        else if ((potentiometer2.getVoltage() > vMax2 && secondSpeed > 0)) {
+            arm2.set(driverAdjust2);
+        } else {
+
+            arm2.set(secondSpeed);
+
+        }
         servo.setPosition(servoPos);
-        arm2.set(secondSpeed);
+//        arm2.set(secondSpeed);
 //        arm1.set(firstSpeed);
 
     }
@@ -113,12 +125,13 @@ public class Arm implements Subsystem {
 
     public Command armMoveDriver(DoubleSupplier speedFirst, DoubleSupplier speedSecond) {
         return new RunCommand(() -> {
-            driverAdjust1=Math.pow(speedFirst.getAsDouble(),3);
-            driverAdjust2=Math.pow(speedSecond.getAsDouble(),3);
+            driverAdjust1 = rateLimiter.calculate(Math.pow(speedFirst.getAsDouble(), 3));
+            driverAdjust2 = Math.pow(speedSecond.getAsDouble(), 3);
         });
     }
-    public Command MoveArmToState(Positions pos){
-        return new RunCommand(()-> {
+
+    public Command MoveArmToState(Positions pos) {
+        return new RunCommand(() -> {
             if (pos == Positions.idle) {
                 arm1.set(0);
                 arm2.set(0);
@@ -126,12 +139,12 @@ public class Arm implements Subsystem {
 
             } else {
                 servo.getController().pwmEnable();
-                double ff1= 0;//kFFMap1.getInterpolated(new InterpolatingDouble(potentiometer1.getVoltage())).value;
-                double ff2= 0;//kFFMap2.getInterpolated(new InterpolatingDouble(potentiometer2.getVoltage())).value;
-                double speed1= m_pid1.calculate(potentiometer1.getVoltage()-Positions.MIDDLE.v1, pos.v1-Positions.MIDDLE.v1)+ff1;
-                double speed2= m_pid2.calculate(potentiometer2.getVoltage(), pos.v2)+ ff2;
-                double speedServo=pos.servo;
-                setMotors(speed1,speed2,speedServo);
+                double ff1 = 0;//kFFMap1.getInterpolated(new InterpolatingDouble(potentiometer1.getVoltage())).value;
+                double ff2 = 0;//kFFMap2.getInterpolated(new InterpolatingDouble(potentiometer2.getVoltage())).value;
+                double speed1 = m_pid1.calculate(potentiometer1.getVoltage() - Positions.MIDDLE.v1, pos.v1 - Positions.MIDDLE.v1) + ff1;
+                double speed2 = m_pid2.calculate(potentiometer2.getVoltage(), pos.v2) + ff2;
+                double speedServo = pos.servo;
+                setMotors(speed1, speed2, speedServo);
                 dashboard.addData("desiredPT1", Positions.DROP.v1);
                 dashboard.addData("desiredPT2", Positions.DROP.v2);
                 dashboard.addData("speed1", speed1);
@@ -142,41 +155,45 @@ public class Arm implements Subsystem {
             }
         });
     }
-    public Command setState(Positions state){
-        return  new InstantCommand(()->this.state=state);
+
+    public Command setState(Positions state) {
+        return new InstantCommand(() -> this.state = state);
     }
-    public double ApplyFeedForward(double currentPose, double targetPose, double feedforward, double tolerance){
-        if(Math.abs(currentPose-targetPose)<tolerance){
+
+    public double ApplyFeedForward(double currentPose, double targetPose, double feedforward, double tolerance) {
+        if (Math.abs(currentPose - targetPose) < tolerance) {
             return 0;
-        }else{
+        } else {
             return feedforward;
         }
     }
-    public Command stopAdjust(){
-        return  new InstantCommand(()->{
-            driverAdjust2=0;
-            driverAdjust1=0;
+
+    public Command stopAdjust() {
+        return new InstantCommand(() -> {
+            driverAdjust2 = 0;
+            driverAdjust1 = 0;
         });
     }
+
     @Override
     public void periodic() {
-        m_pid1.setIntegratorRange(-Constants.ArmConstants.calib.MaxIntegreal,Constants.ArmConstants.calib.MaxIntegreal);
-        m_pid2.setIntegratorRange(-Constants.ArmConstants.calib.MaxIntegreal,Constants.ArmConstants.calib.MaxIntegreal);
+        m_pid1.setIntegratorRange(-Constants.ArmConstants.calib.MaxIntegreal, Constants.ArmConstants.calib.MaxIntegreal);
+        m_pid2.setIntegratorRange(-Constants.ArmConstants.calib.MaxIntegreal, Constants.ArmConstants.calib.MaxIntegreal);
         current_first_joint_angle = voltageToAngle1(potentiometer1.getVoltage());
         current_second_joint_angle = voltageToAngle2(potentiometer2.getVoltage());
         current_pot1_voltage = potentiometer1.getVoltage();
         current_pot2_voltage = potentiometer2.getVoltage();
-        desired_arm1_motor_value=setMotorFromAngle1()+driverAdjust1;
-        desired_arm2_motor_value=setMotorFromAngle2()+driverAdjust2;
-        if(!manual) {
+        desired_arm1_motor_value = setMotorFromAngle1() + driverAdjust1;
+        desired_arm2_motor_value = setMotorFromAngle2() + driverAdjust2;
+        if (!manual) {
             setMotors(desired_arm1_motor_value, desired_arm2_motor_value, 0.33);
         }
         dashboard.addData("desired angle 1:", desired_first_joint_angle);
         dashboard.addData("desired angle 2:", desired_second_joint_angle);
         dashboard.addData("pot1:", current_pot1_voltage);
         dashboard.addData("pot2:", current_pot2_voltage);
-        dashboard.addData("first angle ", current_first_joint_angle);
-        dashboard.addData("second angle", current_second_joint_angle);
+        dashboard.addData("first angle ", current_first_joint_angle+angelOffset1);
+        dashboard.addData("second angle", current_second_joint_angle+angelOffset2);
         dashboard.addData("arm1PID", arm1PIDresult);
         dashboard.addData("arm2PID", arm2PIDresult);
         dashboard.addData("power to arm 1", desired_arm1_motor_value);
@@ -185,8 +202,8 @@ public class Arm implements Subsystem {
 
         m_pid1.setPID(a1KP, a1KI, a1KD);
         m_pid2.setPID(a2KP, a2KI, a2KD);
-        double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
-        double voltSecondAngle1 =1.2 + ArmOffset.volt1Offset;//min
+        voltFirstAngle1 = 2.371 + ArmOffset.volt1Offset;//max
+        voltSecondAngle1 = 1.2 + ArmOffset.volt1Offset;//min
 
     }
 
@@ -196,18 +213,18 @@ public class Arm implements Subsystem {
     }
 
     public double voltageToAngle1(double voltage) {
-        double angle1 =(( voltage - voltSecondAngle1) * (arm1FirstAngle - arm1SecondAngle) / (voltFirstAngle1 - voltSecondAngle1) )+ arm1SecondAngle;
+        double angle1 = ((voltage - voltSecondAngle1) * (arm1FirstAngle - arm1SecondAngle) / (voltFirstAngle1 - voltSecondAngle1)) + arm1SecondAngle;
         return angle1;
     }
 
     public double angleToVoltageA2(double angle) {
-        double ptVoltage =( (angle - arm2SecondAngle) * (voltFirstAngle1 - voltSecondAngle1) / (arm1FirstAngle - arm1SecondAngle)) + voltSecondAngle1;
+        double ptVoltage = ((angle - arm2SecondAngle) * (voltFirstAngle1 - voltSecondAngle1) / (arm1FirstAngle - arm1SecondAngle)) + voltSecondAngle1;
         return ptVoltage;
 
     }
 
     public double voltageToAngle2(double voltage) {
-        double angle2 =( (voltage - voltSecondAngle2) * (arm2FirstAngle - arm2SecondAngle) / (voltFirstAngle2 - voltSecondAngle2)) + arm2SecondAngle;
+        double angle2 = ((voltage - voltSecondAngle2) * (arm2FirstAngle - arm2SecondAngle) / (voltFirstAngle2 - voltSecondAngle2)) + arm2SecondAngle;
         return angle2;
     }
 
@@ -215,7 +232,7 @@ public class Arm implements Subsystem {
     public double setMotorFromAngle1() {
         arm1PIDresult = m_pid1.calculate(current_first_joint_angle, desired_first_joint_angle);
         arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
-        return  arm1FF + arm1PIDresult;
+        return arm1FF + arm1PIDresult;
 
     }
 
@@ -225,6 +242,7 @@ public class Arm implements Subsystem {
         return arm2FF + arm2PIDresult;
 
     }
+
     private double calculateFeedForwardSecondJoint(double second_joint_angle) {
         return ((resistance *
                 (second_arm_weight * (g * l2 * Util.cosInDegrees(second_joint_angle + angelOffset2))
@@ -233,10 +251,11 @@ public class Arm implements Subsystem {
         //in volts
         // need to convert to pwm
     }
+
     private double calculateFeedForwardFirstJoint(double first_joint_angle) {
 
         return ((resistance *
-                (first_arm_weight * (g * l1 * Util.cosInDegrees(first_joint_angle+angelOffset1))
+                (first_arm_weight * (g * l1 * Util.cosInDegrees(first_joint_angle + angelOffset1))
                 )
                 / (first_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;//to conv between
         // in volts
@@ -318,21 +337,34 @@ public class Arm implements Subsystem {
         }
 
     }
-    public Command toggleFF(){
-        return new InstantCommand(()-> {
+
+    public Command toggleFF() {
+        return new InstantCommand(() -> {
             manual = !manual;
-            if(manual){
+            if (manual) {
                 arm1.set(0);
                 arm2.set(0);
             }
         });
     }
+
     public BTCommand armMoveToPoint(Translation2d point) {
         return new RunCommand(
                 () -> {
                     setDesiredPoint(point);
                 }
         );
+    }
+
+    public Command setDesiredAngle() {
+        return new InstantCommand(() -> {
+            m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration2));
+            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
+            desired_first_joint_angle = a1DesAngle;
+            desired_second_joint_angle = a2DesAngle;
+            m_pid1.setGoal(a1DesAngle);
+            m_pid2.setGoal(a2DesAngle);
+        });
     }
 
 

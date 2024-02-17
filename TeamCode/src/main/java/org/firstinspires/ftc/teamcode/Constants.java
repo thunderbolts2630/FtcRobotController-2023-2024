@@ -32,7 +32,7 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = -0.2;
+            public static double volt1Offset = 0.624;
         }
         public static final double arm1FirstAngle = 90;//max
         public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
@@ -99,18 +99,29 @@ public class Constants {
             public static double a2KI = 0.00;
             public static double a1KD = 0;
             public static double a2KD = 0;
-            public static double ffConv=12;
+            public static double a1DesAngle=0;
+            public static double a2DesAngle=0;
         }
         @Config
+        public static class ArmProfile{
+            public static double maxVelocity1=0.1;
+            public static double maxAcceleration1=0.2;
+
+            public static double maxVelocity2=0.1;
+            public static double maxAcceleration2=0.2;
+        }
+        public static double ffConv=12;
+
+
         public static class ArmWights {
             public static  double first_arm_weight = 0.600; //KG   includes the second one
-            public static  double second_arm_weight = 0.350; //KG
+            public static  double second_arm_weight = 0.300; //KG
             public static double angelOffset1=90;
             public static double angelOffset2=0;
         }
-        @Config
+
         public static class calib{
-            public static double armServo=0.6;
+            public static double armServo=0.32;
             public static double arm1=0.0;
             public static double arm2=0.0;
             public static double MaxIntegreal=0.5;
