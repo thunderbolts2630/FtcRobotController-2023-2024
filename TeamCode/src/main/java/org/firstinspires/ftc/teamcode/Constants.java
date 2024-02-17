@@ -104,8 +104,8 @@ public class Constants {
         }
         @Config
         public static class ArmProfile{
-            public static double maxVelocity1=0.1;
-            public static double maxAcceleration1=0.2;
+            public static double maxVelocity1=10;
+            public static double maxAcceleration1=10;
 
             public static double maxVelocity2=0.1;
             public static double maxAcceleration2=0.2;

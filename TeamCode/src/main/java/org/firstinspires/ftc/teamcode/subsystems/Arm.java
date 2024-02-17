@@ -90,7 +90,7 @@ public class Arm implements Subsystem {
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
         double vMax1 = 1.7 + ArmOffset.volt1Offset;
         double vMin1 = 0.6 + ArmOffset.volt1Offset;
-        if (potentiometer1.getVoltage()<0.1 || potentiometer1.getVoltage()>3.2 || sensor1LimitReached){
+        if (potentiometer1.getVoltage()<0.4 || potentiometer1.getVoltage()>2.9 || sensor1LimitReached){
             arm1.set(0);
             sensor1LimitReached=true;
         }
@@ -105,7 +105,7 @@ public class Arm implements Subsystem {
         }
         double vMin2 = 0.96;
         double vMax2 = 1.8;
-        if(potentiometer1.getVoltage()<0.1 || potentiometer1.getVoltage()>3.2 || sensor2LimitReached){
+        if(potentiometer2.getVoltage()<0.5 || potentiometer2.getVoltage()>2.9 || sensor2LimitReached){
             arm2.set(0);
             sensor2LimitReached=true;
         }
@@ -175,6 +175,7 @@ public class Arm implements Subsystem {
         });
     }
 
+
     @Override
     public void periodic() {
         m_pid1.setIntegratorRange(-Constants.ArmConstants.calib.MaxIntegreal, Constants.ArmConstants.calib.MaxIntegreal);
@@ -198,8 +199,9 @@ public class Arm implements Subsystem {
         dashboard.addData("arm2PID", arm2PIDresult);
         dashboard.addData("power to arm 1", desired_arm1_motor_value);
         dashboard.addData("power to arm 2", desired_arm2_motor_value);
-        dashboard.update();
+        dashboard.addData("arm1 ticks",arm1.getCurrentPosition());
 
+        dashboard.update();
         m_pid1.setPID(a1KP, a1KI, a1KD);
         m_pid2.setPID(a2KP, a2KI, a2KD);
         voltFirstAngle1 = 2.371 + ArmOffset.volt1Offset;//max
