@@ -10,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_TR
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_Y;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -69,11 +70,28 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
 
     }
-
-    public Command AutonomousCommand() {
-        return null;
+    public Command FarBlueAuto() {
+        return new SequentialCommandGroup(
+                m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(500),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(5000)
+        );
     }
-
-    ;
-
-}
+    public Command CloseBlueAuto() {
+        return new SequentialCommandGroup(
+                m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(500),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(2500)
+        );
+    }
+    public Command FarRedAuto() {
+        return new SequentialCommandGroup(
+                m_chassis.fieldRelativeDrive(() -> -0.9, () -> 0, () -> 0).withTimeout(500),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(5000)
+        );
+    }
+    public Command CloseRedAuto() {
+        return new SequentialCommandGroup(
+                m_chassis.fieldRelativeDrive(() -> -0.9, () -> 0, () -> 0).withTimeout(500),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(2500)
+        );
+    }
+    }
