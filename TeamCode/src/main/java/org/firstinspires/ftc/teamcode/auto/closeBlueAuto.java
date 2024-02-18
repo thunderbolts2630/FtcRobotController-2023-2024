@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
 
-@Autonomous(name="FarBlueAuto", group = "Linear Opmode")
+@Autonomous(name="CloseBlueAuto", group = "Linear Opmode")
 public class closeBlueAuto extends CommandOpMode {
     RobotContainer robotContainer;
 
