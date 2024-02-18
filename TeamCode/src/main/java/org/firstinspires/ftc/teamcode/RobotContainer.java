@@ -72,6 +72,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
     public Command FarBlueAuto() {
         return new SequentialCommandGroup(
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(5000),
                 m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(100),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(3000),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
@@ -85,8 +86,8 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
     public Command FarRedAuto() {
         return new SequentialCommandGroup(
-                m_chassis.field
-                RelativeDrive(() -> -0.9, () -> 0, () -> 0).withTimeout(100),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(5000),
+                m_chassis.fieldRelativeDrive(() -> -0.9, () -> 0, () -> 0).withTimeout(100),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(3000),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
         );
