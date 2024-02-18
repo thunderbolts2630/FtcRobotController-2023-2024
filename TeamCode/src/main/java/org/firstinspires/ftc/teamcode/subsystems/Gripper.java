@@ -86,11 +86,7 @@ public class Gripper implements Subsystem {
         });
     }
 
-    public Command openGripper0() {
-        return new InstantCommand(() -> {
-            isOpen0 = true;
-            dashboard.addData("isOpen1", isOpen0);
-        });
-    }
+
+
 
 }

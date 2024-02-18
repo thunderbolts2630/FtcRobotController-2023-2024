@@ -75,7 +75,7 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(94,0,0.36),
+            SCORE(98,0,0.36),
             idle(0,0,0.33),
             MIDDLE(90,-90,0.33),// 2/15 checked
             PICKUP(134,-76.7,0.36);// 2/14 checked
