@@ -62,6 +62,7 @@ public class Arm implements Subsystem {
 
     private boolean sensor1LimitReached = false;
     private boolean sensor2LimitReached = false;
+    private double servo_desired_position=0.33;
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
@@ -157,6 +158,7 @@ public class Arm implements Subsystem {
         m_pid2.setIntegratorRange(MinIntegreal2, MaxIntegreal2);
         m_pid1.setIzone(aIzone1);
         m_pid2.setIzone(aIzone2);
+        servo.setPosition(calib.armServo);
         current_first_joint_angle = voltageToAngle1(potentiometer1.getVoltage());
         current_second_joint_angle = voltageToAngle2(potentiometer2.getVoltage());
         current_pot1_voltage = potentiometer1.getVoltage();
@@ -164,7 +166,7 @@ public class Arm implements Subsystem {
         desired_arm1_motor_value = setMotorFromAngle1() + driverAdjust1;
         desired_arm2_motor_value = setMotorFromAngle2() + driverAdjust2;
         if (!manual) {
-            setMotors(desired_arm1_motor_value, desired_arm2_motor_value, calib.armServo);
+            setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position);
         }
         dashboard.addData("desired angle 1:", desired_first_joint_angle);
         dashboard.addData("desired angle 2:", desired_second_joint_angle);
@@ -371,6 +373,7 @@ public class Arm implements Subsystem {
           m_pid1.reset(current_first_joint_angle);
           m_pid2.reset(current_second_joint_angle);
           servo.setPosition(Positions.PICKUP.servo);
+          servo_desired_position=Positions.PICKUP.servo;
           m_pid1.setGoal(a1DesAngle);
           m_pid2.setGoal(a2DesAngle);
                 }
@@ -387,6 +390,7 @@ public class Arm implements Subsystem {
             m_pid1.reset(current_first_joint_angle);
             m_pid2.reset(current_second_joint_angle);
             servo.setPosition(Positions.SCORE.servo);
+            servo_desired_position=Positions.SCORE.servo;
             m_pid1.setGoal(a1DesAngle);
             m_pid2.setGoal(a2DesAngle);
         }
@@ -402,7 +406,8 @@ public class Arm implements Subsystem {
             desired_first_joint_angle = a1DesAngle;
             m_pid1.reset(current_first_joint_angle);
             m_pid2.reset(current_second_joint_angle);
-            servo.setPosition(Positions.MIDDLE  .servo);
+            servo.setPosition(Positions.MIDDLE.servo);
+            servo_desired_position=Positions.MIDDLE.servo;
             m_pid1.setGoal(a1DesAngle);
             m_pid2.setGoal(a2DesAngle);
         }
