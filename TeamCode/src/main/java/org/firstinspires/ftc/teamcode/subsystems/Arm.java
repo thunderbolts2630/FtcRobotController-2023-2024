@@ -359,7 +359,63 @@ public class Arm implements Subsystem {
             }
         });
     }
+
+    public Command setPickup(){
+        return new InstantCommand(()->{
+            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
+            m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
+          a1DesAngle = Positions.PICKUP.angle1;
+          a2DesAngle = Positions.PICKUP.angle2;
+          desired_second_joint_angle = a2DesAngle;
+          desired_first_joint_angle = a1DesAngle;
+          m_pid1.reset(current_first_joint_angle);
+          m_pid2.reset(current_second_joint_angle);
+          servo.setPosition(Positions.PICKUP.servo);
+          m_pid1.setGoal(a1DesAngle);
+          m_pid2.setGoal(a2DesAngle);
+                }
+        );
+    }
+    public Command setScore(){
+        return new InstantCommand(()->{
+            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
+            m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
+            a1DesAngle = Positions.SCORE.angle1;
+            a2DesAngle = Positions.SCORE.angle2;
+            desired_second_joint_angle = a2DesAngle;
+            desired_first_joint_angle = a1DesAngle;
+            m_pid1.reset(current_first_joint_angle);
+            m_pid2.reset(current_second_joint_angle);
+            servo.setPosition(Positions.SCORE.servo);
+            m_pid1.setGoal(a1DesAngle);
+            m_pid2.setGoal(a2DesAngle);
+        }
+        );
+    }
+    public Command setMiddle(){
+        return new InstantCommand(()->{
+            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
+            m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
+            a1DesAngle = Positions.MIDDLE.angle1;
+            a2DesAngle = Positions.MIDDLE.angle2;
+            desired_second_joint_angle = a2DesAngle;
+            desired_first_joint_angle = a1DesAngle;
+            m_pid1.reset(current_first_joint_angle);
+            m_pid2.reset(current_second_joint_angle);
+            servo.setPosition(Positions.MIDDLE  .servo);
+            m_pid1.setGoal(a1DesAngle);
+            m_pid2.setGoal(a2DesAngle);
+        }
+        );
+    }
+
+
+
+
+
 }
+
+
 
 
 

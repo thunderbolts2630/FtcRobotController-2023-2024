@@ -75,9 +75,9 @@ public class Constants {
         }
   */
         public enum Positions{
-            DROP(134,-76.7,0.36),
+            SCORE(94,0,0.36),
             idle(0,0,0.33),
-            MIDDLE(2.111,1.256,0.33),
+            MIDDLE(90,-90,0.33),// 2/15 checked
             PICKUP(134,-76.7,0.36);// 2/14 checked
             public double angle1,angle2,servo;
             Positions(double v1, double v2, double servo) {
