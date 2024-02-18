@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.Positions.*;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_LEFT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_RIGHT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_DOWN;
+import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_LEFT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_RIGHT;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_UP;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_DOWN;
@@ -15,9 +15,6 @@ import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_X;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_Y;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_X;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_Y;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.TRIGGER_LEFT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.TRIGGER_RIGHT;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -88,9 +85,10 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2.assignCommand(m_arm.toggleFF(), false,BUTTON_RIGHT);
         m_controller2.assignCommand(m_plane.shootPlane(),true,BUTTON_DOWN);
         m_controller2.assignCommand(m_plane.resetPlane(),true,BUTTON_UP);
-        m_controller2.assignCommand(m_arm.setDesiredAngle(), false, DPAD_UP);
+        m_controller2.assignCommand(m_arm.setIdle(), false, DPAD_UP);
         m_controller2.assignCommand(m_arm.setPickup(),false,DPAD_DOWN);
-        m_controller2.assignCommand(m_arm.setMiddle(),false,DPAD_LEFT);
+        m_controller2.assignCommand(m_arm.setHighScore(),false,DPAD_LEFT);
+        m_controller2.assignCommand(m_arm.setMiddle(),false,BUTTON_LEFT);
         m_controller2.assignCommand(m_arm.setScore(),false,DPAD_RIGHT);
 
     }

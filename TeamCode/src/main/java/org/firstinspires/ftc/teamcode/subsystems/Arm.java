@@ -13,9 +13,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.BTController;
 import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
@@ -29,7 +27,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.PID.*;
 import org.firstinspires.ftc.teamcode.utils.Util;
-import org.firstinspires.ftc.teamcode.utils.cheesy.InterpolatingDouble;
 
 import java.util.function.DoubleSupplier;
 
@@ -56,7 +53,7 @@ public class Arm implements Subsystem {
     private double arm2PIDresult, arm2FF;
     private boolean manual = true;
     double desired_arm1_motor_value, desired_arm2_motor_value;
-    private Positions state = Positions.idle;
+    private Positions state = Positions.MIDDLE;
     private double driverAdjust1 = 0, driverAdjust2 = 0;
     private SlewRateLimiter rateLimiter;
 
@@ -80,7 +77,7 @@ public class Arm implements Subsystem {
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
-        servo.getController().pwmEnable();
+//        servo.getController().pwmEnable(); //todo:uncomment
         servo.setDirection(Servo.Direction.REVERSE);
         dashboard.addData("desiredPT1", 0);
         dashboard.addData("desiredPT2", 0);
@@ -132,9 +129,6 @@ public class Arm implements Subsystem {
     }
 
 
-    public Command setState(Positions state) {
-        return new InstantCommand(() -> this.state = state);
-    }
 
     public double ApplyFeedForward(double currentPose, double targetPose, double feedforward, double tolerance) {
         if (Math.abs(currentPose - targetPose) < tolerance) {
@@ -158,7 +152,6 @@ public class Arm implements Subsystem {
         m_pid2.setIntegratorRange(MinIntegreal2, MaxIntegreal2);
         m_pid1.setIzone(aIzone1);
         m_pid2.setIzone(aIzone2);
-        servo.setPosition(calib.armServo);
         current_first_joint_angle = voltageToAngle1(potentiometer1.getVoltage());
         current_second_joint_angle = voltageToAngle2(potentiometer2.getVoltage());
         current_pot1_voltage = potentiometer1.getVoltage();
@@ -181,6 +174,7 @@ public class Arm implements Subsystem {
         dashboard.addData("arm1 ticks", arm1.getCurrentPosition());
         dashboard.addData("arm total error1",m_pid1.getTotalError());
         dashboard.addData("arm total error2",m_pid2.getTotalError());
+        dashboard.addData("servoPos", servo.getPosition());
 
         dashboard.update();
         m_pid1.setPID(a1KP, a1KI, a1KD);
@@ -344,74 +338,55 @@ public class Arm implements Subsystem {
         );
     }
 
-    public Command setDesiredAngle() {
-
-        return new InstantCommand(() -> {
-            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
-             m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-            if (a1DesAngle > 80 || a1DesAngle < 140) {
-                desired_first_joint_angle = a1DesAngle;
-                m_pid1.reset(current_first_joint_angle);
-                m_pid1.setGoal(a1DesAngle);
-            }
-            if (a2DesAngle > -100 || a2DesAngle < 30) {
-                desired_second_joint_angle = a2DesAngle;
-                m_pid2.reset(current_second_joint_angle);
-                m_pid2.setGoal(a2DesAngle);
-            }
+    public Command setMiddle(){
+        return new InstantCommand(()->{
+         setState(Positions.MIDDLE);
         });
+    }
+    public Command setIdle() {
+        return new InstantCommand(() -> {
+          if(state==Positions.HIGHSCORE || state==Positions.PICKUP){
+            setState(Positions.MIDDLE);
+          }else{
+              setState(Positions.idle);
+          }
+        });
+    }
+    private void setState(Positions pos){
+        m_pid2.setConstraints(pos.constraints1);
+        m_pid1.setConstraints(pos.constraints2);
+        a1DesAngle =pos.angle1;
+        a2DesAngle = pos.angle2;
+        desired_second_joint_angle = a2DesAngle;
+        desired_first_joint_angle = a1DesAngle;
+        m_pid1.reset(current_first_joint_angle);
+        m_pid2.reset(current_second_joint_angle);
+        servo.setPosition(pos.servo);
+        servo_desired_position=pos.servo;
+        m_pid1.setGoal(a1DesAngle);
+        m_pid2.setGoal(a2DesAngle);
+        state=pos;
     }
 
     public Command setPickup(){
         return new InstantCommand(()->{
-            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
-            m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-          a1DesAngle = Positions.PICKUP.angle1;
-          a2DesAngle = Positions.PICKUP.angle2;
-          desired_second_joint_angle = a2DesAngle;
-          desired_first_joint_angle = a1DesAngle;
-          m_pid1.reset(current_first_joint_angle);
-          m_pid2.reset(current_second_joint_angle);
-          servo.setPosition(Positions.PICKUP.servo);
-          servo_desired_position=Positions.PICKUP.servo;
-          m_pid1.setGoal(a1DesAngle);
-          m_pid2.setGoal(a2DesAngle);
-                }
-        );
+            if(state==Positions.idle){
+                setState(Positions.MIDDLE);
+            }else {
+                setState(Positions.PICKUP);
+            }
+        });
     }
     public Command setScore(){
         return new InstantCommand(()->{
-            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
-            m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-            a1DesAngle = Positions.SCORE.angle1;
-            a2DesAngle = Positions.SCORE.angle2;
-            desired_second_joint_angle = a2DesAngle;
-            desired_first_joint_angle = a1DesAngle;
-            m_pid1.reset(current_first_joint_angle);
-            m_pid2.reset(current_second_joint_angle);
-            servo.setPosition(Positions.SCORE.servo);
-            servo_desired_position=Positions.SCORE.servo;
-            m_pid1.setGoal(a1DesAngle);
-            m_pid2.setGoal(a2DesAngle);
+          setState(Positions.SCORE);
         }
         );
     }
-    public Command setMiddle(){
+    public Command setHighScore(){
         return new InstantCommand(()->{
-            m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
-            m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-            a1DesAngle = Positions.MIDDLE.angle1;
-            a2DesAngle = Positions.MIDDLE.angle2;
-            desired_second_joint_angle = a2DesAngle;
-            desired_first_joint_angle = a1DesAngle;
-            m_pid1.reset(current_first_joint_angle);
-            m_pid2.reset(current_second_joint_angle);
-            servo.setPosition(Positions.MIDDLE.servo);
-            servo_desired_position=Positions.MIDDLE.servo;
-            m_pid1.setGoal(a1DesAngle);
-            m_pid2.setGoal(a2DesAngle);
-        }
-        );
+            setState(Positions.HIGHSCORE);
+        });
     }
 
 

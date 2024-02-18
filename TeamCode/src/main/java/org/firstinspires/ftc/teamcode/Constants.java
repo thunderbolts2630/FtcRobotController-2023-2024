@@ -8,12 +8,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 
-import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
-import org.firstinspires.ftc.teamcode.utils.cheesy.InterpolatingDouble;
-import org.firstinspires.ftc.teamcode.utils.cheesy.InterpolatingTreeMap;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 
 public class Constants {
@@ -33,7 +30,7 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = 0.1;
+            public static double volt1Offset = -0.02;
         }
         public static final double arm1FirstAngle = 90;//max
         public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
@@ -75,16 +72,25 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(98,0,0.36),
-            idle(0,0,0.33),
-            MIDDLE(90,-90,0.33),// 2/15 checked
-            PICKUP(134,-76.7,0.36);// 2/14 checked
-            public double angle1,angle2,servo;
-            Positions(double v1, double v2, double servo) {
+            SCORE(98,0,0.36,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            idle(34,-16,0.33,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            MIDDLE(90,-73,0.33,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            HIGHSCORE(101,30,0.2,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),// 2/15 checked
+            PICKUP(134,-76.7,0.36, new TrapezoidProfile.Constraints(40,40),new TrapezoidProfile.Constraints(40,40));// 2/14 checked
+            public double angle1;
+    public double angle2;
+    public double servo;
+    public TrapezoidProfile.Constraints constraints1;
+    public TrapezoidProfile.Constraints constraints2;
+
+    Positions(double v1, double v2, double servo, TrapezoidProfile.Constraints Constraints1, TrapezoidProfile.Constraints Constraints2) {
                 this.angle1 = v1;
                 this.angle2 = v2;
                 this.servo = servo;
-            }
+
+        this.constraints1 = Constraints1;
+        this.constraints2 = Constraints2;
+    }
 
 
         }
