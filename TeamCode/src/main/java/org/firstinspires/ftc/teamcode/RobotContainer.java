@@ -73,25 +73,29 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     public Command FarBlueAuto() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(500),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(5000)
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(5000),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
         );
     }
     public Command CloseBlueAuto() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(500),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(2500)
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(2500),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
         );
     }
     public Command FarRedAuto() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> -0.9, () -> 0, () -> 0).withTimeout(500),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(5000)
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(5000),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
         );
     }
     public Command CloseRedAuto() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> -0.9, () -> 0, () -> 0).withTimeout(500),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(2500)
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(2500),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
         );
     }
     }
