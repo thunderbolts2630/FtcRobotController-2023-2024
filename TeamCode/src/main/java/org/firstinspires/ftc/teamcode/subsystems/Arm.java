@@ -345,7 +345,7 @@ public class Arm implements Subsystem {
     }
     public Command setIdle() {
         return new InstantCommand(() -> {
-          if(state==Positions.HIGHSCORE || state==Positions.PICKUP){
+          if(state==Positions.PICKUP){
             setState(Positions.MIDDLE);
           }else{
               setState(Positions.idle);
