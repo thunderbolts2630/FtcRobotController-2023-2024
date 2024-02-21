@@ -76,7 +76,11 @@ public class Constants {
             idle(34,-16,0.33,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             MIDDLE(90,-73,0.33,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(101,30,0.2,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),// 2/15 checked
+<<<<<<< HEAD
             PICKUP(134,-76.7,0.36, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));// 2/14 checked
+=======
+            PICKUP(134,-76.7,0.36, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2));// 2/14 checked
+>>>>>>> 34975331a3b628c31f025a9b93c1f0b03fa59532
             public double angle1;
     public double angle2;
     public double servo;
