@@ -176,8 +176,8 @@ public class Arm implements Subsystem {
         dashboard.addData("arm total error1",m_pid1.getTotalError());
         dashboard.addData("arm total error2",m_pid2.getTotalError());
         dashboard.addData("servoPos", servo.getPosition());
-        dashboard.addData("setpoint1", m_pid1.getSetpoint());
-        dashboard.addData("setpoint2", m_pid2.getSetpoint());
+        dashboard.addData("setpoint1", m_pid1.getSetpoint().position);
+        dashboard.addData("setpoint2", m_pid2.getSetpoint().position);
         dashboard.addData("goal1", m_pid1.getGoal());
         dashboard.addData("goal2", m_pid2.getGoal());
         dashboard.update();
