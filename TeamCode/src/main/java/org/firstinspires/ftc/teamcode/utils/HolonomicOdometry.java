@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.utils.geometry.*;
 
 import java.util.function.DoubleSupplier;
@@ -9,6 +11,13 @@ public class HolonomicOdometry   {
     private BTRotation2d previousAngle;
     private double centerWheelOffset;
     protected BTPose2d robotPose = new BTPose2d();
+    private double dx;  // not null
+    private double dt;// not null
+    private double dv;
+    private ElapsedTime time;
+    private double previousTime;
+    private double prevVelocity = 0;
+    boolean isFirstTime = true;
 
     public BTPose2d getPose() {
         return robotPose;
@@ -30,6 +39,7 @@ public class HolonomicOdometry   {
         m_right = rightEncoder;
         m_horizontal = horizontalEncoder;
         m_gyro = gyroAngle;
+
     }
 
     public HolonomicOdometry(BTPose2d initialPose, double trackwidth, double centerWheelOffset) {
@@ -37,6 +47,8 @@ public class HolonomicOdometry   {
         previousAngle = initialPose.getRotation();
         robotPose=initialPose;
         this.centerWheelOffset = centerWheelOffset;
+        time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        previousTime = time.time();
     }
 
     public HolonomicOdometry(double trackwidth, double centerWheelOffset) {
@@ -70,18 +82,21 @@ public class HolonomicOdometry   {
         prevRightEncoder = rightEncoderPos;
         prevHorizontalEncoder = horizontalEncoderPos;
 
+        dt = time.time() - previousTime;
         double dw = (angle.minus(previousAngle).getRadians());
-
-        double dx = (deltaLeftEncoder + deltaRightEncoder) / 2;
         double dy = deltaHorizontalEncoder - (centerWheelOffset * dw);
+        dx = (deltaLeftEncoder + deltaRightEncoder) / 2;
 
+        dv = getVelocity() - prevVelocity;
+        prevVelocity = getVelocity();
         BTTwist2d twist2d = new BTTwist2d(dx, dy, dw);
 
         BTPose2d newPose = robotPose.exp(twist2d);
 
         previousAngle = angle;
-
+        previousTime = time.time();
         robotPose = new BTPose2d(newPose.getTranslation(), angle);
+        isFirstTime = false;
     }
 
     public void reset(BTPose2d btPose2d) {
@@ -91,4 +106,25 @@ public class HolonomicOdometry   {
         prevHorizontalEncoder=0;
         robotPose=btPose2d;
     }
+
+    public double getVelocity(){
+        double velocity;
+        if (!isFirstTime){
+            velocity = 0;
+        }else{
+            velocity = dx/dt;
+        }
+        return velocity;
+    }
+    public double getAcceleration(){
+        double acceleration;
+        if(!isFirstTime){
+            acceleration = 0;
+        }else{
+            acceleration = dv/dt;
+        }
+        return acceleration;
+    }
+
+
 }

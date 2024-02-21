@@ -13,8 +13,9 @@ public class closeBlueAuto extends CommandOpMode {
     @Override
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
-        robotContainer.CloseBlueAuto().schedule();
+        waitForStart();
         enable();
+        robotContainer.CloseBlueAuto().schedule();
 
     }
 }
