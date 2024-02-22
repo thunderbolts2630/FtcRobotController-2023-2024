@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 
+import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmOffset.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmPID.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.*;
@@ -14,10 +15,12 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.utils.BTCommand;
-import org.firstinspires.ftc.teamcode.utils.BTController;
-import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
-import org.firstinspires.ftc.teamcode.utils.RunCommand;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTCommand;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.Math.SlewRateLimiter;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.PID.ProfiledPIDController;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.PID.TrapezoidProfile;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.RunCommand;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -25,10 +28,8 @@ import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.utils.PID.*;
-import org.firstinspires.ftc.teamcode.utils.Util;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.Util;
 
-import java.util.PriorityQueue;
 import java.util.function.DoubleSupplier;
 
 public class Arm implements Subsystem {
@@ -103,8 +104,8 @@ public class Arm implements Subsystem {
             dashboard.addData("stpped", firstSpeed);
 
         }
-        double vMin2 = 0.96;
-        double vMax2 = 1.8;
+        double vMin2 = 0.96 + volt2Offset;
+        double vMax2 = 1.8 + volt2Offset;
         if (potentiometer2.getVoltage() < 0.5 || potentiometer2.getVoltage() > 2.9 || sensor2LimitReached) {
             arm2.set(0);
             sensor2LimitReached = true;
@@ -176,15 +177,17 @@ public class Arm implements Subsystem {
         dashboard.addData("arm total error1",m_pid1.getTotalError());
         dashboard.addData("arm total error2",m_pid2.getTotalError());
         dashboard.addData("servoPos", servo.getPosition());
-        dashboard.addData("setpoint1", m_pid1.getSetpoint());
-        dashboard.addData("setpoint2", m_pid2.getSetpoint());
-        dashboard.addData("goal1", m_pid1.getGoal());
-        dashboard.addData("goal2", m_pid2.getGoal());
+        dashboard.addData("setpoint1", m_pid1.getSetpoint().position);
+        dashboard.addData("setpoint2", m_pid2.getSetpoint().position);
+        dashboard.addData("goal1", m_pid1.getGoal().position);
+        dashboard.addData("goal2", m_pid2.getGoal().position);
         dashboard.update();
         m_pid1.setPID(a1KP, a1KI, a1KD);
         m_pid2.setPID(a2KP, a2KI, a2KD);
         voltFirstAngle1 = 2.371 + ArmOffset.volt1Offset;//max
         voltSecondAngle1 = 1.2 + ArmOffset.volt1Offset;//min
+        voltSecondAngle2 = 1.58 + volt2Offset;
+        voltFirstAngle2 =1.13 + volt2Offset;//max
 
     }
 
@@ -214,7 +217,7 @@ public class Arm implements Subsystem {
         arm1PIDresult = m_pid1.calculate(current_first_joint_angle, desired_first_joint_angle);
 
         arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
-        dashboard.addData("desired,current discrepancy", current_first_joint_angle-desired_first_joint_angle);
+//        dashboard.addData("desired,current discrepancy", current_first_joint_angle-desired_first_joint_angle);
         return arm1FF + arm1PIDresult;
 
     }
@@ -222,7 +225,7 @@ public class Arm implements Subsystem {
     public double setMotorFromAngle2() {
         arm2PIDresult = m_pid2.calculate(current_second_joint_angle, desired_second_joint_angle);
         arm2FF = calculateFeedForwardSecondJoint(current_second_joint_angle);
-        dashboard.addData("current to desired angle discrepancy 2", current_second_joint_angle-desired_second_joint_angle);
+//        dashboard.addData("current to desired angle discrepancy 2", current_second_joint_angle-desired_second_joint_angle);
         return arm2FF + arm2PIDresult;
 
     }

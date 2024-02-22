@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmOffset.volt2Offset;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisFeedForward.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
@@ -8,10 +9,10 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 
-import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
-import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
-import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
-import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.PID.PIDController;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.PID.ProfiledPIDController;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.PID.TrapezoidProfile;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.geometry.BTTranslation2d;
 
 public class Constants {
     public static final double l1 = 0.378;// com distant from axis first arm METERS
@@ -30,16 +31,17 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = 0;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
+            public static double volt1Offset = -0.221   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
+            public static double volt2Offset = -0.213;
         }
         public static final double arm1FirstAngle = 90;//max
         public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
         public static  double voltSecondAngle1 =1.2 + ArmOffset.volt1Offset;//min
         public static final double arm1SecondAngle = 0;//min
         public static final double arm2SecondAngle = -90;//min
-        public static final double voltSecondAngle2 = 1.58;//min
         public static final double arm2FirstAngle = 0;//max
-        public static final double voltFirstAngle2 =1.13;//max
+        public static double voltFirstAngle2 =1.13 + volt2Offset;//max
+        public static double voltSecondAngle2 = 1.58 + volt2Offset;//min
         public static final double motorMaxVolt = 12;
 /*
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap1 = new InterpolatingTreeMap<>();
@@ -73,14 +75,10 @@ public class Constants {
   */
         public enum Positions{
             SCORE(98,0,0.36,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
-            idle(34,-16,0.33,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            idle(54,-16,0.33,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             MIDDLE(90,-73,0.33,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(101,30,0.2,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),// 2/15 checked
-<<<<<<< HEAD
             PICKUP(134,-76.7,0.36, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));// 2/14 checked
-=======
-            PICKUP(134,-76.7,0.36, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2));// 2/14 checked
->>>>>>> 34975331a3b628c31f025a9b93c1f0b03fa59532
             public double angle1;
     public double angle2;
     public double servo;
