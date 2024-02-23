@@ -1,20 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_LEFT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_RIGHT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_DOWN;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_LEFT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_RIGHT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_UP;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_DOWN;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_LEFT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_RIGHT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_UP;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_X;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_Y;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_X;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.BUMPER_LEFT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.BUMPER_RIGHT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.BUTTON_DOWN;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.BUTTON_LEFT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.BUTTON_RIGHT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.BUTTON_UP;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.LEFT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.LEFT_X;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.LEFT_Y;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController.Buttons.RIGHT_X;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
-import org.firstinspires.ftc.teamcode.utils.BTController;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController;
 
 
 public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
@@ -81,8 +81,8 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 //        m_controller2.assignCommand(m_arm.setState(MIDDLE),true,DPAD_LEFT);
 //        m_controller2.assignCommand(m_arm.setState(idle),true,DPAD_RIGHT);
 //        m_controller2.assignCommand(m_arm.setState(PICKUP),true,DPAD_DOWN);
-        m_controller2.assignCommand(m_gripper.toggleGripper1(),false,BUMPER_LEFT)   ;
-        m_controller2.assignCommand(m_gripper.toggleGripper0(),false,BUMPER_RIGHT);
+        m_controller2.assignCommand(m_gripper.toggleGripper1(),false,BUMPER_RIGHT)   ;
+        m_controller2.assignCommand(m_gripper.toggleGripper0(),false,BUMPER_LEFT);
         m_controller2.assignCommand(m_arm.toggleFF(), false,BUTTON_RIGHT);
         m_controller2.assignCommand(m_plane.shootPlane(),true,BUTTON_DOWN);
         m_controller2.assignCommand(m_plane.resetPlane(),true,BUTTON_UP);
@@ -95,16 +95,26 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
     public Command FarBlueAuto() {
         return new SequentialCommandGroup(
+
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(5000),
                 m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(100),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(3000),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
+
         );
     }
     public Command CloseBlueAuto() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(1700),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
+
+        );
+    }
+    public Command TestAuto() {
+        return new SequentialCommandGroup(
+                m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(500),
+                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
+
         );
     }
     public Command FarRedAuto() {
