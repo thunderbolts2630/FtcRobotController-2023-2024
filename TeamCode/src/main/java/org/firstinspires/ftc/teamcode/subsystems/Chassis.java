@@ -13,14 +13,17 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTposeEstimator;
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.RobotContainer;
+import org.firstinspires.ftc.teamcode.utils.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTCommand;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.RunCommand;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.geometry.BTPose2d;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.geometry.BTRotation2d;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.geometry.BTTransform2d;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.geometry.BTTranslation2d;
+import org.firstinspires.ftc.teamcode.utils.BTCommand;
+import org.firstinspires.ftc.teamcode.utils.RunCommand;
+import org.firstinspires.ftc.teamcode.utils.Util;
+import org.firstinspires.ftc.teamcode.utils.geometry.BTPose2d;
+import org.firstinspires.ftc.teamcode.utils.geometry.BTRotation2d;
+import org.firstinspires.ftc.teamcode.utils.geometry.BTTransform2d;
+import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
@@ -54,7 +57,7 @@ public class Chassis implements Subsystem {
     private double maxAccelerationY = 0;
     private Motor.Encoder m_leftEncoder;
     private Motor.Encoder m_rightEncoder;
-
+    public double RobotXAcc = 0;
 
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
@@ -162,6 +165,9 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("X Acc : ", acceleration.getTranslation().getX());
         dashboardTelemetry.addData("Y Acc: ", acceleration.getTranslation().getY());
         dashboardTelemetry.addData("Theta Acc : ", acceleration.getRotation().getDegrees());
+        RobotXAcc = odometry.getAcceleration();
+        RobotContainer.armAccAdjustment = RobotXAcc;
+        dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
 
         dashboardTelemetry.update();
 

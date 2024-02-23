@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTCommand;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.RunCommand;
+import org.firstinspires.ftc.teamcode.utils.BTCommand;
+import org.firstinspires.ftc.teamcode.utils.RunCommand;
 
 import static org.firstinspires.ftc.teamcode.Constants.Climb.*;
 

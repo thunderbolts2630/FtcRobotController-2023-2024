@@ -15,12 +15,14 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTCommand;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.BTController;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.Math.SlewRateLimiter;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.PID.ProfiledPIDController;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.PID.TrapezoidProfile;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.RunCommand;
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.RobotContainer;
+import org.firstinspires.ftc.teamcode.utils.BTCommand;
+import org.firstinspires.ftc.teamcode.utils.BTController;
+import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
+import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
+import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
+import org.firstinspires.ftc.teamcode.utils.RunCommand;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -28,7 +30,7 @@ import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.roadrunner.drive.utils.Util;
+import org.firstinspires.ftc.teamcode.utils.Util;
 
 import java.util.function.DoubleSupplier;
 
@@ -58,10 +60,11 @@ public class Arm implements Subsystem {
     private Positions state = Positions.MIDDLE;
     private double driverAdjust1 = 0, driverAdjust2 = 0;
     private SlewRateLimiter rateLimiter;
-
     private boolean sensor1LimitReached = false;
     private boolean sensor2LimitReached = false;
     private double servo_desired_position=0.33;
+    private double armAccBasedOffset1 = 0;
+    private double armAccBasedOffset2 = 0;
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
@@ -190,6 +193,10 @@ public class Arm implements Subsystem {
         voltSecondAngle2 = 1.58 + volt2Offset;
         voltFirstAngle2 =1.13 + volt2Offset;//max
 
+        dashboard.addData("accArmOffset1", armAccBasedOffset1);
+        dashboard.addData("accArmOffset2", armAccBasedOffset2);
+
+
     }
 
     public double angleToVoltageA1(double angle) {
@@ -217,6 +224,9 @@ public class Arm implements Subsystem {
     public double setMotorFromAngle1() {
         arm1PIDresult = m_pid1.calculate(current_first_joint_angle, desired_first_joint_angle);
 
+        armAccBasedOffset1= ((resistance *
+                (RobotContainer.armAccAdjustment * Util.sinInDegrees(current_first_joint_angle))
+                / (first_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
         arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
 //        dashboard.addData("desired,current discrepancy", current_first_joint_angle-desired_first_joint_angle);
         return arm1FF + arm1PIDresult;
@@ -225,6 +235,9 @@ public class Arm implements Subsystem {
 
     public double setMotorFromAngle2() {
         arm2PIDresult = m_pid2.calculate(current_second_joint_angle, desired_second_joint_angle);
+        armAccBasedOffset2 = ((resistance *
+                (RobotContainer.armAccAdjustment * Util.sinInDegrees(current_second_joint_angle))
+                / (second_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
         arm2FF = calculateFeedForwardSecondJoint(current_second_joint_angle);
 //        dashboard.addData("current to desired angle discrepancy 2", current_second_joint_angle-desired_second_joint_angle);
         return arm2FF + arm2PIDresult;
