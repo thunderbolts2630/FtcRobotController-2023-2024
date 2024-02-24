@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisFeedForward.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.PIDFront.*;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.PIDSide.*;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.PIDTheta.*;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;

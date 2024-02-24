@@ -22,7 +22,7 @@ public class TrajectoryFactory {
     public static final Trajectory t1 = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0,0,Rotation2d.fromDegrees(0)),
             new ArrayList<>(),
-            new Pose2d(0, 1, Rotation2d.fromDegrees(0)),
+            new Pose2d(1, 0, Rotation2d.fromDegrees(0)),
             config);
 
 

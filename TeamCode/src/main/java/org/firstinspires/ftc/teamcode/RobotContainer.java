@@ -69,6 +69,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 pose2d -> m_chassis.resetOdmetry(pose2d),
                 m_chassis);
         m_controller.assignCommand(fp2.andThen(m_chassis.stopMotor()), false, BUTTON_DOWN);
+        m_controller.assignCommand(m_chassis.stopMotor(), false, BUTTON_UP);
 //        m_controller.assignCommand(m_climb.climb_manual(m_controller.right_y), true, RIGHT_Y).whenInactive(m_climb.climb_manual(()->0));
 
 //        m_controller.assignCommand(m_gripper.toggleGripper(),false,BUTTON_RIGHT);

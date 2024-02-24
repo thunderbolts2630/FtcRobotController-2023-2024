@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.geometry.Pose2d;
@@ -13,21 +14,19 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
-import org.firstinspires.ftc.teamcode.utils.Util;
 import org.firstinspires.ftc.teamcode.utils.geometry.*;
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.function.DoubleSupplier;
 
 public class Chassis implements Subsystem {
+    private final PIDFController m_pidcontroller;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     private double prevTime = 0;
@@ -41,8 +40,7 @@ public class Chassis implements Subsystem {
     public MotorEx motor_BL;
     public MotorEx motor_BR;
     private RevIMU gyro;
-    private Motor leftEncoder;
-    private Motor rightEncoder;
+
     private Motor horizontalEncoder;
     private BTPose2d m_postitionFromTag;
     private double maxVelocityX = 0;
@@ -77,9 +75,9 @@ public class Chassis implements Subsystem {
         m_leftEncoder.reset();
         m_rightEncoder.reset();
         odometry = new BTposeEstimator(
-                () -> -metersFormTicks(leftEncoder.getPosition()),
-                () -> metersFormTicks(rightEncoder.getPosition()),
                 () -> metersFormTicks(horizontalEncoder.getCurrentPosition()),
+                () -> metersFormTicks(rightEncoder.getPosition()),
+                () -> -metersFormTicks(leftEncoder.getPosition()),
                 () -> gyro.getHeading(),
                 TRACKWIDTH, WHEEL_OFFSET);
         prevPos = odometry.getPose();
@@ -141,8 +139,8 @@ public class Chassis implements Subsystem {
         }, this);
     }
 
-    public BTCommand stopMotor() {
-        return new RunCommand(() -> setMotors(0, 0, 0, 0));
+    public Command stopMotor() {
+        return new InstantCommand(()-> setMotors(0, 0, 0, 0));
     }
 
     @Override
@@ -160,6 +158,10 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("X Acc : ", acceleration.getTranslation().getX());
         dashboardTelemetry.addData("Y Acc: ", acceleration.getTranslation().getY());
         dashboardTelemetry.addData("Theta Acc : ", acceleration.getRotation().getDegrees());
+        dashboardTelemetry.addData("left", m_leftEncoder.getPosition());
+        dashboardTelemetry.addData("right", m_rightEncoder.getPosition());
+        dashboardTelemetry.addData("theta", horizontalEncoder.getCurrentPosition());
+
 
         dashboardTelemetry.update();
 
