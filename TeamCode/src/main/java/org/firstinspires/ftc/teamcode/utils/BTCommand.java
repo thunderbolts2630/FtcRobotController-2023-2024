@@ -9,13 +9,13 @@ import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import java.util.function.BooleanSupplier;
 
 public class BTCommand extends CommandBase{
-    Command withInterrupt(BooleanSupplier condition) {
+    public Command withInterrupt(BooleanSupplier condition) {
         return until(condition);
     }
-    Command until(BooleanSupplier condition) {
+    public Command until(BooleanSupplier condition) {
         return raceWith(new WaitUntilCommand(condition));
     }
-    RepeatCommand repeatedly() {
+    public RepeatCommand repeatedly() {
         return new RepeatCommand(this);
     }
 

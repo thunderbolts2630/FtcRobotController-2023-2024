@@ -18,4 +18,5 @@ public class closeBlueAuto extends CommandOpMode {
         robotContainer.CloseBlueAuto().schedule();
 
     }
+    
 }

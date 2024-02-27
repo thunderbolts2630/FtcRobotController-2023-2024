@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.geometry.Pose2d;
@@ -145,8 +146,8 @@ public class Chassis implements Subsystem {
         }, this);
     }
 
-    public BTCommand stopMotor() {
-        return new RunCommand(() -> setMotors(0, 0, 0, 0));
+    public Command stopMotor() {
+        return new InstantCommand(()-> setMotors(0, 0, 0, 0));
     }
 
     @Override
