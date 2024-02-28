@@ -75,7 +75,7 @@ public class Chassis implements Subsystem {
         gyro = new RevIMU(map, "imu");
         gyro.init(parameters);
         gyro.reset();
-        horizontalEncoder = new MotorEx(map, "encoderCenter");
+        horizontalEncoder = new MotorEx(map, "encoderLeft");
         m_leftEncoder = leftEncoder;
         m_rightEncoder = rightEncoder;
         horizontalEncoder.resetEncoder();

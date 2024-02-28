@@ -53,7 +53,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     public RobotContainer(HardwareMap map, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
         armM1encoderR = new MotorEx(map, "ArmM1encoderR");//3
-        armM2encoderL = new MotorEx(map, "ArmM2encoderL");//0
+        armM2encoderL = new MotorEx(map, "ArmM2encoderC");//0
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         m_controller = new BTController(gamepad1);
@@ -158,16 +158,17 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper1(),
                 m_gripper.closeGripper0(),
-                m_chassis.fieldRelativeDrive(0.9,0,0).withTimeout(600),
+                m_chassis.fieldRelativeDrive(()->0.7,()->0,()->0).withTimeout(460).andThen(m_chassis.stopMotor()),
                 new WaitCommand(200),
-                m_chassis.fieldRelativeDrive(0,0,0.5).withTimeout(300),
+                m_chassis.fieldRelativeDrive(()->0,()->0,()->-0.5).withTimeout(880).andThen(m_chassis.stopMotor()),
                 new WaitCommand(100),
-                m_chassis.fieldRelativeDrive(0,0.9,0).withTimeout(2000),
-                new WaitCommand(200),
-                m_arm.turnOnFF(),
-                m_arm.setScore(),
-                m_gripper.openGripper1(),
-                m_arm.setIdle()
+                m_chassis.fieldRelativeDrive(()->0,()->-0.7,()->0).withTimeout(700).andThen(m_chassis.stopMotor()),
+                new WaitCommand(200)
+//                ,
+//                m_arm.turnOnFF(),
+//                m_arm.setScore(),
+//                m_gripper.openGripper1(),
+//                m_arm.setIdle()
 
         );
     }

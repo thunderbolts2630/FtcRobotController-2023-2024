@@ -31,7 +31,7 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = -0.058   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
+            public static double volt1Offset = 0.592   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
             public static double volt2Offset = -0.213;
         }
         public static final double arm1FirstAngle = 90;//max
