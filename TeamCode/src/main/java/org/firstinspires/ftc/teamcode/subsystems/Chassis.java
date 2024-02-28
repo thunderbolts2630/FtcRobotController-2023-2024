@@ -145,6 +145,13 @@ public class Chassis implements Subsystem {
             drive(rotated.getY(), rotated.getX(),  retaliation.getAsDouble());
         }, this);
     }
+    public Command fieldRelativeDrive(double frontVel, double sidewayVel, double retaliation) {
+        return new InstantCommand(() -> {
+            BTTranslation2d vector = new BTTranslation2d(sidewayVel, frontVel);
+            BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(-gyro.getHeading()));
+            drive(rotated.getY(), rotated.getX(),  retaliation);
+        }, this);
+    }
 
     public Command stopMotor() {
         return new InstantCommand(()-> setMotors(0, 0, 0, 0));
