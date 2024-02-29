@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.utils.geometry.BTRotation2d;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTTransform2d;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 
+import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.RotationPID.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
@@ -35,6 +36,7 @@ public class Chassis implements Subsystem {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     private PIDFController m_pidcontroller;
+    private PIDFController m_rotationpid;
     private double prevTime = 0;
     private BTTransform2d velocity, prevVelocity = new BTTransform2d(), acceleration, prevAcceleration = new BTTransform2d();
     private BTPose2d prevPos;
@@ -92,6 +94,8 @@ public class Chassis implements Subsystem {
         time.startTime();
         prevTime = time.time();
         m_pidcontroller = new PIDFController(kp, ki, kd, kff);
+        m_rotationpid = new PIDFController(rkp,rki,rkd,rks);
+        m_rotationpid.setTolerance(tolerance);
         register();
         dashboardTelemetry.addData("drive: ", 0);
         dashboardTelemetry.addData("frontVelocityAuto", 0);
@@ -160,6 +164,8 @@ public class Chassis implements Subsystem {
     @Override
     public void periodic() {
         m_pidcontroller.setPIDF(kp, ki, kd, kff);
+        m_rotationpid.setPIDF(rkp,rki,rkd,rks);
+        m_rotationpid.setTolerance(tolerance);
         odometry.updatePose();
         calcVA();
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
@@ -233,6 +239,12 @@ public class Chassis implements Subsystem {
 
     public Pose2d getPosition() {
         return odometry.getPose();
+    }
+
+    public Command goToDegrees(){
+        return new InstantCommand(()-> m_rotationpid.setSetPoint(degrees))
+                .andThen( new RunCommand(()->drive(0,0,m_rotationpid.calculate(gyro.getHeading())))
+                        .until(()->m_rotationpid.atSetPoint()));
     }
 }
 
