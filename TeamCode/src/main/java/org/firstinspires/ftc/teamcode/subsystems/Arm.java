@@ -352,6 +352,7 @@ public class Arm implements Subsystem {
             m_pid2.reset(current_second_joint_angle);
         });
     }
+
     public Command turnOnFF() {
         return new InstantCommand(() -> {
             manual = false;
@@ -402,14 +403,12 @@ public class Arm implements Subsystem {
     }
 
     public Command setScore() {
-        return new InstantCommand(() ->setState(Positions.SCORE))
-        .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.SCORE))
-        .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.SCORE.ordinal())));
+        return new InstantCommand(() -> setState(Positions.SCORE))
+                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.SCORE.ordinal())));
     }
 
     public Command setHighScore() {
         return new InstantCommand(() -> setState(Positions.HIGHSCORE))
-                .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.HIGHSCORE))
                 .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.HIGHSCORE.ordinal())));
     }
 
