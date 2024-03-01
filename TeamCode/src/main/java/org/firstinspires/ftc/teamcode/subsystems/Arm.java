@@ -66,6 +66,7 @@ public class Arm implements Subsystem {
     private double servo_desired_position = 0.33;
     private double armAccBasedOffset1 = 0;
     private double armAccBasedOffset2 = 0;
+    private boolean goalIsSet = false;
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
@@ -197,6 +198,10 @@ public class Arm implements Subsystem {
         dashboard.addData("accArmOffset1", armAccBasedOffset1);
         dashboard.addData("accArmOffset2", armAccBasedOffset2);
         dashboard.addData("state", state.ordinal());
+        if (!goalIsSet) {
+            m_pid1.setGoal(current_first_joint_angle);
+            m_pid2.setGoal(current_second_joint_angle);
+        }
 
     }
 
@@ -390,8 +395,10 @@ public class Arm implements Subsystem {
         m_pid2.reset(current_second_joint_angle);
         servo.setPosition(pos.servo);
         servo_desired_position = pos.servo;
+        goalIsSet = true;
         m_pid1.setGoal(a1DesAngle);
         m_pid2.setGoal(a2DesAngle);
+
         state = pos;
     }
 

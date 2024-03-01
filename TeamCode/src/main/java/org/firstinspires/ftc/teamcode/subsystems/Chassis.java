@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
+import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
-import org.firstinspires.ftc.teamcode.utils.Util;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTPose2d;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTRotation2d;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTTransform2d;
@@ -36,7 +36,7 @@ public class Chassis implements Subsystem {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     private PIDFController m_pidcontroller;
-    private PIDFController m_rotationpid;
+    private PIDController m_rotationpid;
     private double prevTime = 0;
     private BTTransform2d velocity, prevVelocity = new BTTransform2d(), acceleration, prevAcceleration = new BTTransform2d();
     private BTPose2d prevPos;
@@ -61,6 +61,7 @@ public class Chassis implements Subsystem {
     private Motor.Encoder m_leftEncoder;
     private Motor.Encoder m_rightEncoder;
     public double RobotXAcc = 0;
+    public int test = 0;
 
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
@@ -77,6 +78,10 @@ public class Chassis implements Subsystem {
         gyro = new RevIMU(map, "imu");
         gyro.init(parameters);
         gyro.reset();
+        motor_FR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        motor_BR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        motor_BL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        motor_FL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         horizontalEncoder = new MotorEx(map, "encoderLeft");
         m_leftEncoder = leftEncoder;
         m_rightEncoder = rightEncoder;
@@ -94,7 +99,8 @@ public class Chassis implements Subsystem {
         time.startTime();
         prevTime = time.time();
         m_pidcontroller = new PIDFController(kp, ki, kd, kff);
-        m_rotationpid = new PIDFController(rkp,rki,rkd,rks);
+        m_rotationpid = new PIDController(rkp,rki,rkd);
+        m_rotationpid.enableContinuousInput(-180,180);
         m_rotationpid.setTolerance(tolerance);
         register();
         dashboardTelemetry.addData("drive: ", 0);
@@ -164,7 +170,7 @@ public class Chassis implements Subsystem {
     @Override
     public void periodic() {
         m_pidcontroller.setPIDF(kp, ki, kd, kff);
-        m_rotationpid.setPIDF(rkp,rki,rkd,rks);
+        m_rotationpid.setPID(rkp,rki,rkd);
         m_rotationpid.setTolerance(tolerance);
         odometry.updatePose();
         calcVA();
@@ -182,6 +188,7 @@ public class Chassis implements Subsystem {
         RobotXAcc = odometry.getAcceleration();
         RobotContainer.armAccAdjustment = RobotXAcc;
         dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
+        dashboardTelemetry.addData("test", test);
 
         dashboardTelemetry.update();
 
@@ -242,10 +249,17 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(){
-        return new InstantCommand(()-> m_rotationpid.setSetPoint(degrees))
+        return new InstantCommand(()-> m_rotationpid.setSetpoint(degrees))
                 .andThen( new RunCommand(()->drive(0,0,m_rotationpid.calculate(gyro.getHeading())))
-                        .until(()->m_rotationpid.atSetPoint()));
+                        .until(()->m_rotationpid.atSetpoint()));
     }
+
+    public Command test(){
+        return new InstantCommand(()->test=1);
+    }
+
+
 }
+
 
 

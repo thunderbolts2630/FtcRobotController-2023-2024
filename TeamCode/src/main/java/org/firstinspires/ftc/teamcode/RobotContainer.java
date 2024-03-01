@@ -97,6 +97,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2.assignCommand(m_arm.setMiddle(), false, BUTTON_LEFT);
         m_controller2.assignCommand(m_arm.setPickup(), false, DPAD_RIGHT);
         m_controller.assignCommand(m_chassis.goToDegrees(),false,DPAD_LEFT);
+        m_controller.assignCommand(testPath2(),false,DPAD_RIGHT);
 
     }
 
@@ -157,20 +158,8 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
     public Command testPath2(){
         return new SequentialCommandGroup(
-                m_gripper.closeGripper1(),
-                m_gripper.closeGripper0(),
-                m_chassis.fieldRelativeDrive(()->0.7,()->0,()->0).withTimeout(460).andThen(m_chassis.stopMotor()),
-                new WaitCommand(200),
-                m_chassis.fieldRelativeDrive(()->0,()->0,()->-0.5).withTimeout(880).andThen(m_chassis.stopMotor()),
-                new WaitCommand(100),
-                m_chassis.fieldRelativeDrive(()->0,()->-0.7,()->0).withTimeout(700).andThen(m_chassis.stopMotor()),
-                new WaitCommand(200)
-//                ,
-//                m_arm.turnOnFF(),
-//                m_arm.setScore(),
-//                m_gripper.openGripper1(),
-//                m_arm.setIdle()
-
+                m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(1000).andThen(m_chassis.test())
+                        .andThen(m_chassis.stopMotor())
         );
     }
 }
