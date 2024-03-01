@@ -171,6 +171,7 @@ public class Chassis implements Subsystem {
     public void periodic() {
         m_pidcontroller.setPIDF(kp, ki, kd, kff);
         m_rotationpid.setPID(rkp,rki,rkd);
+        drive(0,0,m_rotationpid.calculate(gyro.getHeading()));
         m_rotationpid.setTolerance(tolerance);
         odometry.updatePose();
         calcVA();
@@ -249,9 +250,7 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(){
-        return new InstantCommand(()-> m_rotationpid.setSetpoint(degrees))
-                .andThen( new RunCommand(()->drive(0,0,m_rotationpid.calculate(gyro.getHeading())))
-                        .until(()->m_rotationpid.atSetpoint()));
+        return new InstantCommand(()-> m_rotationpid.setSetpoint(degrees));
     }
 
     public Command test(){
