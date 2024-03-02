@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
@@ -14,7 +15,6 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -37,6 +37,7 @@ public class Chassis implements Subsystem {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     private PIDFController m_pidcontroller;
     private PIDController m_rotationpid;
+    private SimpleMotorFeedforward m_rotFF;
     private double prevTime = 0;
     private BTTransform2d velocity, prevVelocity = new BTTransform2d(), acceleration, prevAcceleration = new BTTransform2d();
     private BTPose2d prevPos;
@@ -64,6 +65,9 @@ public class Chassis implements Subsystem {
     public int test = 0;
 
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+    private boolean auto = false;
+    private double desiredXVel;
+    private double desiredYVel;
 
     public Chassis(HardwareMap map, Telemetry telemetry, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder) {
         this.map = map;
@@ -97,6 +101,7 @@ public class Chassis implements Subsystem {
         prevPos = odometry.getPose();
         time.reset();
         time.startTime();
+        m_rotFF = new SimpleMotorFeedforward(rks,1);
         prevTime = time.time();
         m_pidcontroller = new PIDFController(kp, ki, kd, kff);
         m_rotationpid = new PIDController(rkp,rki,rkd);
@@ -159,7 +164,8 @@ public class Chassis implements Subsystem {
         return new InstantCommand(() -> {
             BTTranslation2d vector = new BTTranslation2d(sidewayVel, frontVel);
             BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(-gyro.getHeading()));
-            drive(rotated.getY(), rotated.getX(),  retaliation);
+            desiredXVel=rotated.getX();
+            desiredYVel = rotated.getY();
         }, this);
     }
 
@@ -171,12 +177,17 @@ public class Chassis implements Subsystem {
     public void periodic() {
         m_pidcontroller.setPIDF(kp, ki, kd, kff);
         m_rotationpid.setPID(rkp,rki,rkd);
-        drive(0,0,m_rotationpid.calculate(gyro.getHeading()));
+        drive(0,0,m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),degrees)));
         m_rotationpid.setTolerance(tolerance);
         odometry.updatePose();
         calcVA();
+
+        if(auto){
+            drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading())));
+        }
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
         dashboardTelemetry.addData("gyro angle: ", gyro.getHeading());
+        dashboardTelemetry.addData("rotPID", m_rotationpid.calculate(gyro.getHeading()));
         dashboardTelemetry.addData("x:", odometry.getPose().getX());
 
         dashboardTelemetry.addData("Theta velocity : ", velocity.getRotation().getDegrees());
@@ -250,7 +261,9 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(){
-        return new InstantCommand(()-> m_rotationpid.setSetpoint(degrees));
+        return new InstantCommand(()->{
+            m_rotationpid.setSetpoint(degrees);
+        });
     }
 
     public Command test(){
