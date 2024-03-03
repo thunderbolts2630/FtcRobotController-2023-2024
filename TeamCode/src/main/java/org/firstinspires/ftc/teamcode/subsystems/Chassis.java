@@ -91,7 +91,6 @@ public class Chassis implements Subsystem {
         motor_BR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_FL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        horizontalEncoder = new MotorEx(map, "encoderLeft");
         m_leftEncoder = new MotorEx(map, "encoderLeft").encoder;
         m_centerEncoder = leftEncoder;
         m_rightEncoder = rightEncoder;

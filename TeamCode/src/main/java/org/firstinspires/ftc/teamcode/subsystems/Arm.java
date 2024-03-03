@@ -8,8 +8,8 @@ import static org.firstinspires.ftc.teamcode.Constants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmWights.*;
 
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -18,7 +18,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RobotContainer;
-import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.BTController;
 import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
@@ -66,7 +65,8 @@ public class Arm implements Subsystem {
     private double servo_desired_position = 0.33;
     private double armAccBasedOffset1 = 0;
     private double armAccBasedOffset2 = 0;
-    private boolean goalIsSet = false;
+    private boolean goalIsSet1 = false;
+    private boolean goalIsSet2 = false;
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
@@ -198,8 +198,10 @@ public class Arm implements Subsystem {
         dashboard.addData("accArmOffset1", armAccBasedOffset1);
         dashboard.addData("accArmOffset2", armAccBasedOffset2);
         dashboard.addData("state", state.ordinal());
-        if (!goalIsSet) {
+        if (!goalIsSet1) {
             m_pid1.setGoal(current_first_joint_angle);
+        }
+        if (!goalIsSet2) {
             m_pid2.setGoal(current_second_joint_angle);
         }
 
@@ -368,57 +370,87 @@ public class Arm implements Subsystem {
 
 
     public Command setMiddle() {
-        return new InstantCommand(() -> setState(Positions.MIDDLE))
-                .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.MIDDLE))
-                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.MIDDLE.ordinal())));
+        return goToState1(Positions.MIDDLE)
+                .andThen((goToState2(Positions.MIDDLE))
+                        .andThen(new InstantCommand(()->state = Positions.MIDDLE)));
+
     }
 
     public Command setIdle() {
-        return setMiddle()
-                .andThen(new InstantCommand(() -> setState(Positions.IDLE)))
-                .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.IDLE))
-                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.IDLE.ordinal())));
-    }
+        return goToState1(Positions.IDLE)
+                .andThen((goToState2(Positions.IDLE))
+                        .andThen(new InstantCommand(()->state = Positions.IDLE)));
 
+    }
     public boolean ArmAtGoal() {
         return m_pid1.atGoal() && m_pid2.atGoal();
     }
 
-    private void setState(Positions pos) {
-        m_pid2.setConstraints(pos.constraints1);
+    private void setState1(Positions pos) {
         m_pid1.setConstraints(pos.constraints2);
-        a1DesAngle = pos.angle1;
-        a2DesAngle = pos.angle2;
-        desired_second_joint_angle = a2DesAngle;
-        desired_first_joint_angle = a1DesAngle;
+        desired_first_joint_angle = pos.angle1;
         m_pid1.reset(current_first_joint_angle);
-        m_pid2.reset(current_second_joint_angle);
+        m_pid1.setGoal(desired_first_joint_angle);
         servo.setPosition(pos.servo);
-        servo_desired_position = pos.servo;
-        goalIsSet = true;
-        m_pid1.setGoal(a1DesAngle);
-        m_pid2.setGoal(a2DesAngle);
-
-        state = pos;
+        goalIsSet1 = true;
     }
 
+    public void setState2(Positions pos) {
+        m_pid2.setConstraints(pos.constraints1);
+        desired_second_joint_angle = pos.angle2;
+        m_pid2.reset(current_second_joint_angle);
+        m_pid2.setGoal(desired_second_joint_angle);
+        servo_desired_position = pos.servo;
+        goalIsSet2 = true;
+    }
+
+    private void setStateBoth(Positions pos) {
+        m_pid1.setConstraints(pos.constraints2);
+        a1DesAngle = pos.angle1;
+        desired_first_joint_angle = a1DesAngle;
+        m_pid1.reset(current_first_joint_angle);
+        m_pid1.setGoal(a1DesAngle);
+        servo.setPosition(pos.servo);
+        goalIsSet1 = true;
+
+        m_pid2.setConstraints(pos.constraints1);
+        a2DesAngle = pos.angle2;
+        desired_second_joint_angle = a2DesAngle;
+        m_pid2.reset(current_second_joint_angle);
+        servo_desired_position = pos.servo;
+        goalIsSet2 = true;
+        m_pid2.setGoal(a2DesAngle);
+        state = pos;
+
+    }
+
+
     public Command setPickup() {
-        return new ConditionalCommand(setMiddle(), new InstantCommand(), () -> state == Positions.IDLE)
-                .andThen(new InstantCommand(() -> setState(Positions.PICKUP)))
-                .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.PICKUP))
-                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.PICKUP.ordinal())));
+        return goToState1(Positions.PICKUP)
+                .andThen((goToState2(Positions.PICKUP))
+                        .andThen(new InstantCommand(()->state = Positions.PICKUP)));
+
     }
 
     public Command setScore() {
-        return new InstantCommand(() -> setState(Positions.SCORE))
-                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.SCORE.ordinal())));
+        return goToState1(Positions.SCORE)
+                .andThen((goToState2(Positions.SCORE))
+                        .andThen(new InstantCommand(()->state = Positions.SCORE)));
+    }
+
+    public Command goToState1(Positions pos) {
+        return new InstantCommand(() -> setState1(pos)).andThen(new WaitUntilCommand(() -> m_pid1.atSetpoint()));
+    }
+
+    public Command goToState2(Positions pos) {
+        return new InstantCommand(() -> setState2(pos)).andThen(new WaitUntilCommand(() -> m_pid2.atSetpoint()));
     }
 
     public Command setHighScore() {
-        return new InstantCommand(() -> setState(Positions.HIGHSCORE))
-                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.HIGHSCORE.ordinal())));
+        return goToState1(Positions.HIGHSCORE)
+                .andThen((goToState2(Positions.HIGHSCORE))
+                        .andThen(new InstantCommand(()->state = Positions.HIGHSCORE)));
     }
-
 
 }
 
