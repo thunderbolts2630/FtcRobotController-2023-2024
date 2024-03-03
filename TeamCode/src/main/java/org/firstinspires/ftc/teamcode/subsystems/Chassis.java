@@ -53,9 +53,6 @@ public class Chassis implements Subsystem {
     private MotorEx motor_BL;
     private MotorEx motor_BR;
     private RevIMU gyro;
-    private Motor leftEncoder;
-    private Motor rightEncoder;
-    private Motor horizontalEncoder;
     private BTPose2d m_postitionFromTag;
     private double maxVelocityX = 0;
     private double maxVelocityY = 0;
@@ -64,6 +61,7 @@ public class Chassis implements Subsystem {
     private double maxAccelerationTheta = 0;
     private double maxAccelerationY = 0;
     private Motor.Encoder m_leftEncoder;
+    private Motor.Encoder m_centerEncoder;
     private Motor.Encoder m_rightEncoder;
     public double RobotXAcc = 0;
     public int test = 0;
@@ -94,15 +92,16 @@ public class Chassis implements Subsystem {
         motor_BL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_FL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         horizontalEncoder = new MotorEx(map, "encoderLeft");
-        m_leftEncoder = leftEncoder;
+        m_leftEncoder = new MotorEx(map, "encoderLeft").encoder;
+        m_centerEncoder = leftEncoder;
         m_rightEncoder = rightEncoder;
-        horizontalEncoder.resetEncoder();
+        m_centerEncoder.reset();
         m_leftEncoder.reset();
         m_rightEncoder.reset();
         odometry = new BTposeEstimator(
-                () -> -metersFormTicks(leftEncoder.getPosition()),
-                () -> metersFormTicks(rightEncoder.getPosition()),
-                () -> metersFormTicks(horizontalEncoder.getCurrentPosition()),
+                () -> -metersFormTicks(m_centerEncoder.getPosition()),
+                () -> metersFormTicks(m_rightEncoder.getPosition()),
+                () -> metersFormTicks(m_centerEncoder.getPosition()),
                 () -> gyro.getHeading(),
                 TRACKWIDTH, WHEEL_OFFSET);
         prevPos = odometry.getPose();
@@ -124,7 +123,7 @@ public class Chassis implements Subsystem {
 
     public void resetOdmetry(Pose2d rst){
         odometry.reset(new BTPose2d(rst));
-        horizontalEncoder.resetEncoder();
+        m_centerEncoder.reset();
         m_leftEncoder.reset();
         m_rightEncoder.reset();
         gyro.reset();
