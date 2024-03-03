@@ -13,7 +13,7 @@ public class TestAuto extends CommandOpMode {
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
-        robotContainer.TestAuto().schedule();
+        robotContainer.testPath2().schedule();
         enable();
 
     }

@@ -8,14 +8,15 @@ import static org.firstinspires.ftc.teamcode.Constants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmWights.*;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.BTController;
@@ -62,9 +63,10 @@ public class Arm implements Subsystem {
     private SlewRateLimiter rateLimiter;
     private boolean sensor1LimitReached = false;
     private boolean sensor2LimitReached = false;
-    private double servo_desired_position=0.33;
+    private double servo_desired_position = 0.33;
     private double armAccBasedOffset1 = 0;
     private double armAccBasedOffset2 = 0;
+    private boolean goalIsSet = false;
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
@@ -75,7 +77,8 @@ public class Arm implements Subsystem {
         this.arm2.setInverted(true);
         m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-
+        m_pid1.setTolerance(5);
+        m_pid2.setTolerance(3);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
 //        m_pid2.setTolerance(0.1);
 //        m_pid1.setTolerance(0.1);
@@ -88,11 +91,10 @@ public class Arm implements Subsystem {
         dashboard.addData("desiredPT2", 0);
         arm1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         arm2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-
         register();
     }
 
-    public void     setMotors(double firstSpeed, double secondSpeed, double servoPos) {
+    public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
         double vMax1 = 1.7 + ArmOffset.volt1Offset;
         double vMin1 = 0.6 + ArmOffset.volt1Offset;
         if (potentiometer1.getVoltage() < 0.4 || potentiometer1.getVoltage() > 2.9 || sensor1LimitReached) {
@@ -134,7 +136,6 @@ public class Arm implements Subsystem {
     }
 
 
-
     public double ApplyFeedForward(double currentPose, double targetPose, double feedforward, double tolerance) {
         if (Math.abs(currentPose - targetPose) < tolerance) {
             return 0;
@@ -166,19 +167,20 @@ public class Arm implements Subsystem {
         if (!manual) {
             setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position);
         }
+
         dashboard.addData("desired angle 1:", desired_first_joint_angle);
         dashboard.addData("desired angle 2:", desired_second_joint_angle);
         dashboard.addData("pot1:", current_pot1_voltage);
         dashboard.addData("pot2:", current_pot2_voltage);
-        dashboard.addData("first angle ", current_first_joint_angle );
-        dashboard.addData("second angle", current_second_joint_angle );
+        dashboard.addData("first angle ", current_first_joint_angle);
+        dashboard.addData("second angle", current_second_joint_angle);
         dashboard.addData("arm1PID", arm1PIDresult);
         dashboard.addData("arm2PID", arm2PIDresult);
         dashboard.addData("power to arm 1", desired_arm1_motor_value);
         dashboard.addData("power to arm 2", desired_arm2_motor_value);
         dashboard.addData("arm1 ticks", arm1.getCurrentPosition());
-        dashboard.addData("arm total error1",m_pid1.getTotalError());
-        dashboard.addData("arm total error2",m_pid2.getTotalError());
+        dashboard.addData("arm total error1", m_pid1.getTotalError());
+        dashboard.addData("arm total error2", m_pid2.getTotalError());
         dashboard.addData("servoPos", servo.getPosition());
         dashboard.addData("setpoint1", m_pid1.getSetpoint().position);
         dashboard.addData("setpoint2", m_pid2.getSetpoint().position);
@@ -191,11 +193,15 @@ public class Arm implements Subsystem {
         voltFirstAngle1 = 2.371 + ArmOffset.volt1Offset;//max
         voltSecondAngle1 = 1.2 + ArmOffset.volt1Offset;//min
         voltSecondAngle2 = 1.58 + volt2Offset;
-        voltFirstAngle2 =1.13 + volt2Offset;//max
+        voltFirstAngle2 = 1.13 + volt2Offset;//max
 
         dashboard.addData("accArmOffset1", armAccBasedOffset1);
         dashboard.addData("accArmOffset2", armAccBasedOffset2);
-
+        dashboard.addData("state", state.ordinal());
+        if (!goalIsSet) {
+            m_pid1.setGoal(current_first_joint_angle);
+            m_pid2.setGoal(current_second_joint_angle);
+        }
 
     }
 
@@ -206,7 +212,7 @@ public class Arm implements Subsystem {
 
     public double voltageToAngle1(double voltage) {
         double angle1 = ((voltage - voltSecondAngle1) * (arm1FirstAngle - arm1SecondAngle) / (voltFirstAngle1 - voltSecondAngle1)) + arm1SecondAngle;
-        return angle1+angelOffset1;
+        return angle1 + angelOffset1;
     }
 
     public double angleToVoltageA2(double angle) {
@@ -217,19 +223,20 @@ public class Arm implements Subsystem {
 
     public double voltageToAngle2(double voltage) {
         double angle2 = ((voltage - voltSecondAngle2) * (arm2FirstAngle - arm2SecondAngle) / (voltFirstAngle2 - voltSecondAngle2)) + arm2SecondAngle;
-        return angle2+angelOffset2;
+        return angle2 + angelOffset2;
     }
 
 
     public double setMotorFromAngle1() {
         arm1PIDresult = m_pid1.calculate(current_first_joint_angle, desired_first_joint_angle);
 
-        armAccBasedOffset1= ((resistance *
+        armAccBasedOffset1 = ((resistance *
                 (RobotContainer.armAccAdjustment * Util.sinInDegrees(current_first_joint_angle))
                 / (first_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
         arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
 //        dashboard.addData("desired,current discrepancy", current_first_joint_angle-desired_first_joint_angle);
         return arm1FF + arm1PIDresult;
+
 
     }
 
@@ -256,7 +263,7 @@ public class Arm implements Subsystem {
     private double calculateFeedForwardFirstJoint(double first_joint_angle) {
 
         return ((resistance *
-                (first_arm_weight * (g * l1 * Util.cosInDegrees(first_joint_angle ))
+                (first_arm_weight * (g * l1 * Util.cosInDegrees(first_joint_angle))
                 )
                 / (first_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;//to conv between
         // in volts
@@ -351,67 +358,66 @@ public class Arm implements Subsystem {
         });
     }
 
-    public BTCommand armMoveToPoint(Translation2d point) {
-        return new RunCommand(
-                () -> {
-                    setDesiredPoint(point);
-                }
-        );
+    public Command turnOnFF() {
+        return new InstantCommand(() -> {
+            manual = false;
+            m_pid1.reset(current_first_joint_angle);
+            m_pid2.reset(current_second_joint_angle);
+        });
     }
 
-    public Command setMiddle(){
-        return new InstantCommand(()->{
-         setState(Positions.MIDDLE);
-        });
+
+    public Command setMiddle() {
+        return new InstantCommand(() -> setState(Positions.MIDDLE))
+                .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.MIDDLE))
+                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.MIDDLE.ordinal())));
     }
+
     public Command setIdle() {
-        return new InstantCommand(() -> {
-          if(state==Positions.PICKUP){
-            setState(Positions.MIDDLE);
-          }else{
-              setState(Positions.idle);
-          }
-        });
+        return setMiddle()
+                .andThen(new InstantCommand(() -> setState(Positions.IDLE)))
+                .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.IDLE))
+                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.IDLE.ordinal())));
     }
-    private void setState(Positions pos){
+
+    public boolean ArmAtGoal() {
+        return m_pid1.atGoal() && m_pid2.atGoal();
+    }
+
+    private void setState(Positions pos) {
         m_pid2.setConstraints(pos.constraints1);
         m_pid1.setConstraints(pos.constraints2);
-        a1DesAngle =pos.angle1;
+        a1DesAngle = pos.angle1;
         a2DesAngle = pos.angle2;
         desired_second_joint_angle = a2DesAngle;
         desired_first_joint_angle = a1DesAngle;
         m_pid1.reset(current_first_joint_angle);
         m_pid2.reset(current_second_joint_angle);
         servo.setPosition(pos.servo);
-        servo_desired_position=pos.servo;
+        servo_desired_position = pos.servo;
+        goalIsSet = true;
         m_pid1.setGoal(a1DesAngle);
         m_pid2.setGoal(a2DesAngle);
-        state=pos;
+
+        state = pos;
     }
 
-    public Command setPickup(){
-        return new InstantCommand(()->{
-            if(state==Positions.idle){
-                setState(Positions.MIDDLE);
-            }else {
-                setState(Positions.PICKUP);
-            }
-        });
-    }
-    public Command setScore(){
-        return new InstantCommand(()->{
-          setState(Positions.SCORE);
-        }
-        );
-    }
-    public Command setHighScore(){
-        return new InstantCommand(()->{
-            setState(Positions.HIGHSCORE);
-        });
+    public Command setPickup() {
+        return new ConditionalCommand(setMiddle(), new InstantCommand(), () -> state == Positions.IDLE)
+                .andThen(new InstantCommand(() -> setState(Positions.PICKUP)))
+                .andThen(new WaitUntilCommand(() -> ArmAtGoal() && state == Positions.PICKUP))
+                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.PICKUP.ordinal())));
     }
 
+    public Command setScore() {
+        return new InstantCommand(() -> setState(Positions.SCORE))
+                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.SCORE.ordinal())));
+    }
 
-
+    public Command setHighScore() {
+        return new InstantCommand(() -> setState(Positions.HIGHSCORE))
+                .andThen(new InstantCommand(() -> dashboard.addData("position", Positions.HIGHSCORE.ordinal())));
+    }
 
 
 }

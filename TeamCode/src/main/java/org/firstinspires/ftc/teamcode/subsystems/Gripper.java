@@ -71,6 +71,12 @@ public class Gripper implements Subsystem {
             dashboard.addData("isOpen1", isOpen1);
         });
     }
+    public Command openGripper0() {
+        return new InstantCommand(() -> {
+            isOpen0 = true;
+            dashboard.addData("isOpen1", isOpen1);
+        });
+    }
 
     public Command closeGripper1() {
         return new InstantCommand(() -> {
