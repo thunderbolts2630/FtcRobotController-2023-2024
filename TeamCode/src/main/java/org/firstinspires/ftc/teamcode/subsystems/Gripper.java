@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -69,27 +70,27 @@ public class Gripper implements Subsystem {
         return new InstantCommand(() -> {
             isOpen1 = true;
             dashboard.addData("isOpen1", isOpen1);
-        });
+        }).andThen(new WaitCommand(200));
     }
     public Command openGripper0() {
         return new InstantCommand(() -> {
             isOpen0 = true;
             dashboard.addData("isOpen1", isOpen1);
-        });
+        }).andThen(new WaitCommand(200));
     }
 
     public Command closeGripper1() {
         return new InstantCommand(() -> {
             isOpen1 = false;
             dashboard.addData("isOpen1", isOpen1);
-        });
+        }).andThen(new WaitCommand(200));
     }
 
     public Command closeGripper0() {
         return new InstantCommand(() -> {
             isOpen0 = false;
             dashboard.addData("isOpen1", isOpen0);
-        });
+        }).andThen(new WaitCommand(200));
     }
 
 

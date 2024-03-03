@@ -76,7 +76,7 @@ public class Constants {
         public enum Positions{
             SCORE(98,0,0.51,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             IDLE(54,-16,0.4,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
-            MIDDLE(90,-73,0.48,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            MIDDLE(95,-73,0.48,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(101,30,0.32,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),// 2/15 checked
             PICKUP(54,-118,0.6, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));// 2/14 checked
             public double angle1;

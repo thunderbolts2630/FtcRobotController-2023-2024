@@ -78,7 +78,7 @@ public class Arm implements Subsystem {
         m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
         m_pid1.setTolerance(5);
-        m_pid2.setTolerance(3);
+        m_pid2.setTolerance(5);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
 //        m_pid2.setTolerance(0.1);
 //        m_pid1.setTolerance(0.1);
@@ -439,11 +439,11 @@ public class Arm implements Subsystem {
     }
 
     public Command goToState1(Positions pos) {
-        return new InstantCommand(() -> setState1(pos)).andThen(new WaitUntilCommand(() -> m_pid1.atSetpoint()));
+        return new InstantCommand(() -> setState1(pos)).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
     }
 
     public Command goToState2(Positions pos) {
-        return new InstantCommand(() -> setState2(pos)).andThen(new WaitUntilCommand(() -> m_pid2.atSetpoint()));
+        return new InstantCommand(() -> setState2(pos)).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
     }
 
     public Command setHighScore() {
