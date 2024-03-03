@@ -158,8 +158,13 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
     public Command testPath2(){
         return new SequentialCommandGroup(
-                m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(1000).andThen(m_chassis.test())
-                        .andThen(m_chassis.stopMotor())
+                m_chassis.fieldRelativeDrive( 0.6, 0, 0).andThen(new WaitCommand(800))
+                .andThen(m_chassis.stopMotor()),
+                m_chassis.goToDegrees(-100),
+                m_chassis.fieldRelativeDrive( 0.6, 0, 0).andThen(new WaitCommand(110)).andThen(m_chassis.stopMotor()),
+                m_arm.setScore()
+
+
         );
     }
 }

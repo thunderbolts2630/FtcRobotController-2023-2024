@@ -13,7 +13,9 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.sun.tools.javac.resources.compiler;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BTposeEstimator;
@@ -33,6 +35,8 @@ import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConst
 import java.util.function.DoubleSupplier;
 
 public class Chassis implements Subsystem {
+
+    private VoltageSensor voltage_sensor;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     private PIDFController m_pidcontroller;
@@ -68,6 +72,8 @@ public class Chassis implements Subsystem {
     private boolean auto = false;
     private double desiredXVel;
     private double desiredYVel;
+    private double desiredAngle;
+
 
     public Chassis(HardwareMap map, Telemetry telemetry, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder) {
         this.map = map;
@@ -76,12 +82,13 @@ public class Chassis implements Subsystem {
         motor_FR = new MotorEx(map, "motor_FR");//2
         motor_BL = new MotorEx(map, "motor_BL");//0
         motor_BR = new MotorEx(map, "motor_BR");//3
-
+        voltage_sensor =  map.voltageSensor.iterator().next();
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         gyro = new RevIMU(map, "imu");
         gyro.init(parameters);
         gyro.reset();
+        gyro.invertGyro();
         motor_FR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -125,10 +132,12 @@ public class Chassis implements Subsystem {
 
     }
     public void setMotors(double FL, double FR, double BL, double BR) {
-        motor_FR.set(FR);
-        motor_FL.set(FL);
-        motor_BR.set(BR);
-        motor_BL.set(BL);
+        double compensation = 12.0/voltage_sensor.getVoltage();
+        motor_FR.set(compensation*FR);
+        motor_FL.set(compensation*FL);
+        motor_BR.set(compensation*BR);
+        motor_BL.set(compensation*BL);
+        dashboardTelemetry.addData("compensation", compensation);
     }
 
     ElapsedTime driveTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
@@ -162,28 +171,32 @@ public class Chassis implements Subsystem {
     }
     public Command fieldRelativeDrive(double frontVel, double sidewayVel, double retaliation) {
         return new InstantCommand(() -> {
+            auto = true;
             BTTranslation2d vector = new BTTranslation2d(sidewayVel, frontVel);
             BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(-gyro.getHeading()));
-            desiredXVel=rotated.getX();
-            desiredYVel = rotated.getY();
+            desiredXVel=rotated.getY();
+            desiredYVel = rotated.getX();
+            desiredAngle = retaliation;
         }, this);
     }
 
     public Command stopMotor() {
-        return new InstantCommand(()-> setMotors(0, 0, 0, 0));
+        return new InstantCommand(()->{
+            auto = false;
+            setMotors(0,0,0,0);
+        });
     }
 
     @Override
     public void periodic() {
         m_pidcontroller.setPIDF(kp, ki, kd, kff);
         m_rotationpid.setPID(rkp,rki,rkd);
-        drive(0,0,m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),degrees)));
         m_rotationpid.setTolerance(tolerance);
+        m_rotationpid.setIzone(rotIzone);
         odometry.updatePose();
         calcVA();
-
         if(auto){
-            drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading())));
+            drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),desiredAngle)));
         }
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
         dashboardTelemetry.addData("gyro angle: ", gyro.getHeading());
@@ -201,6 +214,7 @@ public class Chassis implements Subsystem {
         RobotContainer.armAccAdjustment = RobotXAcc;
         dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
         dashboardTelemetry.addData("test", test);
+        dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
 
         dashboardTelemetry.update();
 
@@ -260,16 +274,15 @@ public class Chassis implements Subsystem {
         return odometry.getPose();
     }
 
-    public Command goToDegrees(){
+    public Command goToDegrees(double degrees){
         return new InstantCommand(()->{
-            m_rotationpid.setSetpoint(degrees);
+            m_rotationpid.setSetpoint(degrees);//-90
         });
     }
 
     public Command test(){
         return new InstantCommand(()->test=1);
     }
-
 
 }
 

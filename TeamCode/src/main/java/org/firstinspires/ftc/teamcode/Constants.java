@@ -98,12 +98,14 @@ public class Constants {
         }
         @Config
         public static class RotationPID{
-            public static double rkp = 0;
-            public static double rki = 0;
+            public static double rkp = 0.0145;
+            public static double rki = 0.0006;
             public static double rkd = 0;
             public static double rks = 0;
-            public static double degrees = 0;
+            public static double degrees =-100;
             public static double tolerance = 2;
+            public static double rotIzone = 7;
+
         }
 
         @Config
@@ -173,6 +175,7 @@ public class Constants {
         public static final BTTranslation2d FLW = new BTTranslation2d(-0.145,0.137);
         public static final BTTranslation2d BLW = new BTTranslation2d(-0.145,-0.137);
         public static SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(ffks,ffkv,ffka);
+
         @Config
         public static class ChassisFeedForward{
             public static double ffks = 0.12;
