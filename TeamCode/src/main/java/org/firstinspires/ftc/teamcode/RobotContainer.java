@@ -96,8 +96,8 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2.assignCommand(m_arm.setIdle(), false, DPAD_LEFT);
         m_controller2.assignCommand(m_arm.setMiddle(), false, BUTTON_LEFT);
         m_controller2.assignCommand(m_arm.setPickup(), false, DPAD_RIGHT);
-        m_controller.assignCommand(m_chassis.goToDegrees(-100),false,DPAD_LEFT);
-        m_controller.assignCommand(testPath2(),false,DPAD_RIGHT);
+//        m_controller.assignCommand(m_chassis.goToDegrees(-100),false,DPAD_LEFT);
+//        m_controller.assignCommand(testPath2(),false,DPAD_RIGHT);
 
     }
 
