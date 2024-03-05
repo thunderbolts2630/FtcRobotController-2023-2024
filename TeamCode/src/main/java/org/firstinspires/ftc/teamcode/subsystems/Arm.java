@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.Constants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmWights.*;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
@@ -370,16 +371,12 @@ public class Arm implements Subsystem {
 
 
     public Command setMiddle() {
-        return goToState1(Positions.MIDDLE)
-                .andThen((goToState2(Positions.MIDDLE))
-                        .andThen(new InstantCommand(()->state = Positions.MIDDLE)));
+        return goTo(Positions.MIDDLE);
 
     }
 
     public Command setIdle() {
-        return goToState1(Positions.IDLE)
-                .andThen((goToState2(Positions.IDLE))
-                        .andThen(new InstantCommand(()->state = Positions.IDLE)));
+        return goTo(Positions.IDLE);
 
     }
     public boolean ArmAtGoal() {
@@ -423,33 +420,38 @@ public class Arm implements Subsystem {
         state = pos;
 
     }
-
-
-    public Command setPickup() {
-        return goToState1(Positions.PICKUP)
-                .andThen((goToState2(Positions.PICKUP))
-                        .andThen(new InstantCommand(()->state = Positions.PICKUP)));
+    public Command goTo(Positions pos){
+        Command gt=goToState1(pos).andThen(goToState2(pos)).andThen(new InstantCommand(()->state = pos));
+        return new ConditionalCommand(
+                    goToState1(Positions.MIDPICKUP)
+                    .andThen(goToState2(Positions.MIDPICKUP))
+                    .andThen(new InstantCommand(()->state = Positions.MIDPICKUP))
+                    .andThen(gt),
+                    gt,
+                ()-> state != Positions.PICKUP
+        );
 
     }
 
+    public Command setPickup() {
+        return new ConditionalCommand(goTo(Positions.PICKUP),goTo(Positions.MIDPICKUP).andThen(goTo(Positions.PICKUP)), ()-> state == Positions.MIDPICKUP || state == Positions.PICKUP);
+    }
+
+
     public Command setScore() {
-        return goToState1(Positions.SCORE)
-                .andThen((goToState2(Positions.SCORE))
-                        .andThen(new InstantCommand(()->state = Positions.SCORE)));
+        return goTo(Positions.SCORE);
     }
 
     public Command goToState1(Positions pos) {
-        return new InstantCommand(() -> setState1(pos)).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
+        return new InstantCommand(() -> setState1(pos),this).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
     }
 
     public Command goToState2(Positions pos) {
-        return new InstantCommand(() -> setState2(pos)).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
+        return new InstantCommand(() -> setState2(pos),this).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
     }
 
     public Command setHighScore() {
-        return goToState1(Positions.HIGHSCORE)
-                .andThen((goToState2(Positions.HIGHSCORE))
-                        .andThen(new InstantCommand(()->state = Positions.HIGHSCORE)));
+        return goTo(Positions.HIGHSCORE);
     }
 
 }
