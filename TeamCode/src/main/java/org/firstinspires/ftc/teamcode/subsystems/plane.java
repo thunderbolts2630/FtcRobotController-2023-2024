@@ -24,7 +24,6 @@ public class plane implements Subsystem {
         this.telemetry=telemetry;
         servoPlane =map.servo.get("plane");
         servoPlane.getController().pwmEnable();
-
         register();
     }
     @Override
@@ -35,16 +34,13 @@ public class plane implements Subsystem {
     public Command resetPlane(){
         return  new InstantCommand(()->{
             servoPlane.setPosition(0);
-            telemetry.addLine("aaa reset");
         });
     }
     public Command shootPlane(){
         return new InstantCommand(()->{
             servoPlane.setPosition(0.56);
-            telemetry.addLine("aaa open");
         },this);
     };
 
-//    todo: maybe add toggle option
 
 }
