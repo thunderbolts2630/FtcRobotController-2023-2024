@@ -197,23 +197,14 @@ public class Chassis implements Subsystem {
             drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),desiredAngle)));
         }
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
-        dashboardTelemetry.addData("gyro angle: ", gyro.getHeading());
-        dashboardTelemetry.addData("rotPID", m_rotationpid.calculate(gyro.getHeading()));
-        dashboardTelemetry.addData("x:", odometry.getPose().getX());
+        dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
+        dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
 
-        dashboardTelemetry.addData("Theta velocity : ", velocity.getRotation().getDegrees());
-        dashboardTelemetry.addData("X velocity : ", velocity.getTranslation().getX());
-        dashboardTelemetry.addData("Y velocity : ", velocity.getTranslation().getY());
 
-        dashboardTelemetry.addData("X Acc : ", acceleration.getTranslation().getX());
-        dashboardTelemetry.addData("Y Acc: ", acceleration.getTranslation().getY());
-        dashboardTelemetry.addData("Theta Acc : ", acceleration.getRotation().getDegrees());
         RobotXAcc = odometry.getAcceleration();
         RobotContainer.armAccAdjustment = RobotXAcc;
         dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
-        dashboardTelemetry.addData("test", test);
         dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
-
         dashboardTelemetry.update();
 
     }

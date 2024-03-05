@@ -169,20 +169,13 @@ public class Arm implements Subsystem {
             setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position /*servo_desired_position*/);
         }
 
-        dashboard.addData("desired angle 1:", desired_first_joint_angle);
-        dashboard.addData("desired angle 2:", desired_second_joint_angle);
         dashboard.addData("pot1:", current_pot1_voltage);
         dashboard.addData("pot2:", current_pot2_voltage);
-        dashboard.addData("first angle ", current_first_joint_angle);
-        dashboard.addData("second angle", current_second_joint_angle);
-        dashboard.addData("arm1PID", arm1PIDresult);
-        dashboard.addData("arm2PID", arm2PIDresult);
-        dashboard.addData("power to arm 1", desired_arm1_motor_value);
-        dashboard.addData("power to arm 2", desired_arm2_motor_value);
+        dashboard.addData("angle first ", current_first_joint_angle);
+        dashboard.addData("angle second", current_second_joint_angle);
         dashboard.addData("arm1 ticks", arm1.getCurrentPosition());
         dashboard.addData("arm total error1", m_pid1.getTotalError());
         dashboard.addData("arm total error2", m_pid2.getTotalError());
-        dashboard.addData("servoPos", servo.getPosition());
         dashboard.addData("setpoint1", m_pid1.getSetpoint().position);
         dashboard.addData("setpoint2", m_pid2.getSetpoint().position);
 
