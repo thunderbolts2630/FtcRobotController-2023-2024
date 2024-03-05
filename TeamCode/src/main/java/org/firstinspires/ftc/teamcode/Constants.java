@@ -75,11 +75,12 @@ public class Constants {
   */
         public enum Positions{
             SCORE(98,0,0.51,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
-            IDLE(54,-16,0.4,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
-            MIDDLE(95,-73,0.48,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            IDLE(58,-30,0.28,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            MIDDLEPLUS(95,-73,0.48,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(101,30,0.32,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),// 2/15 checked
-            PICKUP(54,-118,0.6, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
-            MIDPICKUP(54,-118,0.6, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));// 2/14 checked
+            PICKUP(54,-118,0.565, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            MIDPICKUP(58,-140,0.26, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            MIDDLE(90,-90,0.5, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));// 2/14 checked
             public double angle1;
     public double angle2;
     public double servo;
@@ -111,8 +112,8 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-            public static double a1KP = 0.042;
-            public static double a2KP = 0.035;
+            public static double a1KP = 0.03;
+            public static double a2KP = 0.03;
             public static double a1KI = 0.0;
             public static double a2KI = 0.0;
             public static double a1KD = 0.0;
@@ -130,11 +131,11 @@ public class Constants {
         }
         @Config
         public static class ArmProfile{
-            public static double maxVelocity1=200;
-            public static double maxAcceleration1=200;
+            public static double maxVelocity1=1000;
+            public static double maxAcceleration1=1000;
 
-            public static double maxVelocity2=200;
-            public static double maxAcceleration2=200;
+            public static double maxVelocity2=1000;
+            public static double maxAcceleration2=1000;
         }
         public static double ffConv=12;
 

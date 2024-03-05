@@ -98,7 +98,7 @@ public class Chassis implements Subsystem {
         m_leftEncoder.reset();
         m_rightEncoder.reset();
         odometry = new BTposeEstimator(
-                () -> -metersFormTicks(m_centerEncoder.getPosition()),
+                () -> -metersFormTicks(m_leftEncoder.getPosition()),
                 () -> metersFormTicks(m_rightEncoder.getPosition()),
                 () -> metersFormTicks(m_centerEncoder.getPosition()),
                 () -> gyro.getHeading(),

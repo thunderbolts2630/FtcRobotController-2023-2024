@@ -10,7 +10,6 @@ import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmWights.*;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -34,6 +33,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.utils.Util;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class Arm implements Subsystem {
     private HardwareMap map;
@@ -58,7 +58,7 @@ public class Arm implements Subsystem {
     private double arm2PIDresult, arm2FF;
     private boolean manual = true;
     double desired_arm1_motor_value, desired_arm2_motor_value;
-    private Positions state = Positions.MIDDLE;
+    private Positions state = Positions.MIDDLEPLUS;
     private double driverAdjust1 = 0, driverAdjust2 = 0;
     private SlewRateLimiter rateLimiter;
     private boolean sensor1LimitReached = false;
@@ -166,7 +166,7 @@ public class Arm implements Subsystem {
         desired_arm1_motor_value = setMotorFromAngle1() + driverAdjust1;
         desired_arm2_motor_value = setMotorFromAngle2() + driverAdjust2;
         if (!manual) {
-            setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position);
+            setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position /*servo_desired_position*/);
         }
 
         dashboard.addData("desired angle 1:", desired_first_joint_angle);
@@ -371,7 +371,7 @@ public class Arm implements Subsystem {
 
 
     public Command setMiddle() {
-        return goTo(Positions.MIDDLE);
+        return goTo(Positions.MIDDLEPLUS);
 
     }
 
@@ -379,12 +379,13 @@ public class Arm implements Subsystem {
         return goTo(Positions.IDLE);
 
     }
+
     public boolean ArmAtGoal() {
         return m_pid1.atGoal() && m_pid2.atGoal();
     }
 
     private void setState1(Positions pos) {
-        m_pid1.setConstraints(pos.constraints2);
+        m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1));
         desired_first_joint_angle = pos.angle1;
         m_pid1.reset(current_first_joint_angle);
         m_pid1.setGoal(desired_first_joint_angle);
@@ -393,7 +394,7 @@ public class Arm implements Subsystem {
     }
 
     public void setState2(Positions pos) {
-        m_pid2.setConstraints(pos.constraints1);
+        m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2));
         desired_second_joint_angle = pos.angle2;
         m_pid2.reset(current_second_joint_angle);
         m_pid2.setGoal(desired_second_joint_angle);
@@ -420,21 +421,37 @@ public class Arm implements Subsystem {
         state = pos;
 
     }
-    public Command goTo(Positions pos){
-        Command gt=goToState1(pos).andThen(goToState2(pos)).andThen(new InstantCommand(()->state = pos));
+
+    public Command goTo(Positions pos) {
+        Supplier<Command> gt = () ->
+                new ConditionalCommand(
+                    goToState1(pos).andThen(goToState2(pos)),
+                    goToState2(pos).andThen(goToState1(pos)),
+                    ()->pos!=Positions.IDLE
+                )
+                .andThen(new InstantCommand(() -> state = pos));
         return new ConditionalCommand(
-                    goToState1(Positions.MIDPICKUP)
-                    .andThen(goToState2(Positions.MIDPICKUP))
-                    .andThen(new InstantCommand(()->state = Positions.MIDPICKUP))
-                    .andThen(gt),
-                    gt,
-                ()-> state != Positions.PICKUP
+                goToState2(Positions.MIDPICKUP)//return from PICKUP to front
+                        .andThen(goToState1(Positions.MIDPICKUP))
+                        .andThen(goToState1(Positions.MIDDLE))
+                        .andThen(goToState2(Positions.MIDDLE))
+                        .andThen(new InstantCommand(() -> state = Positions.MIDDLE))
+                        .andThen(gt.get()),
+                gt.get(),
+                () -> state == Positions.PICKUP
         );
 
     }
 
     public Command setPickup() {
-        return new ConditionalCommand(goTo(Positions.PICKUP),goTo(Positions.MIDPICKUP).andThen(goTo(Positions.PICKUP)), ()-> state == Positions.MIDPICKUP || state == Positions.PICKUP);
+        return new ConditionalCommand(goTo(Positions.MIDDLE)
+                .andThen(goToState2(Positions.MIDPICKUP))
+                .andThen(goToState1(Positions.MIDPICKUP))
+                .andThen(goToState2(Positions.PICKUP))
+                .andThen(goToState1(Positions.PICKUP))
+                .andThen(new InstantCommand(() -> state = Positions.PICKUP)),
+                goTo(Positions.MIDPICKUP).andThen(goTo(Positions.PICKUP)),
+                () -> !(state == Positions.MIDPICKUP || state == Positions.PICKUP));
     }
 
 
@@ -443,11 +460,11 @@ public class Arm implements Subsystem {
     }
 
     public Command goToState1(Positions pos) {
-        return new InstantCommand(() -> setState1(pos),this).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
+        return new InstantCommand(() -> setState1(pos), this).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
     }
 
     public Command goToState2(Positions pos) {
-        return new InstantCommand(() -> setState2(pos),this).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
+        return new InstantCommand(() -> setState2(pos), this).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
     }
 
     public Command setHighScore() {
