@@ -378,7 +378,7 @@ public class Arm implements Subsystem {
     }
 
     private void setState1(Positions pos) {
-        m_pid1.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1));
+        m_pid1.setConstraints(pos.constraints1);
         desired_first_joint_angle = pos.angle1;
         m_pid1.reset(current_first_joint_angle);
         m_pid1.setGoal(desired_first_joint_angle);
@@ -387,7 +387,7 @@ public class Arm implements Subsystem {
     }
 
     public void setState2(Positions pos) {
-        m_pid2.setConstraints(new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2));
+        m_pid2.setConstraints(pos.constraints2);
         desired_second_joint_angle = pos.angle2;
         m_pid2.reset(current_second_joint_angle);
         m_pid2.setGoal(desired_second_joint_angle);
@@ -423,9 +423,9 @@ public class Arm implements Subsystem {
                     ()->pos!=Positions.IDLE
                 )
                 .andThen(new InstantCommand(() -> state = pos));
-        return new ConditionalCommand(
-                goToState2(Positions.MIDPICKUP)//return from PICKUP to front
-                        .andThen(goToState1(Positions.MIDPICKUP))
+        return new ConditionalCommand(//return from PICKUP to front
+                goToState1(Positions.MIDPICKUP)
+                        .andThen(goToState2(Positions.MIDPICKUP))
                         .andThen(goToState1(Positions.MIDDLE))
                         .andThen(goToState2(Positions.MIDDLE))
                         .andThen(new InstantCommand(() -> state = Positions.MIDDLE))
