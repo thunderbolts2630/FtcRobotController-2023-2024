@@ -15,6 +15,10 @@ public class plane implements Subsystem {
     Telemetry telemetry;
     Servo servoPlane;
 
+    @Config
+    public static class planeCalib{
+        public static double servo =0.4;
+    }
     public plane(HardwareMap map, Telemetry telemetry){
         this.map=map;
         this.telemetry=telemetry;
@@ -25,17 +29,18 @@ public class plane implements Subsystem {
     }
     @Override
     public void periodic() {
+//        servoPlane.setPosition(planeCalib.servo);
     }
 
     public Command resetPlane(){
         return  new InstantCommand(()->{
-            servoPlane.setPosition(0.4);
+            servoPlane.setPosition(0);
             telemetry.addLine("aaa reset");
         });
     }
     public Command shootPlane(){
         return new InstantCommand(()->{
-            servoPlane.setPosition(0);
+            servoPlane.setPosition(0.56);
             telemetry.addLine("aaa open");
         },this);
     };

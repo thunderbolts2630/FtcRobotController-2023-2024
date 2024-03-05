@@ -163,7 +163,7 @@ public class Chassis implements Subsystem {
             m_telemetry.update();
 
             BTTranslation2d vector = new BTTranslation2d(sidewayVel.getAsDouble(), frontVel.getAsDouble());
-            BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(-gyro.getHeading()));
+            BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(gyro.getHeading()));
             drive(rotated.getY(), rotated.getX(),  retaliation.getAsDouble());
         }, this);
     }
