@@ -20,7 +20,6 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -33,7 +32,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BTController;
-import org.firstinspires.ftc.teamcode.utils.Util;
 
 
 public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
@@ -178,25 +176,53 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         );
     }
 
-    public Command testPath2() {
+    public Command leftPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
                 m_gripper.closeGripper1(),
-                m_chassis.fieldRelativeDrive(0,-0.6,0).andThen(new WaitCommand(300)),
-                m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(500))
-                .andThen(m_chassis.stopMotor()),
+                m_chassis.fieldRelativeDrive(0, -0.6, 0).andThen(new WaitCommand(750)),
+                m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(520))
+                        .andThen(m_chassis.stopMotor()),
                 m_arm.turnOnFF(),
-                m_arm.setMiddle(),
-                m_gripper.openGripper0(),
-                m_gripper.closeGripper0(),
-                m_chassis.fieldRelativeDrive(0,0,-90).andThen(new WaitCommand(500)),
-                m_chassis.fieldRelativeDrive(0, 0.6 , -90).andThen(new WaitCommand(600))
-                .andThen(m_chassis.stopMotor()),
-                m_arm.setScore(),
-                m_gripper.openGripper1()
-
-
-
+                m_arm.setMiddle().andThen(new WaitCommand(600)),
+                m_gripper.openGripper1(),
+                m_gripper.closeGripper1(),
+                m_chassis.fieldRelativeDrive(-0.6, 0, 0).andThen(new WaitCommand(50)),
+                m_chassis.fieldRelativeDrive(0, 0, -90).andThen(new WaitCommand(450)),
+                m_chassis.fieldRelativeDrive(0, 0.6, -90).andThen(new WaitCommand(390))
+                        .andThen(m_chassis.stopMotor()),
+                        m_chassis.fieldRelativeDrive(-0.6,0,-90).andThen(new WaitCommand(200))
+                        .andThen(m_chassis.stopMotor()),
+                m_arm.setLowScore(),
+                m_gripper.openGripper0()
         );
     }
+        public Command rightPath() {
+            return new SequentialCommandGroup(
+                    m_gripper.closeGripper0(),
+                    m_gripper.closeGripper1(),
+                    m_chassis.fieldRelativeDrive(0, -0.6, 0).andThen(new WaitCommand(40)),
+                    m_chassis.stopMotor(),
+                    m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(580))
+                            .andThen(m_chassis.stopMotor()),
+                    m_chassis.fieldRelativeDrive(0, 0, -90).andThen(new WaitCommand(400)),
+                    m_arm.turnOnFF(),
+                    m_arm.setPickup().andThen(new WaitCommand(600)),
+                    m_gripper.openGripper1(),
+                    m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(100)),
+                    m_chassis.stopMotor(),
+                    m_gripper.closeGripper1(),
+                    m_arm.setMiddle(),
+                    m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(640)),
+                    m_chassis.stopMotor(),
+                    m_chassis.fieldRelativeDrive(0.6,0,-90).andThen(new WaitCommand(50)),
+                    m_chassis.stopMotor(),
+                    m_arm.setScore(),
+                    m_gripper.openGripper0()
+            );
+        }
+
+
+
+
 }

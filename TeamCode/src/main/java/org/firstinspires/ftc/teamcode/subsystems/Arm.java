@@ -79,7 +79,7 @@ public class Arm implements Subsystem {
         m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
         m_pid1.setTolerance(5);
-        m_pid2.setTolerance(5);
+        m_pid2.setTolerance(7);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
 //        m_pid2.setTolerance(0.1);
 //        m_pid1.setTolerance(0.1);
@@ -365,6 +365,10 @@ public class Arm implements Subsystem {
 
     public Command setMiddle() {
         return goTo(Positions.MIDDLEPLUS);
+
+    }
+    public Command setLowScore() {
+        return goTo(Positions.LOWSCORE);
 
     }
 
