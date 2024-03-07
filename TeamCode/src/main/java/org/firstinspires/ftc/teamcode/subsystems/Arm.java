@@ -168,7 +168,6 @@ public class Arm implements Subsystem {
         if (!manual) {
             setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position /*servo_desired_position*/);
         }
-
         dashboard.addData("pot1:", current_pot1_voltage);
         dashboard.addData("pot2:", current_pot2_voltage);
         dashboard.addData("angle first ", current_first_joint_angle);
