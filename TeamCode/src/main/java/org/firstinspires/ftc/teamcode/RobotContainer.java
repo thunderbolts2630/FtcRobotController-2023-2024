@@ -41,7 +41,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     Gripper m_gripper;
     plane m_plane;
     climb m_climb;
-    Arm m_arm;
+    public Arm m_arm;
     MotorEx armM2encoderL;
     MotorEx armM1encoderR;
     Gamepad gamepad1;
