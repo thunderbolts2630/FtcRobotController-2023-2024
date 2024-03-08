@@ -63,12 +63,12 @@ public class Arm implements Subsystem {
     private SlewRateLimiter rateLimiter;
     private boolean sensor1LimitReached = false;
     private boolean sensor2LimitReached = false;
-    private double servo_desired_position = 0.33;
+    private double servo_desired_position = Positions.IDLE.servo;
     private double armAccBasedOffset1 = 0;
     private double armAccBasedOffset2 = 0;
     private boolean goalIsSet1 = false;
     private boolean goalIsSet2 = false;
-    public boolean manual;
+    public boolean manual=true;
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
         this.map = map;
