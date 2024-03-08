@@ -176,6 +176,30 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         );
     }
 
+    public Command centerPath() {
+        return new SequentialCommandGroup(
+                m_gripper.closeGripper1(),
+                m_gripper.closeGripper1(),
+                m_chassis.fieldRelativeDrive(0, -0.6, 0).andThen(new WaitCommand(800)),
+                m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(900)),
+                m_chassis.fieldRelativeDrive(0,0,90).andThen(new WaitCommand(100))
+                        .andThen(m_chassis.stopMotor()),
+                m_arm.turnOnFF(),
+                m_arm.setMiddle().andThen(new WaitCommand(500)),
+                m_gripper.openGripper1(),
+                m_gripper.closeGripper1(),
+                m_chassis.fieldRelativeDrive(0,-0.6, 90).andThen(new WaitCommand(100)),
+                m_chassis.fieldRelativeDrive(-0.6,0,90).andThen(new WaitCommand(500)),
+                m_chassis.fieldRelativeDrive(0,0,-90).andThen(new WaitCommand(100)),
+                m_chassis.fieldRelativeDrive(0,-0.6,-90).andThen(new WaitCommand(200))
+                        .andThen(m_chassis.stopMotor()),
+                m_arm.setLowScore(),
+                m_gripper.openGripper0()
+        );
+    }
+
+
+
     public Command leftPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
