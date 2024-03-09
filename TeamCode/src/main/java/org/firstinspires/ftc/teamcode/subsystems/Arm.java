@@ -375,10 +375,7 @@ public class Arm implements Subsystem {
         return goTo(Positions.MIDDLEPLUS);
 
     }
-    public Command setLowScoreauto() {
-        return goTo(Positions.LOWSCOREauto);
 
-    }
     public Command setLowScore() {
         return goTo(Positions.LOWSCORE);
 
