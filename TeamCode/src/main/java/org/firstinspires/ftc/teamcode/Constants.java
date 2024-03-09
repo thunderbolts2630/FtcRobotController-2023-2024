@@ -31,8 +31,8 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = -0.03   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
-            public static double volt2Offset = -0.09  ;
+            public static double volt1Offset = 0.06   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
+            public static double volt2Offset = -0.06  ;
         }
         public static final double arm1FirstAngle = 90;//max
         public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
@@ -74,8 +74,8 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(98,0,0.38,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
-            IDLE(51,-3,0.44,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            SCORE(98,0,0.4,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            IDLE(48,-3,0.44,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
             MIDDLEPLUS(95,-67,0.48,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(102,30,0.32,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),// 2/15 checked
             PICKUP(51,-120,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked

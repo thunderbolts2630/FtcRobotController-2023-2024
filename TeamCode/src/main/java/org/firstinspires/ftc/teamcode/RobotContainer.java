@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
+import org.firstinspires.ftc.teamcode.subsystems.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BTController;
@@ -46,6 +47,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     MotorEx armM1encoderR;
     Gamepad gamepad1;
     Gamepad gamepad2;
+    public PixelDetection m_pixelDetection;
     public static double armAccAdjustment = 0;
 
 
@@ -62,7 +64,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_plane = new plane(map, telemetry);
         m_climb = new climb(map, telemetry);
         m_arm = new Arm(map, telemetry, armM2encoderL, armM1encoderR);
-
+        m_pixelDetection=new PixelDetection(map,telemetry);
 
         oneDriver();
     }
@@ -95,7 +97,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     }
 
-    public Command FarBlueAuto() {
+    public Command FarBlueAutoSimple() {
         return new SequentialCommandGroup(
 
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(5000),
@@ -106,7 +108,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         );
     }
 
-    public Command CloseBlueAuto() {
+    public Command CloseBlueAutoSimple() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(1700),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
@@ -122,7 +124,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         );
     }
 
-    public Command FarRedAuto() {
+    public Command FarRedAutoSimple() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(5000),
                 m_chassis.fieldRelativeDrive(() -> -0.9, () -> 0, () -> 0).withTimeout(100),
@@ -131,7 +133,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         );
     }
 
-    public Command CloseRedAuto() {
+    public Command CloseRedAutoSimple() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0.9, () -> 0).withTimeout(1700),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
@@ -151,7 +153,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         );
     }
 
-    public Command centerPath() {
+    public Command blueCloseCenterPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
                 m_gripper.closeGripper1(),
@@ -171,13 +173,15 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_chassis.fieldRelativeDrive(0,0,-85).andThen(new WaitCommand(700))
                         .andThen(m_chassis.stopMotor()),
                 m_arm.setLowScoreauto(),
-                m_gripper.openGripper0()
+                m_gripper.openGripper0().andThen(new WaitCommand(500)),
+                m_gripper.closeGripper0(),
+                m_arm.setIdle()
         );
     }
 
 
 
-    public Command leftPath() {
+    public Command blueCloseLeftPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
                 m_gripper.closeGripper1(),
@@ -195,10 +199,12 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                         m_chassis.fieldRelativeDrive(-0.6,0,-90).andThen(new WaitCommand(200))
                         .andThen(m_chassis.stopMotor()),
                 m_arm.setLowScoreauto(),
-                m_gripper.openGripper0()
+                m_gripper.openGripper0().andThen(new WaitCommand(500)),
+                m_gripper.closeGripper0(),
+                m_arm.setIdle()
         );
     }
-    public Command rightPath() {
+    public Command blueCloseRightPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
                 m_gripper.closeGripper1(),
@@ -218,7 +224,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_chassis.fieldRelativeDrive(0.6,0,-90).andThen(new WaitCommand(200)),
                 m_chassis.stopMotor(),
                 m_arm.setScore(),
-                m_gripper.openGripper0()
+                m_gripper.openGripper0().andThen(new WaitCommand(500)),
+                m_gripper.closeGripper0(),
+                m_arm.setIdle()
         );
     }
 

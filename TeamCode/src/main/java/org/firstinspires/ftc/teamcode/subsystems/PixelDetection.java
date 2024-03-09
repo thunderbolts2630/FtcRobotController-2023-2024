@@ -52,11 +52,11 @@ public class PixelDetection implements Subsystem {
     OpenCvWebcam webcam;
     HardwareMap hardwareMap;
     Telemetry telemetry;
-    public PropPos propPos;
+    public PropPos propPos=PropPos.middle;
     PropPos propPosTemp;
     double propAverage;
     MovingAvrage filter;
-    AllianceColor alliance=AllianceColor.blue;
+    public AllianceColor alliance=AllianceColor.blue;
 
 
     public PixelDetection(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -65,7 +65,6 @@ public class PixelDetection implements Subsystem {
         filter=new MovingAvrage(10);
         propAverage=0;
         register();
-        init();
     }
 
     public void init() {
@@ -76,7 +75,7 @@ public class PixelDetection implements Subsystem {
                 .createWebcam(hardwareMap.get(WebcamName.class, "camera"),
                         cameraMonitorViewId);
         if(alliance==AllianceColor.red) {
-            webcam.setPipeline(new ColorDetectionPipelineRed());
+            webcam.setPipeline(new ColorDetectionPipelineBlue());
         }
         else
         {
@@ -104,6 +103,14 @@ public class PixelDetection implements Subsystem {
 
     }
 
+    public void closeCamera(){
+        webcam.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener() {
+            @Override
+            public void onClose() {
+                dashboardTelemetry.addData("closed",10);
+            }
+        });
+    }
     @Override
     public void periodic() {
     }
@@ -112,32 +119,23 @@ public class PixelDetection implements Subsystem {
     @Config
     public static class pipelineConfigBlue {
         public static int show=0;
-        public static int preD=10,dilation=30, erosion =19;
+        public static int preD=10,dilation=30, erosion =13;
         public static int area_max=32000,area_min=12000;
         public static int left_ROI_min=20,left_ROI_max=320;
         public static int right_ROI_min=960,right_ROI_max=1280;
         public static int roi_top=220,roi_bottom=440;
         public static double lH = 0, lS = 1, lV =1;
-        public static double hH = 20, hS = 30, hV = 85;
+        public static double hH = 20, hS = 30, hV = 92;
     }
 
-    @Config
-    public static class ConfigRed {
-        public static int show=0;
-        public static int preD=10,dilation=30, erosion =19;
-        public static int area_max=32000,area_min=12000;
-        public static int left_ROI_min=20,left_ROI_max=320;
-        public static int right_ROI_min=960,right_ROI_max=1280;
-        public static int roi_top=220,roi_bottom=440;
-        public static double lH = 0, lS = 1, lV =1;
-        public static double hH = 20, hS = 30, hV = 85;
-    }
+
     class ColorDetectionPipelineBlue extends OpenCvPipeline {
 
         Mat hsv = new Mat();
-        Mat mask;
-        Mat dilated;
-        Mat eroded;
+        Mat mask= new Mat();
+        Mat dilated=new Mat();
+        Mat eroded=new Mat();
+        Mat step3= new Mat();
         Scalar lowerColor = new Scalar(lH, lS, lV);
         Scalar upperColor = new Scalar(hH, hS, hV);
         Mat leftRoiPostFilter = new Mat();
@@ -146,19 +144,16 @@ public class PixelDetection implements Subsystem {
         public Rect FindPropInROI(Mat roi, PropPos id) {
 
             Imgproc.cvtColor(roi, hsv, Imgproc.COLOR_BGR2HSV);
-            mask = new Mat();
             Core.inRange(hsv, lowerColor, upperColor, mask);
-            dilated=new Mat();
             Imgproc.dilate(mask,dilated,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(preD,preD)));
-            eroded=new Mat();
             Imgproc.erode(dilated,eroded,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(erosion, erosion)));
-            Imgproc.dilate(eroded,dilated,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(dilation,dilation)));
+            Imgproc.dilate(eroded,step3,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(dilation,dilation)));
 
             if(PropPos.right==id){
-                rightRoiPostFilter =dilated.clone();
+                rightRoiPostFilter =step3.clone();
             }
             else {
-                leftRoiPostFilter =dilated.clone();
+                leftRoiPostFilter =step3.clone();
             }
 
             List<MatOfPoint> contours = new ArrayList<>();
@@ -230,7 +225,7 @@ public class PixelDetection implements Subsystem {
                 }
             }
             propAverage=filter.calculate(propPosTemp.ordinal());
-            propPos=PropPos.values()[(int)Math.round(propAverage)];
+            propPos=PropPos.values()[Math.min(2,(int)Math.round(propAverage))];
 
             if (largestRect != null) {
                 largestRect.y+=(int)(input.height()*(2.0/3.0));
@@ -260,132 +255,5 @@ public class PixelDetection implements Subsystem {
         }
     }
 
-    class ColorDetectionPipelineRed extends OpenCvPipeline {
-
-        Mat hsv = new Mat();
-        Mat mask;
-        Mat dilated;
-        Mat eroded;
-        Scalar lowerColor = new Scalar(lH, lS, lV);
-        Scalar upperColor = new Scalar(hH, hS, hV);
-        Mat leftRoiPostFilter = new Mat();
-        Mat rightRoiPostFilter =new Mat();
-
-        public Rect FindPropInROI(Mat roi, PropPos id) {
-
-            Imgproc.cvtColor(roi, hsv, Imgproc.COLOR_BGR2HSV);
-            mask = new Mat();
-            Core.inRange(hsv, lowerColor, upperColor, mask);
-            dilated=new Mat();
-            Imgproc.dilate(mask,dilated,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(preD,preD)));
-            eroded=new Mat();
-            Imgproc.erode(dilated,eroded,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(erosion, erosion)));
-            Imgproc.dilate(eroded,dilated,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(dilation,dilation)));
-
-            if(PropPos.right==id){
-                rightRoiPostFilter =dilated.clone();
-            }
-            else {
-                leftRoiPostFilter =dilated.clone();
-            }
-
-            List<MatOfPoint> contours = new ArrayList<>();
-            Mat hierarchy = new Mat();
-
-            Imgproc.findContours(dilated, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-            double largestArea = 0;
-            Rect largestRect = null;
-
-            for (MatOfPoint contour : contours) {
-                double area =Imgproc.contourArea(contour);
-                dashboardTelemetry.addData("area"+id,area);
-
-                // Set a threshold for the minimum area to filter small contours
-                if (area >area_min && area < area_max) { // You can adjust this threshold based on your needs
-                    if (area > largestArea) {
-                        largestArea = area;
-                        largestRect = Imgproc.boundingRect(contour);
-                    }
-                }
-            }
-            dashboardTelemetry.addData("largest area"+id,largestArea);
-            return largestRect;
-
-        }
-
-        @Override
-        public Mat processFrame(Mat input) {
-//
-            /* for calib
-
-            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_BGR2HSV);
-            mask = new Mat();
-            Core.inRange(hsv, lowerColor, upperColor, mask);
-            dilated=new Mat();
-            Imgproc.dilate(mask,dilated,Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(3,3)));
-            return dilated;
-            */
-//            // the above is for calib
-            lowerColor = new Scalar(lH, lS, lV);
-            upperColor = new Scalar(hH, hS, hV);
-            propPosTemp = PropPos.middle;
-            Rect largestRect = null;
-
-            Mat roiLeft;
-            Mat roiRight;
-
-
-            Range rowRange = new Range(roi_top, roi_bottom);
-            Range colRangeLeft = new Range(left_ROI_min, left_ROI_max);
-            Range colRangeRight = new Range(right_ROI_min, right_ROI_max);
-            dashboardTelemetry.addData("mat cols",input.cols());
-            dashboardTelemetry.addData("mat rows",input.rows());
-            dashboardTelemetry.update();
-
-            roiLeft = new Mat(input, rowRange, colRangeLeft);
-            roiRight = new Mat(input,rowRange, colRangeRight);
-
-            Rect rectLeft = FindPropInROI(roiLeft, PropPos.left);
-            Rect rectRight = FindPropInROI(roiRight, PropPos.right);
-
-            if (rectLeft != null) {
-                propPosTemp =PropPos.left;
-                largestRect = rectLeft;
-            } else {
-                if (rectRight != null) {
-                    propPosTemp =PropPos.right;
-                    largestRect=rectRight;
-                }
-            }
-            propAverage=filter.calculate(propPosTemp.ordinal());
-            propPos=PropPos.values()[(int)Math.round(propAverage)];
-
-            if (largestRect != null) {
-                largestRect.y+=(int)(input.height()*(2.0/3.0));
-                if(propPosTemp ==PropPos.right){
-                    largestRect.x+=(int)(input.width()*(2.0/3.0));
-                }
-                Imgproc.rectangle(input, largestRect, new Scalar(0, 255, 0), 2);
-
-                int x = largestRect.x;
-                int y = largestRect.y;
-                int w = largestRect.width;
-                int h = largestRect.height;
-
-                // You can print or store the location as needed
-                dashboardTelemetry.addData("prop area",largestRect.area());
-            }
-
-
-            // If no contour is found, print that the object is in the middle side (commit)
-            telemetry.addLine("The object is in the "+ propPos.name()+" side");
-            dashboardTelemetry.addLine("The object is in the "+ propPos.name()+" side");
-            dashboardTelemetry.addData("prop side", propPos.ordinal());
-            telemetry.update();
-            dashboardTelemetry.update();
-            return show==0?input:leftRoiPostFilter;
-
-        }
-    }
 
 }

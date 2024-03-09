@@ -13,7 +13,7 @@ public class rightAuto extends CommandOpMode {
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
-        robotContainer.rightPath().schedule();
+        robotContainer.blueCloseRightPath().schedule();
         enable();
 
     }

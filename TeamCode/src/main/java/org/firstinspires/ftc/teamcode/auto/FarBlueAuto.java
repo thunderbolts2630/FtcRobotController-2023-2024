@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
 
@@ -14,7 +13,7 @@ public class FarBlueAuto extends CommandOpMode {
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
-        robotContainer.FarBlueAuto().schedule();
+        robotContainer.FarBlueAutoSimple().schedule();
         enable();
 
     }

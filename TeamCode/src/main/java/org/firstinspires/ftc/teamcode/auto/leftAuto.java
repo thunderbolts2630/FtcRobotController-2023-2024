@@ -13,7 +13,7 @@ public class leftAuto extends CommandOpMode {
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
-        robotContainer.leftPath().schedule();
+        robotContainer.blueCloseLeftPath().schedule();
         enable();
 
     }

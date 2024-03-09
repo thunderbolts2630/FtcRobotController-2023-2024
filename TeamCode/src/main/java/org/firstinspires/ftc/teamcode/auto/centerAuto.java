@@ -14,7 +14,7 @@ public class centerAuto extends CommandOpMode {
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
-        robotContainer.centerPath().schedule();
+        robotContainer.blueCloseCenterPath().schedule();
         enable();
 
     }
