@@ -65,35 +65,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
 
         oneDriver();
-//        twoDriver();
     }
 
     //bind commands to trigger
-    public void twoDriver() {
-
-        m_controller.assignCommand(m_chassis.fieldRelativeDrive(
-                        () -> -m_controller.left_y.getAsDouble(),
-                        m_controller.left_x,
-                        () -> m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble()),
-                true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
-        m_controller.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
-
-
-        m_controller2.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_RIGHT);
-        m_controller2.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_LEFT);
-
-        m_controller2.assignCommand(m_plane.shootPlane(), true, BUTTON_DOWN);
-        m_controller2.assignCommand(m_plane.resetPlane(), true, BUTTON_UP);
-
-        m_controller2.assignCommand(m_arm.toggleFF(), false, BUTTON_RIGHT);
-
-        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setHighScore()), false, DPAD_UP);
-        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setScore()), false, DPAD_DOWN);
-        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()), false, DPAD_LEFT);
-        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setLowScore()), false, BUTTON_LEFT);
-        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setPickup()), false, DPAD_RIGHT);
-
-    }
     public void oneDriver(){
 
         m_controller.assignCommand(m_chassis.fieldRelativeDrive(
