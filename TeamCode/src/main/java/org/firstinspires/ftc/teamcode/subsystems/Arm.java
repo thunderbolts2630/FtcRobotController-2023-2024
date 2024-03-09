@@ -29,6 +29,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.utils.Util;
 
@@ -44,6 +45,7 @@ public class Arm implements Subsystem {
     private MotorEx arm2;
     private Servo servo;
     private BTController m_controller;
+    VoltageSensor voltageSensor;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
     private ProfiledPIDController m_pid1;
     private ProfiledPIDController m_pid2;
@@ -69,13 +71,14 @@ public class Arm implements Subsystem {
     private boolean goalIsSet2 = false;
     public boolean manual=true;
 
-    public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2) {
+    public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2,VoltageSensor voltageSensor) {
         this.map = map;
         this.m_telemetry = telemetry;
         this.arm1 = arm1;
         this.arm2 = arm2;
         this.arm1.setInverted(false);
         this.arm2.setInverted(true);
+        this.voltageSensor=voltageSensor;
         m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
         m_pid1.setTolerance(8);
@@ -86,7 +89,8 @@ public class Arm implements Subsystem {
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
-//        servo.getController().pwmEnable(); //todo:uncomment
+        servo.setPosition(Positions.IDLE.servo);
+        servo.getController().pwmEnable(); //todo:uncomment
         servo.setDirection(Servo.Direction.REVERSE);
         dashboard.addData("desiredPT1", 0);
         dashboard.addData("desiredPT2", 0);
@@ -98,6 +102,9 @@ public class Arm implements Subsystem {
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
         double vMax1 = 1.7 + ArmOffset.volt1Offset;
         double vMin1 = 0.6 + ArmOffset.volt1Offset;
+        double voltageComp=12/voltageSensor.getVoltage();
+        firstSpeed=voltageComp*firstSpeed;
+        secondSpeed=voltageComp*secondSpeed;
         if (potentiometer1.getVoltage() < 0.4 || potentiometer1.getVoltage() > 2.9 || sensor1LimitReached) {
             arm1.set(0);
             sensor1LimitReached = true;
@@ -458,11 +465,11 @@ public class Arm implements Subsystem {
     }
 
     public Command goToState1(Positions pos) {
-        return new InstantCommand(() -> setState1(pos), this).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
+        return new InstantCommand(() -> setState1(pos)).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
     }
 
     public Command goToState2(Positions pos) {
-        return new InstantCommand(() -> setState2(pos), this).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
+        return new InstantCommand(() -> setState2(pos)).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
     }
 
     public Command setHighScore() {

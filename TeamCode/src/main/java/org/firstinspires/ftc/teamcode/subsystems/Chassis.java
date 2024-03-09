@@ -35,6 +35,7 @@ import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConst
 import java.util.function.DoubleSupplier;
 
 public class Chassis implements Subsystem {
+    public static boolean hasReset=false;
 
     private VoltageSensor voltage_sensor;
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -73,19 +74,23 @@ public class Chassis implements Subsystem {
     private double desiredAngle;
 
 
-    public Chassis(HardwareMap map, Telemetry telemetry, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder) {
+    public Chassis(HardwareMap map, Telemetry telemetry, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder,VoltageSensor voltage_sensor) {
         this.map = map;
         this.m_telemetry = telemetry;
         motor_FL = new MotorEx(map, "motor_FL");//1
         motor_FR = new MotorEx(map, "motor_FR");//2
         motor_BL = new MotorEx(map, "motor_BL");//0
         motor_BR = new MotorEx(map, "motor_BR");//3
-        voltage_sensor =  map.voltageSensor.iterator().next();
+        this.voltage_sensor=voltage_sensor;
+
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         gyro = new RevIMU(map, "imu");
         gyro.init(parameters);
-        gyro.reset();
+        if(!hasReset) {
+            gyro.reset();
+            hasReset=true;
+        }
         gyro.invertGyro();
         motor_FR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);

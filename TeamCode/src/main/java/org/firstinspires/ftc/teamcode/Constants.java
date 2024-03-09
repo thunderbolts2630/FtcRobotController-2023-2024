@@ -74,9 +74,9 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(98,0,0.4,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            SCORE(98,0,0.43,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
             IDLE(48,-3,0.44,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
-            MIDDLEPLUS(95,-67,0.48,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            MIDDLEPLUS(95,-67,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(102,30,0.32,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),// 2/15 checked
             PICKUP(51,-120,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDPICKUP(67,-150,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
@@ -88,6 +88,7 @@ public class Constants {
     public double servo;
     public TrapezoidProfile.Constraints constraints1;
     public TrapezoidProfile.Constraints constraints2;
+    public double tolernace;
 
     Positions(double v1, double v2, double servo, TrapezoidProfile.Constraints Constraints1, TrapezoidProfile.Constraints Constraints2) {
                 this.angle1 = v1;
@@ -133,11 +134,11 @@ public class Constants {
         }
         @Config
         public static class ArmProfile{
-            public static double maxVelocity1=1000;
-            public static double maxAcceleration1=1000;
+            public static double maxVelocity1=1500;
+            public static double maxAcceleration1=1500;
 
-            public static double maxVelocity2=1000;
-            public static double maxAcceleration2=1000;
+            public static double maxVelocity2=1500;
+            public static double maxAcceleration2=1500;
         }
         public static double ffConv=12;
 
