@@ -10,7 +10,6 @@ import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmWights.*;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -156,6 +155,8 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic() {
+
+
         m_pid1.setIntegratorRange(MinIntegreal1, MaxIntegreal1);
         m_pid2.setIntegratorRange(MinIntegreal2, MaxIntegreal2);
         m_pid1.setIzone(aIzone1);
@@ -365,6 +366,10 @@ public class Arm implements Subsystem {
 
     public Command setMiddle() {
         return goTo(Positions.MIDDLEPLUS);
+
+    }
+    public Command setLowScoreauto() {
+        return goTo(Positions.LOWSCOREauto);
 
     }
     public Command setLowScore() {

@@ -74,14 +74,15 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(98,0,0.5,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
-            IDLE(53,0,0.44,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            SCORE(98,0,0.38,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            IDLE(51,-3,0.44,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
             MIDDLEPLUS(95,-67,0.48,new TrapezoidProfile.Constraints(  ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(102,30,0.32,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),// 2/15 checked
             PICKUP(51,-120,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDPICKUP(67,-150,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDDLE(90,-90,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
-            LOWSCORE(98,-15,0.48, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));// 2/14 checked
+            LOWSCOREauto(98,-15,0.48, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            LOWSCORE(98,-30,0.52, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
             public double angle1;
     public double angle2;
     public double servo;

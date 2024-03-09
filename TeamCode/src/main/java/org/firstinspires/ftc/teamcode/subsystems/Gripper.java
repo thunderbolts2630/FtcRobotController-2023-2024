@@ -51,6 +51,12 @@ public class Gripper implements Subsystem {
         Subsystem.super.setDefaultCommand(defaultCommand);
     }
 
+    public Command closeBoth(){
+        return new InstantCommand(()-> {
+           isOpen0=false;
+           isOpen1=false;
+        });
+    }
 
     public Command toggleGripper1(){
         return  new InstantCommand(()->{
