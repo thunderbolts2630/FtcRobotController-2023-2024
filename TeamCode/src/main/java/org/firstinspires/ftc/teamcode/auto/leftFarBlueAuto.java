@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
 
-@Autonomous(name="FarBlueAuto", group = "Linear Opmode")
+@Autonomous(name="leftFarBlueAuto", group = "Linear Opmode")
 public class leftFarBlueAuto extends CommandOpMode {
     RobotContainer robotContainer;
 

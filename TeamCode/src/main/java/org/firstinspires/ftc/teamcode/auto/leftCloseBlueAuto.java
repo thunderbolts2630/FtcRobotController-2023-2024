@@ -5,15 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
 
-@Autonomous(name="leftAuto", group = "Linear Opmode")
-public class leftAuto extends CommandOpMode {
+@Autonomous(name="leftCloseBlueAuto", group = "Linear Opmode")
+public class leftCloseBlueAuto extends CommandOpMode {
     RobotContainer robotContainer;
 
     @Override
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
-        robotContainer.leftPath().schedule();
+        robotContainer.leftCloseBluePath().schedule();
         enable();
 
     }
