@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
-
-@Autonomous(name="rightCloseRedAuto", group = "Linear Opmode")
+@Disabled
+//@Autonomous(name="rightCloseRedAuto", group = "Linear Opmode")
 public class rightCloseRedAuto extends CommandOpMode {
     RobotContainer robotContainer;
 
@@ -14,7 +15,7 @@ public class rightCloseRedAuto extends CommandOpMode {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
         enable();
-        robotContainer.rightCloseRedPath().schedule();
+        robotContainer.leftCloseRedPath().schedule();
 
     }
     

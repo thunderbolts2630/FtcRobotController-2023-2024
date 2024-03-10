@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
-
-@Autonomous(name="leftFarBlueAuto", group = "Linear Opmode")
+@Disabled
+//@Autonomous(name="leftFarBlueAuto", group = "Linear Opmode")
 public class leftFarBlueAuto extends CommandOpMode {
     RobotContainer robotContainer;
 
