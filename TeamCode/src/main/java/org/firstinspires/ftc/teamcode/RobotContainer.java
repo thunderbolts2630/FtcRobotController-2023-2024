@@ -194,7 +194,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_gripper.closeGripper0(),
 
                 m_arm.setIdle(),
-                m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(200)),
+                m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(100)),
                 m_chassis.stopMotor(),
                 m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
                 m_chassis.stopMotor()
@@ -223,13 +223,16 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                         .andThen(m_chassis.stopMotor()),
 
                 m_arm.setLowScore().andThen(new WaitCommand(1000)),
-
-
+                m_chassis.fieldRelativeDrive(0,0.6, -90).andThen(new WaitCommand(50)),
+                m_chassis.stopMotor().andThen(new WaitCommand(800)),
                 m_gripper.openGripper0().andThen(new WaitCommand(400)),
+
                 m_chassis.fieldRelativeDrive(0,-0.6, -90).andThen(new WaitCommand(100)),
                 m_chassis.stopMotor(),
                 m_gripper.closeGripper0(),
                 m_arm.setIdle(),
+                m_chassis.fieldRelativeDrive(0,0.6, -90).andThen(new WaitCommand(150)),
+                m_chassis.stopMotor(),
                 m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
                 m_chassis.stopMotor()
         );
@@ -254,13 +257,15 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                         .andThen(m_chassis.stopMotor()),
 
                 m_arm.setLowScore().andThen(new WaitCommand(1000)),
-
-
+                m_chassis.fieldRelativeDrive(0,0.6, 90).andThen(new WaitCommand(50)),
+                m_chassis.stopMotor(),
                 m_gripper.openGripper0().andThen(new WaitCommand(400)),
                 m_chassis.fieldRelativeDrive(0,-0.6, 90).andThen(new WaitCommand(100)),
                 m_chassis.stopMotor(),
                 m_gripper.closeGripper1(),
                 m_arm.setIdle(),
+                m_chassis.fieldRelativeDrive(0,0.6, 90).andThen(new WaitCommand(150)),
+                m_chassis.stopMotor(),
                 m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
                 m_chassis.stopMotor()
         );
