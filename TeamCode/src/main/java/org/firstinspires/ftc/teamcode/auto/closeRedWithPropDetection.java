@@ -8,26 +8,26 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 
-@Autonomous(name = "closeBlueProp")
-public class closeBlueWithPropDetection extends CommandOpMode {
+@Autonomous(name = "closeRedProp")
+public class closeRedWithPropDetection extends CommandOpMode {
     RobotContainer robotContainer;
 
     @Override
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
-        robotContainer.m_pixelDetection.alliance= PixelDetection.AllianceColor.blue;
+        robotContainer.m_pixelDetection.alliance= PixelDetection.AllianceColor.red;
         robotContainer.m_pixelDetection.init();
         waitForStart();
         Command toRun=robotContainer.centerCloseBluePath();
         switch (robotContainer.m_pixelDetection.propPos){
             case left:
-                toRun=robotContainer.leftCloseBluePath();
+                toRun=robotContainer.leftCloseRedPath();
                 break;
             case right:
-                toRun=robotContainer.rightCloseBluePath();
+                toRun=robotContainer.rightCloseRedPath();
                 break;
             case middle:
-                toRun=robotContainer.centerCloseBluePath();
+                toRun=robotContainer.centerCloseRedPath();
                 break;
         }
         robotContainer.m_pixelDetection.closeCamera();

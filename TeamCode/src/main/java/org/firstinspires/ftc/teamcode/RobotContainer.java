@@ -17,6 +17,7 @@ import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_TR
 import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_X;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -30,7 +31,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
-import org.firstinspires.ftc.teamcode.subsystems.PixelDetection;
+import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BTController;
@@ -156,6 +157,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_arm.setScore(),
                 new ParallelCommandGroup(m_gripper.openGripper1(), m_gripper.openGripper0())
         );
+    }
+    public Command centerCloseRedPath(){
+        return new InstantCommand(()->{});
     }
 
     public Command centerCloseBluePath() {

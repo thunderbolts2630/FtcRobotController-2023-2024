@@ -89,8 +89,8 @@ public class Arm implements Subsystem {
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
-        servo.setPosition(0.4);
-        servo.getController().pwmEnable(); //todo:uncomment
+
+        servo.getController().pwmDisable(); //todo:uncomment
         servo.setDirection(Servo.Direction.REVERSE);
         dashboard.addData("desiredPT1", 0);
         dashboard.addData("desiredPT2", 0);
@@ -356,6 +356,9 @@ public class Arm implements Subsystem {
             if (manual) {
                 arm1.set(0);
                 arm2.set(0);
+                servo.getController().pwmDisable();
+            }else {
+                servo.getController().pwmEnable();
             }
             m_pid1.reset(current_first_joint_angle);
             m_pid2.reset(current_second_joint_angle);
@@ -365,6 +368,7 @@ public class Arm implements Subsystem {
     public Command turnOnFF() {
         return new InstantCommand(() -> {
             manual = false;
+            servo.getController().pwmEnable();
             m_pid1.reset(current_first_joint_angle);
             m_pid2.reset(current_second_joint_angle);
         });
