@@ -6,7 +6,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
-import org.firstinspires.ftc.teamcode.subsystems.PixelDetection;
+import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 
 @Autonomous(name = "closeBlueProp")
 public class closeBlueWithPropDetection extends CommandOpMode {

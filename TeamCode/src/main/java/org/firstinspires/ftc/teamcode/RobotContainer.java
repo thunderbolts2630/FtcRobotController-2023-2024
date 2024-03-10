@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
-import org.firstinspires.ftc.teamcode.subsystems.PixelDetection;
+import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BTController;
