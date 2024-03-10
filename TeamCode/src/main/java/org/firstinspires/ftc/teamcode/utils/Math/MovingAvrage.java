@@ -10,7 +10,7 @@ public class MovingAvrage {
     int m_windowSize;
     public MovingAvrage(int windowSize){
         m_windowSize=windowSize;
-        m_buffer=new ArrayList<>(8);
+        m_buffer=new ArrayList<>(windowSize);
         for (int i = 0; i < windowSize; i++) {
             m_buffer.add(0.0);
         }

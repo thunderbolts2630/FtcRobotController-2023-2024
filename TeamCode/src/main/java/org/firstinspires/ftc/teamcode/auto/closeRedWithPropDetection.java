@@ -18,6 +18,8 @@ public class closeRedWithPropDetection extends CommandOpMode {
         robotContainer.m_pixelDetection.alliance= PixelDetection.AllianceColor.red;
         robotContainer.m_pixelDetection.init();
         waitForStart();
+        robotContainer.m_pixelDetection.closeCamera();
+
         Command toRun=robotContainer.centerCloseBluePath();
         switch (robotContainer.m_pixelDetection.propPos){
             case left:
@@ -30,7 +32,6 @@ public class closeRedWithPropDetection extends CommandOpMode {
                 toRun=robotContainer.centerCloseRedPath();
                 break;
         }
-        robotContainer.m_pixelDetection.closeCamera();
         toRun.schedule();
         enable();
 

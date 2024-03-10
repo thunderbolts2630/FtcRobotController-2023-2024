@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 public class FollowPath extends BTCommand {
     private final ElapsedTime m_timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     private final Trajectory m_trajectory;
-    private final Supplier<Pose2d> m_pose;
+    private final Supplier<Pose2d> m_pose;//odometry
     private final MecanumDriveKinematics m_kinematics;
     private final BTHolonomicDriveController m_controller;
     private final Consumer<ChassisSpeeds> m_outputChassisSpeeds;
