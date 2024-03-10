@@ -89,7 +89,7 @@ public class Arm implements Subsystem {
         potentiometer1 = map.get(AnalogInput.class, "pt1");//port 3
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
-        servo.setPosition(Positions.IDLE.servo);
+        servo.setPosition(0.4);
         servo.getController().pwmEnable(); //todo:uncomment
         servo.setDirection(Servo.Direction.REVERSE);
         dashboard.addData("desiredPT1", 0);

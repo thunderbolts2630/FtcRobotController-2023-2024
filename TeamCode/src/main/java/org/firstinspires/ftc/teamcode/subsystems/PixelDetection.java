@@ -120,7 +120,7 @@ public class PixelDetection implements Subsystem {
     public static class pipelineConfigBlue {
         public static int show=0;
         public static int preD=20,dilation=22, erosion =35;
-        public static int area_max=32000,area_min=7500;
+        public static int area_max=32000,area_min=6000;
         public static int left_ROI_min=20,left_ROI_max=320;
         public static int right_ROI_min=960,right_ROI_max=1280;
         public static int roi_top=220,roi_bottom=440;
