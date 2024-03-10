@@ -446,7 +446,8 @@ public class Arm implements Subsystem {
     }
 
     public Command setPickup() {
-        return new ConditionalCommand(goTo(Positions.MIDDLE)
+        return new ConditionalCommand(
+                goToState1(Positions.Mid).alongWith(goToState2(Positions.Mid))
                 .andThen(goToState2(Positions.MIDPICKUP))
                 .andThen(goToState1(Positions.MIDPICKUP))
                 .andThen(goToState2(Positions.PICKUP))
