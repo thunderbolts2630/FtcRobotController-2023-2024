@@ -25,13 +25,13 @@ class RedPipeline extends OpenCvPipeline {
     @Config
     public static class pipelineConfigRed {
         public static int show=0;
-        public static int preD=20,dilation=22, erosion =35;
-        public static int area_max=32000,area_min=6000;
+        public static int preD=10,dilation=5, erosion =20;
+        public static int area_max=35000,area_min=15000;
         public static int left_ROI_min=20,left_ROI_max=320;
         public static int right_ROI_min=960,right_ROI_max=1280;
-        public static int roi_top=220,roi_bottom=440;
-        public static double lH = 0, lS = 0, lV =50;
-        public static double hH = 1, hS = 1, hV = 95;
+        public static int roi_top=260,roi_bottom=440;
+        public static double lH = 115, lS = 110, lV =90;
+        public static double hH = 130, hS = 200, hV = 180;
     }
 
     Mat hsv = new Mat();
