@@ -175,23 +175,22 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_chassis.stopMotor(),
                 m_chassis.fieldRelativeDrive( 0.6,0,90).andThen(new WaitCommand(850)),
                 m_chassis.stopMotor(),
-                m_chassis.fieldRelativeDrive(0,0,-85).andThen(new WaitCommand(700))
+                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(700))
                         .andThen(m_chassis.stopMotor()),
-                m_chassis.fieldRelativeDrive(0,0,90).andThen(new WaitCommand(600)),
-                m_chassis.stopMotor(),
-                m_chassis.fieldRelativeDrive(-0.4,0,-90).andThen(new WaitCommand(80)),
-                m_chassis.stopMotor().andThen(new WaitCommand(300)),
-                m_chassis.fieldRelativeDrive(0,-0.5,-90).andThen(new WaitCommand(130)),
+                m_chassis.fieldRelativeDrive(0,0,-90).andThen(new WaitCommand(600)),
                 m_chassis.stopMotor().andThen(new WaitCommand(300)),
                 m_arm.setScore().andThen(new WaitCommand(1500)),
 
-
+                m_gripper.openGripper1(),
                 m_gripper.closeGripper1(),
 
                 m_arm.setIdle(),
-                m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(100)),
+                m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(20)),
                 m_chassis.stopMotor(),
-                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
+                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(800)),
+                m_chassis.stopMotor(),
+                m_chassis.fieldRelativeDrive(-0.6,0,0).andThen(new WaitCommand(800)),
+                m_chassis.fieldRelativeDrive(0,-0.6,0).andThen(new WaitCommand(300)),
                 m_chassis.stopMotor()
         );
     }
@@ -223,9 +222,12 @@ public Command centerCloseRedPath() {
                 m_gripper.closeGripper1(),
 
                 m_arm.setIdle(),
-                m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(100)),
+                m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(20)),
                 m_chassis.stopMotor(),
-                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
+                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(800)),
+                m_chassis.stopMotor(),
+                m_chassis.fieldRelativeDrive(-0.6,0,0).andThen(new WaitCommand(800)),
+                m_chassis.fieldRelativeDrive(0,0.6,0).andThen(new WaitCommand(300)),
                 m_chassis.stopMotor()
         );
     }
@@ -246,9 +248,9 @@ public Command centerCloseRedPath() {
                 m_arm.setIdle(),
                 m_chassis.fieldRelativeDrive(-0.6, 0, 0).andThen(new WaitCommand(50)),
                 m_chassis.fieldRelativeDrive(0, 0, -90).andThen(new WaitCommand(450)),
-                m_chassis.fieldRelativeDrive(0, 0.6, -90).andThen(new WaitCommand(370))
+                m_chassis.fieldRelativeDrive(0, 0.6, -90).andThen(new WaitCommand(400))
                         .andThen(m_chassis.stopMotor()),
-                        m_chassis.fieldRelativeDrive(-0.6,0,-90).andThen(new WaitCommand(530))
+                        m_chassis.fieldRelativeDrive(-0.6,0,-90).andThen(new WaitCommand(600))
                         .andThen(m_chassis.stopMotor()),
 
                 m_arm.setScore().andThen(new WaitCommand(1000)),
@@ -259,7 +261,10 @@ public Command centerCloseRedPath() {
                 m_arm.setIdle(),
                 m_chassis.fieldRelativeDrive(0,0.6, -90).andThen(new WaitCommand(150)),
                 m_chassis.stopMotor(),
-                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
+                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(800)),
+                m_chassis.stopMotor(),
+                m_chassis.fieldRelativeDrive(-0.6,0,0).andThen(new WaitCommand(600)),
+                m_chassis.fieldRelativeDrive(0,-0.6,0).andThen(new WaitCommand(300)),
                 m_chassis.stopMotor()
         );
     }
@@ -287,7 +292,10 @@ public Command centerCloseRedPath() {
                 m_gripper.openGripper1().andThen(new WaitCommand(400)),
                 m_gripper.closeGripper1(),
                 m_arm.setIdle(),
-                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
+                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(800)),
+                m_chassis.stopMotor(),
+                m_chassis.fieldRelativeDrive(-0.6,0,0).andThen(new WaitCommand(800)),
+                m_chassis.fieldRelativeDrive(0,0.6,0).andThen(new WaitCommand(300)),
                 m_chassis.stopMotor()
         );
     }
@@ -295,7 +303,7 @@ public Command centerCloseRedPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
                 m_gripper.closeGripper1(),
-                m_chassis.fieldRelativeDrive(0, -0.6, 0).andThen(new WaitCommand(480)),
+                m_chassis.fieldRelativeDrive(0, -0.6, 0).andThen(new WaitCommand(300)),
                 m_chassis.stopMotor(),
                 m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(510))
                         .andThen(m_chassis.stopMotor()),
@@ -319,7 +327,10 @@ public Command centerCloseRedPath() {
                 m_arm.setIdle(),
                 m_chassis.fieldRelativeDrive(0,0.6,-90).andThen(new WaitCommand(200)),
                 m_chassis.stopMotor(),
-                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
+                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(800)),
+                m_chassis.stopMotor(),
+                m_chassis.fieldRelativeDrive(-0.6,0,0).andThen(new WaitCommand(800)),
+                m_chassis.fieldRelativeDrive(0,-0.6,0).andThen(new WaitCommand(300)),
                 m_chassis.stopMotor()
         );
     }
@@ -329,7 +340,7 @@ public Command leftCloseRedPath() {
                 m_gripper.closeGripper1(),
                 m_chassis.fieldRelativeDrive(0, 0.6, 0).andThen(new WaitCommand(460)),
                 m_chassis.stopMotor(),
-                m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(480))
+                m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(550))
                         .andThen(m_chassis.stopMotor()),
                 m_chassis.fieldRelativeDrive(0, 0, 90).andThen(new WaitCommand(400)),
                 m_arm.turnOnFF(),
@@ -349,7 +360,10 @@ public Command leftCloseRedPath() {
                 m_chassis.stopMotor(),
                 m_gripper.closeGripper1(),
                 m_arm.setIdle(),
-                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(4000)),
+                m_chassis.fieldRelativeDrive(0,0,0).andThen(new WaitCommand(800)),
+                m_chassis.stopMotor(),
+                m_chassis.fieldRelativeDrive(-0.6,0,0).andThen(new WaitCommand(800)),
+                m_chassis.fieldRelativeDrive(0,0.6,0).andThen(new WaitCommand(300)),
                 m_chassis.stopMotor()
         );
     }
@@ -358,7 +372,7 @@ public Command leftCloseRedPath() {
             return new SequentialCommandGroup(
                     m_gripper.closeGripper0(),
                     m_gripper.closeGripper1(),
-                    m_chassis.fieldRelativeDrive(0, 0.6, 0).andThen(new WaitCommand(440)),
+                    m_chassis.fieldRelativeDrive(0, 0.6, 0).andThen(new WaitCommand(400)),
                     m_chassis.stopMotor(),
                     m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(590))
                             .andThen(m_chassis.stopMotor()),
@@ -406,12 +420,14 @@ public Command leftCloseRedPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
                 m_gripper.closeGripper1(),
-                m_chassis.fieldRelativeDrive(0, 0.6, 0).andThen(new WaitCommand(750)),
+                m_chassis.fieldRelativeDrive(0, 0.6, 0).andThen(new WaitCommand(700)),
                 m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(520))
                         .andThen(m_chassis.stopMotor()),
                 m_arm.turnOnFF(),
                 m_arm.setMiddle().andThen(new WaitCommand(600)),
-                m_gripper.openGripper0()
+                m_gripper.openGripper0(),
+                m_gripper.closeGripper0(),
+                m_arm.setIdle()
 
         );
         }
@@ -470,6 +486,7 @@ public Command leftCloseRedPath() {
                 m_arm.setIdle()
         );
     }
+
 
 
 
