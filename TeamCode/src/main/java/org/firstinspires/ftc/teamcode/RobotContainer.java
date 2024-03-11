@@ -238,7 +238,7 @@ public Command centerCloseRedPath() {
         return new SequentialCommandGroup(
                 m_gripper.closeGripper0(),
                 m_gripper.closeGripper1(),
-                m_chassis.fieldRelativeDrive(0, -0.6, 0).andThen(new WaitCommand(750)),
+                m_chassis.fieldRelativeDrive(0, -0.6, 0).andThen(new WaitCommand(820)),
                 m_chassis.fieldRelativeDrive(0.6, 0, 0).andThen(new WaitCommand(450))
                         .andThen(m_chassis.stopMotor()),
                 m_arm.turnOnFF(),
@@ -248,7 +248,7 @@ public Command centerCloseRedPath() {
                 m_arm.setIdle(),
                 m_chassis.fieldRelativeDrive(-0.6, 0, 0).andThen(new WaitCommand(50)),
                 m_chassis.fieldRelativeDrive(0, 0, -90).andThen(new WaitCommand(450)),
-                m_chassis.fieldRelativeDrive(0, 0.6, -90).andThen(new WaitCommand(400))
+                m_chassis.fieldRelativeDrive(0, 0.6, -90).andThen(new WaitCommand(390))
                         .andThen(m_chassis.stopMotor()),
                         m_chassis.fieldRelativeDrive(-0.6,0,-90).andThen(new WaitCommand(600))
                         .andThen(m_chassis.stopMotor()),
