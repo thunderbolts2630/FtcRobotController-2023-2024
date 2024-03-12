@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BTController;
+import org.firstinspires.ftc.teamcode.utils.Math.ProfileVelAcc;
 import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
@@ -30,6 +31,7 @@ import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.Util;
 
@@ -69,7 +71,10 @@ public class Arm implements Subsystem {
     private double armAccBasedOffset2 = 0;
     private boolean goalIsSet1 = false;
     private boolean goalIsSet2 = false;
-    public boolean manual=true;
+    public boolean disableFeedFoward =true;
+    ProfileVelAcc profileArm1;
+    ProfileVelAcc profileArm2;
+    ElapsedTime time;
 
     public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2,VoltageSensor voltageSensor) {
         this.map = map;
@@ -90,13 +95,18 @@ public class Arm implements Subsystem {
         potentiometer2 = map.get(AnalogInput.class, "pt2");//port 1
         servo = map.servo.get("armServo");
 
-        servo.getController().pwmDisable(); //todo:uncomment
+        servo.getController().pwmEnable(); //todo:uncomment
         servo.setDirection(Servo.Direction.REVERSE);
         dashboard.addData("desiredPT1", 0);
         dashboard.addData("desiredPT2", 0);
         arm1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         arm2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         register();
+        calculateMotorOutput();
+        time=new ElapsedTime();
+        profileArm1 = new ProfileVelAcc(current_first_joint_angle,time.milliseconds());
+        profileArm2 = new ProfileVelAcc(current_first_joint_angle,time.milliseconds());
+        servo.setPosition(0.3);
     }
 
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
@@ -160,35 +170,43 @@ public class Arm implements Subsystem {
     }
 
 
-    @Override
-    public void periodic() {
+    private void displayTelemtry(){
+        dashboard.addData("pot1:", current_pot1_voltage);
+        dashboard.addData("pot2:", current_pot2_voltage);
+        dashboard.addData("angle first ", current_first_joint_angle);
+        dashboard.addData("angle second", current_second_joint_angle);
+        dashboard.addData("setpoint1", m_pid1.getSetpoint().position);
+        dashboard.addData("setpoint2", m_pid2.getSetpoint().position);
+        dashboard.addData("goal1", m_pid1.getGoal().position);
+        dashboard.addData("goal2", m_pid2.getGoal().position);
+        dashboard.addData("state", state.ordinal());
+        dashboard.addData("arm1 FF power",arm1FF);
+        dashboard.addData("arm2 FF power",arm2FF);
+        dashboard.addData("arm1 velocity",profileArm1.stats.vel);
+        dashboard.addData("arm1 acc",profileArm1.stats.acc);
 
+        dashboard.addData("arm2 velocity",profileArm2.stats.vel);
+        dashboard.addData("arm2 acc",profileArm2.stats.acc);
 
-        m_pid1.setIntegratorRange(MinIntegreal1, MaxIntegreal1);
-        m_pid2.setIntegratorRange(MinIntegreal2, MaxIntegreal2);
-        m_pid1.setIzone(aIzone1);
-        m_pid2.setIzone(aIzone2);
+    }
+    public void calculateMotorOutput(){
         current_first_joint_angle = voltageToAngle1(potentiometer1.getVoltage());
         current_second_joint_angle = voltageToAngle2(potentiometer2.getVoltage());
         current_pot1_voltage = potentiometer1.getVoltage();
         current_pot2_voltage = potentiometer2.getVoltage();
         desired_arm1_motor_value = setMotorFromAngle1() + driverAdjust1;
         desired_arm2_motor_value = setMotorFromAngle2() + driverAdjust2;
-        if (!manual) {
+    }
+    public void updateMotorsOutput(){
+        m_pid1.setIntegratorRange(MinIntegreal1, MaxIntegreal1);
+        m_pid2.setIntegratorRange(MinIntegreal2, MaxIntegreal2);
+        m_pid1.setIzone(aIzone1);
+        m_pid2.setIzone(aIzone2);
+
+        if (!disableFeedFoward) {
             setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position /*servo_desired_position*/);
         }
-        dashboard.addData("pot1:", current_pot1_voltage);
-        dashboard.addData("pot2:", current_pot2_voltage);
-        dashboard.addData("angle first ", current_first_joint_angle);
-        dashboard.addData("angle second", current_second_joint_angle);
-        dashboard.addData("arm1 ticks", arm1.getCurrentPosition());
-        dashboard.addData("arm total error1", m_pid1.getTotalError());
-        dashboard.addData("arm total error2", m_pid2.getTotalError());
-        dashboard.addData("setpoint1", m_pid1.getSetpoint().position);
-        dashboard.addData("setpoint2", m_pid2.getSetpoint().position);
 
-        dashboard.addData("goal1", m_pid1.getGoal().position);
-        dashboard.addData("goal2", m_pid2.getGoal().position);
         dashboard.update();
         m_pid1.setPID(a1KP, a1KI, a1KD);
         m_pid2.setPID(a2KP, a2KI, a2KD);
@@ -196,16 +214,22 @@ public class Arm implements Subsystem {
         voltSecondAngle1 = 1.2 + ArmOffset.volt1Offset;//min
         voltSecondAngle2 = 1.58 + volt2Offset;
         voltFirstAngle2 = 1.13 + volt2Offset;//max
-
-        dashboard.addData("accArmOffset1", armAccBasedOffset1);
-        dashboard.addData("accArmOffset2", armAccBasedOffset2);
-        dashboard.addData("state", state.ordinal());
         if (!goalIsSet1) {
             m_pid1.setGoal(current_first_joint_angle);
         }
         if (!goalIsSet2) {
             m_pid2.setGoal(current_second_joint_angle);
         }
+
+    }
+    @Override
+    public void periodic() {
+        profileArm1.calculate(current_first_joint_angle, time.milliseconds());
+        profileArm2.calculate(current_second_joint_angle, time.milliseconds());
+
+        calculateMotorOutput();
+        updateMotorsOutput();
+        displayTelemtry();
 
     }
 
@@ -352,8 +376,8 @@ public class Arm implements Subsystem {
 
     public Command toggleFF() {
         return new InstantCommand(() -> {
-            manual = !manual;
-            if (manual) {
+            disableFeedFoward = !disableFeedFoward;
+            if (disableFeedFoward) {
                 arm1.set(0);
                 arm2.set(0);
                 servo.getController().pwmDisable();
@@ -367,7 +391,7 @@ public class Arm implements Subsystem {
 
     public Command turnOnFF() {
         return new InstantCommand(() -> {
-            manual = false;
+            disableFeedFoward = false;
             servo.getController().pwmEnable();
             m_pid1.reset(current_first_joint_angle);
             m_pid2.reset(current_second_joint_angle);
@@ -392,7 +416,18 @@ public class Arm implements Subsystem {
     public boolean ArmAtGoal() {
         return m_pid1.atGoal() && m_pid2.atGoal();
     }
-
+    //use this to move the arm from -90 degrees to 20 degrees at 0.9 DutyCycle and then hold with FeedFoward
+    public Command tuneAngle2(){
+        return new InstantCommand(()->{
+            disableFeedFoward =true;
+            arm2.set(0.9);
+        })
+        .andThen(new WaitUntilCommand(()->current_second_joint_angle>10))
+        .andThen(new InstantCommand(()-> {
+            arm2.set(0);
+            disableFeedFoward =false;
+        }));
+    }
     private void setState1(Positions pos) {
         m_pid1.setConstraints(pos.constraints1);
         desired_first_joint_angle = pos.angle1;

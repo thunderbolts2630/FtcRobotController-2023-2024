@@ -72,6 +72,10 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_pixelDetection=new PixelDetection(map,telemetry);
 
         oneDriver();
+        tune();
+    }
+    public void tune(){
+        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
     }
 
     //bind commands to trigger
