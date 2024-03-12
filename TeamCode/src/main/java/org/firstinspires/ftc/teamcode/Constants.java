@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmOffset.volt2Offset;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisFeedForward.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.wpilibcontroller.ArmFeedforward;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
-import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
-import com.arcrobotics.ftclib.trajectory.constraint.MecanumDriveKinematicsConstraint;
 
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
@@ -19,8 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 public class Constants {
     public static final double l1 = 0.378;// com distant from axis first arm METERS
     public static final double l2 = 0.355;// com distant from axis second arm METERS
-    public static final double first_arm_weight = 0.200; // first arm weight KG
-    public static final double second_arm_weight = 0.200; // second arm weight with gripper KG
+
     public static final double g = 9.806;
     public static final double hex_stall_current = 9.801;
     public static final double resistance = 12 / hex_stall_current; //volt
@@ -31,36 +28,134 @@ public class Constants {
 
     public static final double neo_Kt = hex_stall_torque / hex_stall_current;
 
-    public static class Gripper{
-        @Config
-        public static class Gripperpwm{
-            public static double serv1=0.5;
-            public static double serv0=0.5;
-        }
-    }
     public static class ArmConstants {
-
+        @Config
+        public static class ArmOffset {
+            public static double volt1Offset = 0.06   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
+            public static double volt2Offset = -0.06  ;
+        }
+        public static final double arm1FirstAngle = 90;//max
+        public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
+        public static  double voltSecondAngle1 =1.2 + ArmOffset.volt1Offset;//min
+        public static final double arm1SecondAngle = 0;//min
+        public static final double arm2SecondAngle = -90;//min
+        public static final double arm2FirstAngle = 0;//max
+        public static double voltFirstAngle2 =1.13 + volt2Offset;//max
+        public static double voltSecondAngle2 = 1.58 + volt2Offset;//min
         public static final double motorMaxVolt = 12;
-        public static final double a1Max = 90;
-        public static final double vMax1 = 1.456;
-        public static final double a2Max = 0;
-        public static final double vMin2 = 1.632;
-        public static final double arm1Min = 0;
-        public static final double vMin1 = 0.455;
-        public static final double arm2Min = -90;
-        public static final double vMax2 = 2.189;
-        public static final Translation2d PixelPickUp = new Translation2d();//todo:check value
-        public static final Translation2d PixelScore = new Translation2d(); //todo:check value
+/*
+        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap1 = new InterpolatingTreeMap<>();
+        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap2 = new InterpolatingTreeMap<>();
+
+        static {
+            kFFMap1.put(new InterpolatingDouble(1.3),new InterpolatingDouble(-0.3));
+            kFFMap1.put(new InterpolatingDouble(1.484),new InterpolatingDouble(-0.27));
+            kFFMap1.put(new InterpolatingDouble(1.6),new InterpolatingDouble(-0.22));
+            kFFMap1.put(new InterpolatingDouble(1.8),new InterpolatingDouble(-0.2));
+            kFFMap1.put(new InterpolatingDouble(1.9),new InterpolatingDouble(-0.125));
+            kFFMap1.put(new InterpolatingDouble(1.99),new InterpolatingDouble(-0.15));
+            kFFMap1.put(new InterpolatingDouble(2.1455),new InterpolatingDouble(0.0));
+            kFFMap1.put(new InterpolatingDouble(2.167),new InterpolatingDouble(0.01));
+            kFFMap1.put(new InterpolatingDouble(2.78),new InterpolatingDouble(0.1));
+            kFFMap1.put(new InterpolatingDouble(2.78),new InterpolatingDouble(0.15));
+
+            kFFMap2.put(new InterpolatingDouble(1.01),new InterpolatingDouble(0.2));
+            kFFMap2.put(new InterpolatingDouble(0.98),new InterpolatingDouble(0.25));
+            kFFMap2.put(new InterpolatingDouble(0.956),new InterpolatingDouble(0.22));
+            kFFMap2.put(new InterpolatingDouble(0.904),new InterpolatingDouble(0.19));
+            kFFMap2.put(new InterpolatingDouble(0.83),new InterpolatingDouble(0.3));
+            kFFMap2.put(new InterpolatingDouble(0.7),new InterpolatingDouble(0.4));
+            kFFMap2.put(new InterpolatingDouble(0.58),new InterpolatingDouble(0.45));
+            kFFMap2.put(new InterpolatingDouble(0.601),new InterpolatingDouble(0.5));
+            kFFMap2.put(new InterpolatingDouble(0.37),new InterpolatingDouble(0.4));
+            kFFMap2.put(new InterpolatingDouble(0.27),new InterpolatingDouble(0.3));
+            kFFMap2.put(new InterpolatingDouble(0.2),new InterpolatingDouble(-0.1));
+
+        }
+  */
+        public enum Positions{
+            SCORE(98,0,0.43,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            IDLE(48,-3,0.44,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            MIDDLEPLUS(95,-67,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            HIGHSCORE(102,30,0.32,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),// 2/15 checked
+            PICKUP(51,-120,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            MIDPICKUP(67,-150,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            MIDDLE(90,-90,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            LOWSCORE(98,-25,0.55, new TrapezoidProfile.Constraints(400,400),new TrapezoidProfile.Constraints(400,400)),
+            Mid(90,-100,0.23,new TrapezoidProfile.Constraints(800,800),new TrapezoidProfile.Constraints(800,800));
+            public double angle1;
+    public double angle2;
+    public double servo;
+    public TrapezoidProfile.Constraints constraints1;
+    public TrapezoidProfile.Constraints constraints2;
+    public double tolernace;
+
+    Positions(double v1, double v2, double servo, TrapezoidProfile.Constraints Constraints1, TrapezoidProfile.Constraints Constraints2) {
+                this.angle1 = v1;
+                this.angle2 = v2;
+                this.servo = servo;
+
+        this.constraints1 = Constraints1;
+        this.constraints2 = Constraints2;
+    }
+
+
+        }
+        @Config
+        public static class RotationPID{
+            public static double rkp = 0.0145;
+            public static double rki = 0.0006;
+            public static double rkd = 0;
+            public static double rks = 0;
+            public static double degrees =-100;
+            public static double tolerance = 2;
+            public static double rotIzone = 7;
+
+        }
 
         @Config
         public static class ArmPID{
-        public static double a1KP = 0.0;
-        public static double a2KP = 0.0;
-        public static double a1KI = 0.00;
-        public static double a2KI = 0.00;
-        public static double a1KD = 0;
-        public static double a2KD = 0;
+            public static double a1KP = 0.03;
+            public static double a2KP = 0.03;
+            public static double a1KI = 0.0;
+            public static double a2KI = 0.0;
+            public static double a1KD = 0.0;
+            public static double a2KD = 0.0;
+            public static double aIzone1=7;
+            public static double aIzone2=7;
+
+            public static double a1DesAngle=90;
+            public static double a2DesAngle=-90;
+            public static double MaxIntegreal1=10;
+            public static double MinIntegreal1=10;
+            public static double MaxIntegreal2=10;
+            public static double MinIntegreal2=10;
+
+        }
+        @Config
+        public static class ArmProfile{
+            public static double maxVelocity1=1500;
+            public static double maxAcceleration1=1500;
+
+            public static double maxVelocity2=1500;
+            public static double maxAcceleration2=1500;
+        }
         public static double ffConv=12;
+
+
+        @Config
+        public static class ArmWights {
+            public static  double first_arm_weight = 0.600; //KG   includes the second one
+            public static  double second_arm_weight = 0.290; //KG
+            public static double angelOffset1=90;
+            public static double angelOffset2=0;
+        }
+
+        @Config
+        public static class calib{
+            public static double armServo=0.32;
+            public static double arm1=0.0;
+            public static double arm2=0.0;
         }
 
 
@@ -85,6 +180,7 @@ public class Constants {
         public static final BTTranslation2d FLW = new BTTranslation2d(-0.145,0.137);
         public static final BTTranslation2d BLW = new BTTranslation2d(-0.145,-0.137);
         public static SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(ffks,ffkv,ffka);
+
         @Config
         public static class ChassisFeedForward{
             public static double ffks = 0.12;
@@ -131,7 +227,9 @@ public class Constants {
         public static final double ki = 0;// todo: this is not calibrated
         public static final double kd = 0;// todo: this is not calibrated
         public static final double kf = 0;// todo: this is not calibrated
-        public static final int max_ticks = 0;// todo: this is not calibrated
+        public static final int max_ticks = 3000;
+        public static final int min_ticks = -300;
+
 
 //    public enum ArmStates {
 //        base(Arm.armBasePosition,false,ArmPlacingStates.base), // this doesn't need any boolean has a command on his own

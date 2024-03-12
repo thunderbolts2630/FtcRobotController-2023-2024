@@ -1,32 +1,27 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.CommandBase;
-import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.FunctionalCommand;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.StartEndCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
 
 import static org.firstinspires.ftc.teamcode.Constants.Climb.*;
 
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
-public class climb {
+public class climb  implements Subsystem{
 
 //    TrapezoidProfile profile =,    // Creates a new TrapezoidProfile | Profile will have a max vel of 5 meters per second | Profile will have a max acceleration of 10 meters per second squared | Profile will end stationary at 5 meters | Profile will start stationary at zero position
 //            new TrapezoidProfile.State(5, 0),
@@ -49,6 +44,15 @@ public class climb {
         climb_motor = new MotorEx(map, "climb_motor");
         m_sysConstraints = new TrapezoidProfile.Constraints(climb_max_speed, climb_max_accel);
         isUp = false;
+        climb_motor.setInverted(false);
+        climb_motor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        register();
+    }
+
+
+    @Override
+    public void periodic() {
+        FtcDashboard.getInstance().getTelemetry().addData("climb encoder", climb_motor.getCurrentPosition());
     }
 
     public void stopMotors() {
@@ -56,7 +60,14 @@ public class climb {
     }
     public BTCommand climb_manual(DoubleSupplier speed){
         return new RunCommand(()->{
-            climb_motor.set(speed.getAsDouble());
+            double value=speed.getAsDouble();//initial value;
+            if((speed.getAsDouble()>0 &&climb_motor.getCurrentPosition()>max_ticks) ||(speed.getAsDouble()<0 &&climb_motor.getCurrentPosition()<min_ticks)){
+                value=0;
+            }else {
+                value=speed.getAsDouble();
+            }
+            climb_motor.set(value);
+            FtcDashboard.getInstance().getTelemetry().addData("climb asafsd",value);
 
         });
     }

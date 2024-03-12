@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,22 +15,32 @@ public class plane implements Subsystem {
     Telemetry telemetry;
     Servo servoPlane;
 
+    @Config
+    public static class planeCalib{
+        public static double servo =0.4;
+    }
     public plane(HardwareMap map, Telemetry telemetry){
         this.map=map;
         this.telemetry=telemetry;
-        servoPlane =map.servo.get("servoPlane");
+        servoPlane =map.servo.get("plane");
+        servoPlane.getController().pwmEnable();
+        register();
     }
     @Override
     public void periodic() {
+//        servoPlane.setPosition(planeCalib.servo);
     }
 
-    public Command shootPlane(){
-        return new RunCommand(()->{
+    public Command resetPlane(){
+        return  new InstantCommand(()->{
             servoPlane.setPosition(0);
-            telemetry.addLine("aaa open");
+        });
+    }
+    public Command shootPlane(){
+        return new InstantCommand(()->{
+            servoPlane.setPosition(0.56);
         },this);
     };
 
-//    todo: maybe add toggle option
 
 }
