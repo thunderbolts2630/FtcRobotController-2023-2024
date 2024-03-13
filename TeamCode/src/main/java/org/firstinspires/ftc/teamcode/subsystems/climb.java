@@ -11,8 +11,7 @@ import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.utils.BTCommand;
+import org.firstinspires.ftc.teamcode.utils.BT.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
 
 import static org.firstinspires.ftc.teamcode.Constants.Climb.*;
@@ -37,7 +36,7 @@ public class climb  implements Subsystem{
     private boolean isUp;
 
 
-    public climb(HardwareMap map, Telemetry telemetry) {
+    public climb(HardwareMap map) {
         this.map = map;
         m_elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
         m_pidfController = new PIDFController(kp, ki, kd, kf);

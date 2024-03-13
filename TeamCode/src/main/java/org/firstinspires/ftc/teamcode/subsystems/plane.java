@@ -12,16 +12,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class plane implements Subsystem {
     private HardwareMap map;
-    Telemetry telemetry;
     Servo servoPlane;
 
     @Config
     public static class planeCalib{
         public static double servo =0.4;
     }
-    public plane(HardwareMap map, Telemetry telemetry){
+    public plane(HardwareMap map){
         this.map=map;
-        this.telemetry=telemetry;
         servoPlane =map.servo.get("plane");
         servoPlane.getController().pwmEnable();
         register();

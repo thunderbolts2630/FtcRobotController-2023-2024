@@ -15,12 +15,11 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.sun.tools.javac.resources.compiler;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
-import org.firstinspires.ftc.teamcode.utils.BTposeEstimator;
+import org.firstinspires.ftc.teamcode.utils.BT.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.utils.BTCommand;
+import org.firstinspires.ftc.teamcode.utils.BT.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTPose2d;
@@ -48,7 +47,6 @@ public class Chassis implements Subsystem {
     private BTPose2d prevPos;
     private HardwareMap map;
     private BTposeEstimator odometry;
-    private Telemetry m_telemetry;
     private MotorEx motor_FL;
     private MotorEx motor_FR;
     private MotorEx motor_BL;
@@ -74,9 +72,8 @@ public class Chassis implements Subsystem {
     private double desiredAngle;
 
 
-    public Chassis(HardwareMap map, Telemetry telemetry, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder,VoltageSensor voltage_sensor) {
+    public Chassis(HardwareMap map, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder,VoltageSensor voltage_sensor) {
         this.map = map;
-        this.m_telemetry = telemetry;
         motor_FL = new MotorEx(map, "motor_FL");//1
         motor_FR = new MotorEx(map, "motor_FR");//2
         motor_BL = new MotorEx(map, "motor_BL");//0
@@ -163,9 +160,6 @@ public class Chassis implements Subsystem {
 
     public BTCommand fieldRelativeDrive(DoubleSupplier frontVel, DoubleSupplier sidewayVel, DoubleSupplier retaliation) {
         return new RunCommand(() -> {
-            m_telemetry.addData("frontvel", frontVel.getAsDouble());
-            m_telemetry.addData("sidevel", sidewayVel.getAsDouble());
-            m_telemetry.update();
 
             BTTranslation2d vector = new BTTranslation2d(sidewayVel.getAsDouble(), frontVel.getAsDouble());
             BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(gyro.getHeading()));

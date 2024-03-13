@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RobotContainer;
-import org.firstinspires.ftc.teamcode.utils.BTController;
+import org.firstinspires.ftc.teamcode.utils.BT.BTController;
 import org.firstinspires.ftc.teamcode.utils.Math.ProfileVelAcc;
 import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
@@ -42,7 +42,6 @@ public class Arm implements Subsystem {
     private HardwareMap map;
     private AnalogInput potentiometer1;
     private AnalogInput potentiometer2;
-    private Telemetry m_telemetry;
     private MotorEx arm1;
     private MotorEx arm2;
     private Servo servo;
@@ -76,9 +75,8 @@ public class Arm implements Subsystem {
     ProfileVelAcc profileArm2;
     ElapsedTime time;
 
-    public Arm(HardwareMap map, Telemetry telemetry, MotorEx arm1, MotorEx arm2,VoltageSensor voltageSensor) {
+    public Arm(HardwareMap map,  MotorEx arm1, MotorEx arm2,VoltageSensor voltageSensor) {
         this.map = map;
-        this.m_telemetry = telemetry;
         this.arm1 = arm1;
         this.arm2 = arm2;
         this.arm1.setInverted(false);

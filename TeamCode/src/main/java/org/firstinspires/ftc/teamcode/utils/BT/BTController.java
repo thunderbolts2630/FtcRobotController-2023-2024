@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.utils.BT;
 
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.*;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.*;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.button.Trigger;

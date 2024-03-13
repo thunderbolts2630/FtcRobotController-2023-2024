@@ -9,10 +9,9 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import androidx.annotation.NonNull;
 
-import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.Subsystem;
 
-import java.util.function.BooleanSupplier;
+import org.firstinspires.ftc.teamcode.utils.BT.BTCommand;
 
 public class RunCommand extends BTCommand {
 

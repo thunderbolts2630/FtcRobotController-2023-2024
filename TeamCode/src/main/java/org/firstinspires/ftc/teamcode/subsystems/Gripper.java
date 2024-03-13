@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.Constants;
 
 public class Gripper implements Subsystem {
     private HardwareMap map;
-    Telemetry telemetry;
     Servo serv0;
     Servo serv1;
     private boolean isOpen1;
@@ -30,9 +29,8 @@ public class Gripper implements Subsystem {
             public static double gripServoPos=0.0;
         }
     }
-    public Gripper(HardwareMap map, Telemetry telemetry){
+    public Gripper(HardwareMap map){
         this.map=map;
-        this.telemetry=telemetry;
         serv0=map.servo.get("gripper0");
         serv1=map.servo.get("gripper1");
         register();

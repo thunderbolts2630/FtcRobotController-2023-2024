@@ -1,20 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_LEFT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUMPER_RIGHT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_DOWN;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_LEFT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_RIGHT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.BUTTON_UP;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_DOWN;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_LEFT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_RIGHT;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.DPAD_UP;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_X;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.LEFT_Y;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.utils.BTController.Buttons.RIGHT_X;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.BUMPER_LEFT;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.BUMPER_RIGHT;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.BUTTON_DOWN;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.BUTTON_LEFT;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.BUTTON_RIGHT;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.BUTTON_UP;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_X;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_Y;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.RIGHT_X;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
-import org.firstinspires.ftc.teamcode.utils.BTController;
+import org.firstinspires.ftc.teamcode.utils.BT.BTController;
 
 
 public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
@@ -64,11 +64,11 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller = new BTController(gamepad1);
         m_controller2 = new BTController(gamepad2);
 
-        m_gripper = new Gripper(map, telemetry);
-        m_chassis = new Chassis(map, telemetry, armM2encoderL.encoder, armM1encoderR.encoder,voltage_sensor);
-        m_plane = new plane(map, telemetry);
-        m_climb = new climb(map, telemetry);
-        m_arm = new Arm(map, telemetry, armM2encoderL, armM1encoderR,voltage_sensor);
+        m_gripper = new Gripper(map);
+        m_chassis = new Chassis(map, armM2encoderL.encoder, armM1encoderR.encoder,voltage_sensor);
+        m_plane = new plane(map);
+        m_climb = new climb(map);
+        m_arm = new Arm(map, armM2encoderL, armM1encoderR,voltage_sensor);
         m_pixelDetection=new PixelDetection(map,telemetry);
 
         oneDriver();
