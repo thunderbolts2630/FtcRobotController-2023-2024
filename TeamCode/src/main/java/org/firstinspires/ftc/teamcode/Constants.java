@@ -15,9 +15,12 @@ import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 
 public class Constants {
-    public static final double l1 = 0.378;// com distant from axis first arm METERS
-    public static final double l2 = 0.355;// com distant from axis second arm METERS
-
+    public static final double l1 = 0.378;// first arm METERS
+    public static final double l2 = 0.355;// second arm METERS
+    public static final double l1ff = 0.186;// com distant from axis first arm METERS
+    public static final double l2CoM = 0.277;// com distant from axis second arm METERS
+    public static final double gripperCoM = 0.067;// com distant from axis second arm METERS
+    public static final double l2ff = l2CoM+gripperCoM;
     public static final double g = 9.806;
     public static final double hex_stall_current = 9.801;
     public static final double resistance = 12 / hex_stall_current; //volt

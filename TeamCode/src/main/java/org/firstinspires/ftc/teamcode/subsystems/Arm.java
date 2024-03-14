@@ -259,7 +259,7 @@ public class Arm implements Subsystem {
         armAccBasedOffset1 = ((resistance *
                 (RobotContainer.armAccAdjustment * Util.sinInDegrees(current_first_joint_angle))
                 / (first_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
-        arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle);
+        arm1FF = calculateFeedForwardFirstJoint(current_first_joint_angle,current_second_joint_angle);
 //        dashboard.addData("desired,current discrepancy", current_first_joint_angle-desired_first_joint_angle);
         return arm1FF + arm1PIDresult;
 
@@ -279,19 +279,18 @@ public class Arm implements Subsystem {
 
     private double calculateFeedForwardSecondJoint(double second_joint_angle) {
         return ((resistance *
-                (second_arm_weight * (g * l2 * Util.cosInDegrees(second_joint_angle))
+                (second_arm_weight * (g * l2ff * Util.cosInDegrees(second_joint_angle))
                 )
                 / (second_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
         //in volts
         // need to convert to pwm
     }
 
-    private double calculateFeedForwardFirstJoint(double first_joint_angle) {
+    private double calculateFeedForwardFirstJoint(double first_joint_angle, double second_joint_angle) {
 
-        return ((resistance *
-                (first_arm_weight * (g * l1 * Util.cosInDegrees(first_joint_angle))
-                )
-                / (first_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;//to conv between
+        return ((resistance *g* (first_arm_weight * l1ff * Util.cosInDegrees(first_joint_angle) + second_arm_weight * Util.cosInDegrees(first_joint_angle-second_joint_angle)*l2ff) / (first_gear_ratio * neo_Kt))
+                / motorMaxVolt)
+                / ffConv;//to conv between
         // in volts
     }
 
