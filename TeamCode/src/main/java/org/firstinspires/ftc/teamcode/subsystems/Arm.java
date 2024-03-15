@@ -75,6 +75,10 @@ public class Arm implements Subsystem {
     ProfileVelAcc profileArm2;
     ElapsedTime time;
 
+    private double servoAngleFF = 0;
+    private double arm2MassFromRadius = l2ff;
+
+
     public Arm(HardwareMap map,  MotorEx arm1, MotorEx arm2,VoltageSensor voltageSensor) {
         this.map = map;
         this.arm1 = arm1;
@@ -143,6 +147,14 @@ public class Arm implements Subsystem {
 
     }
 
+    public double servoToDegrees(double voltage){
+        servoAngleFF = ((voltage - servoVoltage2) * (servoAngle1 - servoAngle2) / (servoVoltage1 - servoVoltage2)) + servoAngle2;
+        return servoAngleFF;
+    }
+    public void updateArm2CoM(){
+        arm2MassFromRadius = Util.cosInDegrees(servoAngleFF)*gripper_weight + l2ff*second_arm_weight;
+    }
+
 
     public Command armMoveDriver(DoubleSupplier speedFirst, DoubleSupplier speedSecond) {
         return new RunCommand(() -> {
@@ -188,6 +200,8 @@ public class Arm implements Subsystem {
 
     }
     public void calculateMotorOutput(){
+        servoAngleFF=servoToDegrees(servo.getPosition());
+        updateArm2CoM();
         current_first_joint_angle = voltageToAngle1(potentiometer1.getVoltage());
         current_second_joint_angle = voltageToAngle2(potentiometer2.getVoltage());
         current_pot1_voltage = potentiometer1.getVoltage();
@@ -222,11 +236,12 @@ public class Arm implements Subsystem {
     }
     @Override
     public void periodic() {
-        profileArm1.calculate(current_first_joint_angle, time.milliseconds());
+        profileArm1.calculate(current_first_joint_angle, time.milliseconds());//for mesaurement, deleter after profile measurements
         profileArm2.calculate(current_second_joint_angle, time.milliseconds());
+        servo.setPosition(calib.armServo);
 
         calculateMotorOutput();
-        updateMotorsOutput();
+//        updateMotorsOutput();
         displayTelemtry();
 
     }
@@ -279,7 +294,7 @@ public class Arm implements Subsystem {
 
     private double calculateFeedForwardSecondJoint(double second_joint_angle) {
         return ((resistance *
-                (second_arm_weight * (g * l2ff * Util.cosInDegrees(second_joint_angle))
+                (second_arm_weight * (g * arm2MassFromRadius * Util.cosInDegrees(second_joint_angle))
                 )
                 / (second_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
         //in volts
@@ -288,7 +303,7 @@ public class Arm implements Subsystem {
 
     private double calculateFeedForwardFirstJoint(double first_joint_angle, double second_joint_angle) {
 
-        return ((resistance *g* (first_arm_weight * l1ff * Util.cosInDegrees(first_joint_angle) + second_arm_weight * Util.cosInDegrees(first_joint_angle-second_joint_angle)*l2ff) / (first_gear_ratio * neo_Kt))
+        return ((resistance *g* (first_arm_weight * l1ff * Util.cosInDegrees(first_joint_angle) + arm2MassFromRadius * Util.cosInDegrees(first_joint_angle-second_joint_angle)) / (first_gear_ratio * neo_Kt))
                 / motorMaxVolt)
                 / ffConv;//to conv between
         // in volts

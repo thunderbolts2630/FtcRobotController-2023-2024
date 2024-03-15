@@ -18,9 +18,8 @@ public class Constants {
     public static final double l1 = 0.378;// first arm METERS
     public static final double l2 = 0.355;// second arm METERS
     public static final double l1ff = 0.186;// com distant from axis first arm METERS
-    public static final double l2CoM = 0.277;// com distant from axis second arm METERS
     public static final double gripperCoM = 0.067;// com distant from axis second arm METERS
-    public static final double l2ff = l2CoM+gripperCoM;
+    public static final double l2ff = 0.277;
     public static final double g = 9.806;
     public static final double hex_stall_current = 9.801;
     public static final double resistance = 12 / hex_stall_current; //volt
@@ -37,12 +36,18 @@ public class Constants {
             public static double volt1Offset = 0.06   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
             public static double volt2Offset = -0.06  ;
         }
+        public static final double servoVoltage1 = 0;//placeholder
+        public static final double servoVoltage2 = 0;//placeholder
+        public static final double servoAngle1 = 0;//placeholder
+        public static final double servoAngle2 = 0;//placeholder
         public static final double arm1FirstAngle = 90;//max
         public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
         public static  double voltSecondAngle1 =1.2 + ArmOffset.volt1Offset;//min
         public static final double arm1SecondAngle = 0;//min
         public static final double arm2SecondAngle = -90;//min
         public static final double arm2FirstAngle = 0;//max
+        private static final double belt_weight = 0.109;
+        public static final  double arm_wires=0.006;
         public static double voltFirstAngle2 =1.13 + volt2Offset;//max
         public static double voltSecondAngle2 = 1.58 + volt2Offset;//min
         public static final double motorMaxVolt = 12;
@@ -148,8 +153,9 @@ public class Constants {
 
         @Config
         public static class ArmWights {
-            public static  double first_arm_weight = 0.600; //KG   includes the second one
-            public static  double second_arm_weight = 0.290; //KG
+            public static  double first_arm_weight = 0.217+belt_weight+arm_wires/2; //KG   includes the second one
+            public static  double second_arm_weight = 0.274+arm_wires/2; //KG
+            public static double gripper_weight = 0.182;
             public static double angelOffset1=90;
             public static double angelOffset2=0;
         }
