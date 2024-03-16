@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package org.firstinspires.ftc.teamcode.utils.PID;
-import com.acmerobotics.dashboard.FtcDashboard;
 
 import org.firstinspires.ftc.teamcode.utils.Math.*;
 /** Implements a PID control loop. */
@@ -53,6 +52,8 @@ public class PIDController {
 
     private boolean m_haveMeasurement;
     private boolean m_haveSetpoint;
+    private boolean m_resetAccumilatorAtSetPoint;
+    private double m_AccumilatorTolerance;
 
 
     /**
@@ -84,13 +85,15 @@ public class PIDController {
             throw new IllegalArgumentException("Controller period must be a non-zero positive number!");
         }
         m_period = period;
-
+        m_resetAccumilatorAtSetPoint=false;
+        m_AccumilatorTolerance=0;
         instances++;
     }
 
     public PIDController(double kp, double ki, double kd, double izone) {
         this(kp,ki,kd,izone,0.02);
     }
+
 
     /**
      * Sets the PID Controller gain parameters.
@@ -105,6 +108,11 @@ public class PIDController {
         m_kp = kp;
         m_ki = ki;
         m_kd = kd;
+    }
+
+    public void setAccumilatorResetTolerance(double tolerance){
+        m_resetAccumilatorAtSetPoint=true;
+        m_AccumilatorTolerance=tolerance;
     }
 
     /**
@@ -355,9 +363,19 @@ public class PIDController {
                                 m_minimumIntegral,
                                 m_maximumIntegral);
         }
+        if(isInAccumulatorTolerance()){
+            m_totalError=0;
+        }
 
 
         return m_kp * m_positionError + m_ki * m_totalError + m_kd * m_velocityError;
+    }
+
+    private boolean isInAccumulatorTolerance() {
+        if(!m_resetAccumilatorAtSetPoint){
+            return false;
+        }
+        return Math.abs(m_positionError)<m_AccumilatorTolerance;
     }
 
     /** Resets the previous error and the integral term. */

@@ -33,23 +33,22 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = 0.22   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
-            public static double volt2Offset = -0.025  ;
+            public static double volt1Offset = 0   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
+            public static double volt2Offset = 0.193 ;
         }
         public static final double servoVoltage1 = 0.828;
         public static final double servoVoltage2 = 0.475;
-        public static final double servoAngle1 = -90;
+        public static final double servoAngle1 = 0;
         public static final double servoAngle2 = -90;//placeholder
-        public static final double arm1FirstAngle = 90;//max
-        public static  double voltFirstAngle1 = 2.371+ArmOffset.volt1Offset;//max
-        public static  double voltSecondAngle1 =1.2 + ArmOffset.volt1Offset;//min
-        public static final double arm1SecondAngle = 0;//min
-        public static final double arm2SecondAngle = -90;//min
-        public static final double arm2FirstAngle = 0;//max
-        private static final double belt_weight = 0.109;
+        public static final double arm1FirstAngle = 180;//max
+        public static  double voltFirstAngle1=2.58 +ArmOffset.volt1Offset;//max
+        public static  double voltSecondAngle1 = 1.65 + ArmOffset.volt1Offset;//min
+        public static final double arm1SecondAngle = 90;//min
+        public static final double arm2SecondAngle =0 ;//min
+        public static final double arm2FirstAngle = -90;//max
         public static final  double arm_wires=0.006;
-        public static double voltFirstAngle2 =1.13 + volt2Offset;//max
-        public static double voltSecondAngle2 = 1.58 + volt2Offset;//min
+        public static double voltFirstAngle2 =2.185 + volt2Offset;//max
+        public static double voltSecondAngle2 =1.959  + volt2Offset;//min
         public static final double motorMaxVolt = 12;
 /*
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kFFMap1 = new InterpolatingTreeMap<>();
@@ -82,14 +81,14 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(98,0,0.43,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
-            IDLE(48,-3,0.44,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),
+            SCORE(98,-180,0.43,new TrapezoidProfile.Constraints(200,200), new TrapezoidProfile.Constraints(200,200)),
+            IDLE(58,-176,0.44,new TrapezoidProfile.Constraints(100,100), new TrapezoidProfile.Constraints(100,100)),
             MIDDLEPLUS(95,-67,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
-            HIGHSCORE(102,30,0.32,new TrapezoidProfile.Constraints(400,400), new TrapezoidProfile.Constraints(400,400)),// 2/15 checked
+            HIGHSCORE(102,-210,0.32,new TrapezoidProfile.Constraints(200,200), new TrapezoidProfile.Constraints(200,200)),// 2/15 checked
             PICKUP(51,-120,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDPICKUP(67,-150,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDDLE(90,-90,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
-            LOWSCORE(98,-25,0.55, new TrapezoidProfile.Constraints(400,400),new TrapezoidProfile.Constraints(400,400)),
+            LOWSCORE(98,-165,0.55, new TrapezoidProfile.Constraints(200,200),new TrapezoidProfile.Constraints(200,200)),
             Mid(90,-100,0.23,new TrapezoidProfile.Constraints(800,800),new TrapezoidProfile.Constraints(800,800));
             public double angle1;
     public double angle2;
@@ -153,11 +152,11 @@ public class Constants {
 
         @Config
         public static class ArmWights {
+            private static final double belt_weight = 0.109;
+
             public static  double first_arm_weight = 0.217+belt_weight+arm_wires/2; //KG   includes the second one
             public static  double second_arm_weight = 0.274+arm_wires/2; //KG
             public static double gripper_weight = 0.182;
-            public static double angelOffset1=90;
-            public static double angelOffset2=0;
         }
 
         @Config

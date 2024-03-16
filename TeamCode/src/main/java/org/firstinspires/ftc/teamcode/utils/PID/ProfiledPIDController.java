@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.Math.*;
 public class ProfiledPIDController  {
   private static int instances;
 
-  private PIDController m_controller;
+  public PIDController m_controller;
   private double m_minimumInput;
   private double m_maximumInput;
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
