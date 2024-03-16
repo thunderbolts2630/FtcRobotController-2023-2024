@@ -33,10 +33,10 @@ public class Constants {
     public static class ArmConstants {
         @Config
         public static class ArmOffset {
-            public static double volt1Offset = 0.06   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
-            public static double volt2Offset = -0.06  ;
+            public static double volt1Offset = 0.22   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
+            public static double volt2Offset = -0.025  ;
         }
-        public static final double servoVoltage1 = 0;//placeholder
+        public static final double servoVoltage1 = 1;//placeholder
         public static final double servoVoltage2 = 0;//placeholder
         public static final double servoAngle1 = 0;//placeholder
         public static final double servoAngle2 = 0;//placeholder

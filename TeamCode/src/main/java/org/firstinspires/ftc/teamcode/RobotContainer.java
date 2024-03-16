@@ -65,11 +65,11 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2 = new BTController(gamepad2);
 
         m_gripper = new Gripper(map);
-        m_chassis = new Chassis(map, armM2encoderL.encoder, armM1encoderR.encoder,voltage_sensor);
-        m_plane = new plane(map);
-        m_climb = new climb(map);
+//        m_chassis = new Chassis(map, armM2encoderL.encoder, armM1encoderR.encoder,voltage_sensor);
+//        m_plane = new plane(map);
+//        m_climb = new climb(map);
         m_arm = new Arm(map, armM2encoderL, armM1encoderR,voltage_sensor);
-        m_pixelDetection=new PixelDetection(map,telemetry);
+//        m_pixelDetection=new PixelDetection(map,telemetry);
 
         oneDriver();
         tune();
@@ -81,19 +81,19 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     //bind commands to trigger
     public void oneDriver(){
 
-        m_controller.assignCommand(m_chassis.fieldRelativeDrive(
-                        () -> -m_controller.left_y.getAsDouble(),
-                        m_controller.left_x,
-                        () -> m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble()),
-                true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
-        m_controller.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
-
-
-        m_controller.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_RIGHT);
-        m_controller.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_LEFT);
-
-        m_controller.assignCommand(m_plane.shootPlane(), true, BUTTON_DOWN);
-        m_controller.assignCommand(m_plane.resetPlane(), true, BUTTON_UP);
+//        m_controller.assignCommand(m_chassis.fieldRelativeDrive(
+//                        () -> -m_controller.left_y.getAsDouble(),
+//                        m_controller.left_x,
+//                        () -> m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble()),
+//                true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
+//        m_controller.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
+//
+//
+//        m_controller.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_RIGHT);
+//        m_controller.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_LEFT);
+//
+//        m_controller.assignCommand(m_plane.shootPlane(), true, BUTTON_DOWN);
+//        m_controller.assignCommand(m_plane.resetPlane(), true, BUTTON_UP);
 
         m_controller.assignCommand(m_arm.toggleFF(), false, BUTTON_RIGHT);
 
