@@ -35,6 +35,7 @@ public class Gripper implements Subsystem {
         serv1=map.servo.get("gripper1");
         register();
         serv1.getController().pwmEnable();
+        serv0.getController().pwmEnable();
         isOpen1 = false;
         isOpen0 = false;
 

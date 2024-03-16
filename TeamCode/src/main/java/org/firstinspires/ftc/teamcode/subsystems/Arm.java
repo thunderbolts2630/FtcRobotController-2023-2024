@@ -12,6 +12,7 @@ import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
+import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -198,15 +199,15 @@ public class Arm implements Subsystem {
         dashboard.addData("arm2 velocity",profileArm2.stats.vel);
         dashboard.addData("arm2 acc",profileArm2.stats.acc);
 
-        dashboard.addData("Arm2Mass distance from radious",arm2MassFromRadius);
-        dashboard.addData("CoM 1",l1ff*first_arm_weight);
-        dashboard.addData("CoM 2 *cos",Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle)*l2ff*second_arm_weight);
-        dashboard.addData("cos(second-first)",Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle));
-        dashboard.addData("cos(second-first)%360",Util.cosInDegrees((current_second_joint_angle-current_first_joint_angle)%360));
-        dashboard.addData("first-second",current_second_joint_angle-current_first_joint_angle);
-        dashboard.addData("cos(first)",Util.cosInDegrees(current_first_joint_angle));
-        dashboard.addData("adjusted com1",first_arm_weight * l1ff  + arm2MassFromRadius * Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle));
-        dashboard.addData("*cos(forst) adjusted com1",(first_arm_weight * l1ff  + arm2MassFromRadius * Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle))*Util.cosInDegrees(current_first_joint_angle));
+//        dashboard.addData("Arm2Mass distance from radious",arm2MassFromRadius);
+//        dashboard.addData("CoM 1",l1ff*first_arm_weight);
+//        dashboard.addData("CoM 2 *cos",Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle)*l2ff*second_arm_weight);
+//        dashboard.addData("cos(second-first)",Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle));
+//        dashboard.addData("cos(second-first)%360",Util.cosInDegrees((current_second_joint_angle-current_first_joint_angle)%360));
+//        dashboard.addData("first-second",current_second_joint_angle-current_first_joint_angle);
+//        dashboard.addData("cos(first)",Util.cosInDegrees(current_first_joint_angle));
+//        dashboard.addData("adjusted com1",first_arm_weight * l1ff  + arm2MassFromRadius * Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle));
+//        dashboard.addData("*cos(forst) adjusted com1",(first_arm_weight * l1ff  + arm2MassFromRadius * Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle))*Util.cosInDegrees(current_first_joint_angle));
         dashboard.update();
 
     }
@@ -230,7 +231,6 @@ public class Arm implements Subsystem {
             setMotors(desired_arm1_motor_value, desired_arm2_motor_value, servo_desired_position /*servo_desired_position*/);
         }
 
-        dashboard.update();
         m_pid1.setPID(a1KP, a1KI, a1KD);
         m_pid2.setPID(a2KP, a2KI, a2KD);
 
@@ -251,6 +251,7 @@ public class Arm implements Subsystem {
 
         profileArm1.calculate(current_first_joint_angle, time.milliseconds());//for mesaurement, deleter after profile measurements
         profileArm2.calculate(current_second_joint_angle, time.milliseconds());
+
         servo.setPosition(calib.armServo);
 
 
@@ -275,6 +276,7 @@ public class Arm implements Subsystem {
         return ptVoltage;
 
     }
+    //todo: this should calculate relavite to the first joint and then to the ground (by adding the first angle
 
     public double voltageToAngle2(double voltage) {
         double angle2 = ((voltage - voltSecondAngle2) * (arm2FirstAngle - arm2SecondAngle) / (voltFirstAngle2 - voltSecondAngle2)) + arm2SecondAngle;
@@ -314,10 +316,14 @@ public class Arm implements Subsystem {
         //in volts
         // need to convert to pwm
     }
+    public double getAngleBetweenJoint12(){
+        return Math.abs(current_second_joint_angle-current_first_joint_angle);//todo: this is not correct
+    }
+
 
     private double calculateFeedForwardFirstJoint() {
 
-        return (((resistance *g* Util.cosInDegrees(current_first_joint_angle)* calculateCenterOfTwoJoint(current_second_joint_angle-current_first_joint_angle,arm2MassFromRadius,l1ff,l1,first_arm_weight,second_arm_weight) ))
+        return (((resistance *g* Util.cosInDegrees(current_first_joint_angle)* calculateCenterOfTwoJoint(getAngleBetweenJoint12()-current_first_joint_angle,arm2MassFromRadius,l1ff,l1,first_arm_weight,second_arm_weight) ))
                 / (first_gear_ratio * neo_Kt))
                 / motorMaxVolt
                 / ffConv;//to conv between
