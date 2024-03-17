@@ -206,6 +206,26 @@ public class Constants {
         public static final PIDController PIDx = new PIDController(kpX,kiX,kdX);
         @Config
         public static class PIDConstants {
+            @Config
+            public static class PIDFront {
+                public static double kpX = 0;
+                public static double kiX = 0;
+                public static double kdX = 0;
+            }
+            @Config
+            public static class PIDSide {
+                public static double kpY = 0;
+                public static double kiY = 0;
+                public static double kdY = 0;
+            }
+            @Config
+            public static class PIDTheta {
+                public static double kpT = 0;
+                public static double kiT = 0;
+                public static double kdT = 0;
+                public static double maxVelocity = 0;
+                public static double maxAcceleration = 0;
+            }
 
             public static double kpX = 0;
             public static double kiX = 0;

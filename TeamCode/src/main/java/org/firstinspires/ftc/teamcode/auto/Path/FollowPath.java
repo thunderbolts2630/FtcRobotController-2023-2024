@@ -1,14 +1,12 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.Path;
 
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisFeedForward.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.*;
-import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.feedForward;
-import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.odometryWheelRadius;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
-import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.geometry.*;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
@@ -19,12 +17,13 @@ import org.firstinspires.ftc.teamcode.utils.BT.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
+import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FollowPath extends BTCommand {
-    public class FellowPathConfig{
+    public static class FellowPathConfig{
         Supplier<Pose2d> pose;
         BTHolonomicDriveController controller;
         Supplier<Rotation2d> desiredRotation;
@@ -33,12 +32,11 @@ public class FollowPath extends BTCommand {
         Consumer<Pose2d> resetOdometry;
         Subsystem requirments;
 
-        public FellowPathConfig(Supplier<Pose2d> pose, BTHolonomicDriveController controller, Supplier<Rotation2d> desiredRotation, Consumer<ChassisSpeeds> outputChassisSpeeds, MecanumDriveKinematics kinematics, Consumer<Pose2d> resetOdometry, Subsystem requirments) {
+        public FellowPathConfig(Supplier<Pose2d> pose, BTHolonomicDriveController controller, Supplier<Rotation2d> desiredRotation, Consumer<ChassisSpeeds> outputChassisSpeeds, Consumer<Pose2d> resetOdometry, Subsystem requirments) {
             this.pose = pose;
             this.controller = controller;
             this.desiredRotation = desiredRotation;
             this.outputChassisSpeeds = outputChassisSpeeds;
-            this.kinematics = kinematics;
             this.resetOdometry = resetOdometry;
             this.requirments = requirments;
         }
@@ -46,7 +44,6 @@ public class FollowPath extends BTCommand {
     private final ElapsedTime m_timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     private final Trajectory m_trajectory;
     private final Supplier<Pose2d> m_pose;
-    private final MecanumDriveKinematics m_kinematics;
     private final BTHolonomicDriveController m_controller;
     private final Consumer<ChassisSpeeds> m_outputChassisSpeeds;
     private final Supplier<Rotation2d> m_desiredRotation;
@@ -74,7 +71,6 @@ public class FollowPath extends BTCommand {
                         thetaController),
                 desiredRotation,
                 outputChassisSpeeds,
-                kinematics,
                 resetOdometry,
                 requirments
                 );
@@ -89,7 +85,6 @@ public class FollowPath extends BTCommand {
                 config.controller,
                 config.desiredRotation,
                 config.outputChassisSpeeds,
-                config.kinematics,
                 config.resetOdometry,
                 config.requirments
         );
@@ -101,7 +96,6 @@ public class FollowPath extends BTCommand {
             BTHolonomicDriveController controller,
             Supplier<Rotation2d> desiredRotation,
             Consumer<ChassisSpeeds> outputChassisSpeeds,
-            MecanumDriveKinematics kinematics,
             Consumer<Pose2d> resetOdometry,
             Subsystem... requirments) {
         m_trajectory = trajectory;
@@ -109,7 +103,6 @@ public class FollowPath extends BTCommand {
         m_controller = controller;
         m_desiredRotation = desiredRotation;
         m_outputChassisSpeeds = outputChassisSpeeds;
-        m_kinematics = kinematics;
         this.m_resetOdometry= resetOdometry;
         addRequirements(requirments);
         dashboard.addData("DfrontVelocity: ", 0);
@@ -136,9 +129,9 @@ public class FollowPath extends BTCommand {
 //                in.get("kD")
 //        );
         m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
-        feedForward= new SimpleMotorFeedforward(ffks,ffkv,ffka);
         m_controller.reset();
         m_controller.m_thetaController.setPID(PIDTheta.kpT,PIDTheta.kiT,PIDTheta.kdT);
+        m_controller.m_thetaController.setConstraints(new TrapezoidProfile.Constraints(PIDTheta.maxVelocity,PIDTheta.maxAcceleration));
         m_controller.m_xController.setPID(PIDFront.kpX,PIDFront.kiX,PIDFront.kdX);
         m_controller.m_yController.setPID(PIDSide.kpY,PIDSide.kiY,PIDSide.kdY);
 

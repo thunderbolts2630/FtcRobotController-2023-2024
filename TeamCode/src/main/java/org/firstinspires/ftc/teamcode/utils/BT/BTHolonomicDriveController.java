@@ -29,9 +29,9 @@ public class BTHolonomicDriveController {
     private Pose2d m_poseTolerance = new Pose2d();
     private boolean m_enabled = true;
 
-    private final PIDController m_xController;
-    private final PIDController m_yController;
-    private final ProfiledPIDController m_thetaController;
+    public final PIDController m_xController;
+    public final PIDController m_yController;
+    public final ProfiledPIDController m_thetaController;
 
     public boolean m_firstRun = true;
 

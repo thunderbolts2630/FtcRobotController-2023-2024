@@ -10,25 +10,19 @@ import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_UP;
-import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_X;
-import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_Y;
-import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.RIGHT_X;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.arcrobotics.ftclib.trajectory.TrajectoryGenerator;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.auto.FollowPath;
+import org.firstinspires.ftc.teamcode.auto.Path.FollowPath;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
@@ -37,7 +31,10 @@ import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BT.BTController;
-import org.firstinspires.ftc.teamcode.utils.TrajectoryFactory;
+import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
+import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
+import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
+import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
 
 import java.util.List;
 
@@ -505,7 +502,17 @@ public Command leftCloseRedPath() {
         );
     }
 
-
+    public FollowPath.FellowPathConfig TrajectoryFactory(Chassis m_chassis) {
+        BTHolonomicDriveController controller =new BTHolonomicDriveController(new PIDController(0,0,0),new PIDController(0,0,0),new ProfiledPIDController(0,0,0,new TrapezoidProfile.Constraints(0,0)));
+        return new FollowPath.FellowPathConfig(
+                m_chassis::getPosition,
+                controller,
+                null,
+                m_chassis::chassisSpeedDrive,
+                m_chassis::resetOdmetry,
+                m_chassis
+        );
+    }
 
 
 

@@ -230,17 +230,9 @@ public class Chassis implements Subsystem {
     }
 
     public void chassisSpeedDrive(ChassisSpeeds chassisSpeeds){
-        //adjust the velocities to fit between +-1 (the input of the motor)
-        chassisSpeeds.vxMetersPerSecond/=maxVelocityX;
-        chassisSpeeds.vyMetersPerSecond/=maxVelocityY;
-        chassisSpeeds.omegaRadiansPerSecond/=maxVelocityTheta;
 
-        double velAfterFF=chassisSpeeds.vxMetersPerSecond+feedForward.calculate(chassisSpeeds.vxMetersPerSecond);
+        drive(chassisSpeeds.vyMetersPerSecond,chassisSpeeds.vxMetersPerSecond,chassisSpeeds.omegaRadiansPerSecond);
 
-        drive(chassisSpeeds.vyMetersPerSecond,velAfterFF,chassisSpeeds.omegaRadiansPerSecond);
-        dashboardTelemetry.addData("frontVelocityAuto", velAfterFF);
-        dashboardTelemetry.addData("sideVelocityAuto", chassisSpeeds.vyMetersPerSecond);
-        dashboardTelemetry.addData("OmegaSpeedAuto", chassisSpeeds.omegaRadiansPerSecond);
     }
     private void drive(double frontVel, double sidewayVel, double retaliation) {
 
