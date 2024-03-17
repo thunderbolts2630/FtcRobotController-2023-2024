@@ -29,7 +29,8 @@ public class Gripper implements Subsystem {
 
     public static class GripperConstants{
         @Config public static class servoPos{
-            public static double gripServoPos=0.0;
+            public static double gripServoPos0=0.5;
+            public static double gripServoPos1=0.5;
         }
     }
     public Gripper(HardwareMap map){
@@ -46,8 +47,9 @@ public class Gripper implements Subsystem {
     }
     @Override
     public void periodic() {
-        serv0.setPosition(isOpen0?0.8:0.32);
-        serv1.setPosition(isOpen1?0.05:0.33);
+        serv0.setPosition(isOpen0?0:0.34);
+        serv1.setPosition(isOpen1?0.8:0.34);
+
         dashboard.addData("loop time",elapsedTime.milliseconds());
         elapsedTime.reset();
 

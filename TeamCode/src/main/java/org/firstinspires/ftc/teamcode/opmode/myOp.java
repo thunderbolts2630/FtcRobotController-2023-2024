@@ -5,9 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
-import org.firstinspires.ftc.teamcode.photoncore.Photon;
-
-@Photon
 @TeleOp
 public class myOp extends CommandOpMode {
     RobotContainer m_robot;

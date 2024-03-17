@@ -9,12 +9,14 @@ import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.BUTTO
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_RIGHT;
-import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.*;
+import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_X;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -37,6 +39,8 @@ import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 
 public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
@@ -74,11 +78,11 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2 = new BTController(gamepad2);
 
         m_gripper = new Gripper(map);
-//        m_chassis = new Chassis(map, armM2encoderL.encoder, armM1encoderR.encoder,voltage_sensor);
+        m_chassis = new Chassis(map, armM2encoderL.encoder, armM1encoderR.encoder,voltage_sensor);
         m_plane = new plane(map);
-//        m_climb = new climb(map);
+        m_climb = new climb(map);
         m_arm = new Arm(map, armM2encoderL, armM1encoderR,voltage_sensor);
-//        m_pixelDetection=new PixelDetection(map,telemetry);
+        m_pixelDetection=new PixelDetection(map,telemetry);
 
         oneDriver();
         tune();
@@ -90,14 +94,14 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     //bind commands to trigger
     public void oneDriver(){
 
-//        m_controller.assignCommand(m_chassis.fieldRelativeDrive(
-//                        () -> -m_controller.left_y.getAsDouble(),
-//                        m_controller.left_x,
-//                        () -> m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble()),
-//                true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
-//        m_controller.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
-//
-//
+        m_controller.assignCommand(m_chassis.fieldRelativeDrive(
+                        () -> -m_controller.left_y.getAsDouble(),
+                        m_controller.left_x,
+                        () -> m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble()),
+                true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
+        m_controller.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
+
+
         m_controller.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_RIGHT);
         m_controller.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_LEFT);
 //
@@ -502,12 +506,12 @@ public Command leftCloseRedPath() {
         );
     }
 
-    public FollowPath.FellowPathConfig TrajectoryFactory(Chassis m_chassis) {
+    public FollowPath.FellowPathConfig fellowPathConfigGen(Chassis m_chassis, @Nullable Rotation2d desiredRotation) {
         BTHolonomicDriveController controller =new BTHolonomicDriveController(new PIDController(0,0,0),new PIDController(0,0,0),new ProfiledPIDController(0,0,0,new TrapezoidProfile.Constraints(0,0)));
         return new FollowPath.FellowPathConfig(
                 m_chassis::getPosition,
                 controller,
-                null,
+                ()->desiredRotation,
                 m_chassis::chassisSpeedDrive,
                 m_chassis::resetOdmetry,
                 m_chassis
