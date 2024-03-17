@@ -25,7 +25,7 @@ public class Constants {
     public static final double resistance = 12 / hex_stall_current; //volt
 
     public static final double first_gear_ratio = 3;
-    public static final double second_gear_ratio = 1.33333;
+    public static final double second_gear_ratio = 1.33333 *(25.0/20.0);
     public static final double hex_stall_torque = 0.173; //N * meter
 
     public static final double neo_Kt = hex_stall_torque / hex_stall_current;
@@ -81,15 +81,15 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(98,-180,0.43,new TrapezoidProfile.Constraints(150,150), new TrapezoidProfile.Constraints(150,150)),
-            IDLE(58,-176,0.44,new TrapezoidProfile.Constraints(50,50), new TrapezoidProfile.Constraints(50,50)),
-            MIDDLEPLUS(95,-67,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
-            HIGHSCORE(102,-210,0.32,new TrapezoidProfile.Constraints(150,150), new TrapezoidProfile.Constraints(150,150)),// 3/17 too fast
-            PICKUP(51,-120,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
-            MIDPICKUP(67,-150,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            SCORE(98,-180,0.43,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
+            IDLE(58,-176,0.44,new TrapezoidProfile.Constraints(50,50),new TrapezoidProfile.Constraints(50,50)),
+            MIDDLEPLUS(95,-113,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
+            HIGHSCORE(102,-210,0.32,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 3/17 too fast
+            PICKUP(60,-65,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            MIDPICKUP(90,-30,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDDLE(90,-90,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
-            LOWSCORE(98,-165,0.55, new TrapezoidProfile.Constraints(200,200),new TrapezoidProfile.Constraints(200,200)),
-            Mid(90,-100,0.23,new TrapezoidProfile.Constraints(800,800),new TrapezoidProfile.Constraints(800,800));
+            LOWSCORE(98,-165,0.55,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
+            Mid(90,-100,0.23,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
             public double angle1;
     public double angle2;
     public double servo;
@@ -122,8 +122,8 @@ public class Constants {
 
         @Config
         public static class ArmPID{
-            public static double a1KP = 0.03;
-            public static double a2KP = 0.03;
+            public static double a1KP = 0.026;
+            public static double a2KP = 0.026;
             public static double a1KI = 0.0;
             public static double a2KI = 0.0;
             public static double a1KD = 0.0;
@@ -133,16 +133,16 @@ public class Constants {
 
             public static double a1DesAngle=90;
             public static double a2DesAngle=-90;
-            public static double MaxIntegreal1=10;
-            public static double MinIntegreal1=10;
-            public static double MaxIntegreal2=10;
-            public static double MinIntegreal2=10;
+            public static double MaxIntegreal1=0.2;
+            public static double MinIntegreal1=-0.2;
+            public static double MaxIntegreal2=0.2;
+            public static double MinIntegreal2=-0.2;
 
         }
         @Config
         public static class ArmProfile{
-            public static double maxVelocity1=150;
-            public static double maxAcceleration1=150;
+            public static double maxVelocity1=60;
+            public static double maxAcceleration1=60;
 
             public static double maxVelocity2=150;
             public static double maxAcceleration2=150;

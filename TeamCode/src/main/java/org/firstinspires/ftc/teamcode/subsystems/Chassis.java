@@ -204,7 +204,6 @@ public class Chassis implements Subsystem {
         RobotContainer.armAccAdjustment = RobotXAcc;
         dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
         dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
-        dashboardTelemetry.update();
 
     }
 

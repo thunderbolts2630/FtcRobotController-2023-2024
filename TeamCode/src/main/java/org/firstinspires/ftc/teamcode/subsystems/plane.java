@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -7,12 +8,14 @@ import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class plane implements Subsystem {
     private HardwareMap map;
     Servo servoPlane;
+    ElapsedTime elapsedTime=new ElapsedTime();
 
     @Config
     public static class planeCalib{
@@ -23,9 +26,11 @@ public class plane implements Subsystem {
         servoPlane =map.servo.get("plane");
         servoPlane.getController().pwmEnable();
         register();
+        elapsedTime.reset();
     }
     @Override
     public void periodic() {
+
 //        servoPlane.setPosition(planeCalib.servo);
     }
 

@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.Constants;
 
 public class Gripper implements Subsystem {
@@ -21,6 +23,7 @@ public class Gripper implements Subsystem {
     private boolean isOpen1;
     private boolean isOpen0;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
+    ElapsedTime elapsedTime= new ElapsedTime();
 
 
 
@@ -38,12 +41,17 @@ public class Gripper implements Subsystem {
         serv0.getController().pwmEnable();
         isOpen1 = false;
         isOpen0 = false;
+        elapsedTime.reset();
 
     }
     @Override
     public void periodic() {
         serv0.setPosition(isOpen0?0.8:0.32);
         serv1.setPosition(isOpen1?0.05:0.33);
+        dashboard.addData("loop time",elapsedTime.milliseconds());
+        elapsedTime.reset();
+
+
     }
     @Override
     public void setDefaultCommand(Command defaultCommand) {

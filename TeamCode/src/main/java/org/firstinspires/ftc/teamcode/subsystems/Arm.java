@@ -17,6 +17,7 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BT.BTController;
 import org.firstinspires.ftc.teamcode.utils.Math.ProfileVelAcc;
@@ -88,8 +89,8 @@ public class Arm implements Subsystem {
         this.voltageSensor=voltageSensor;
         m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-        m_pid1.setTolerance(5);
-        m_pid2.setTolerance(5);
+        m_pid1.setTolerance(4);
+        m_pid2.setTolerance(4);
         m_pid2.m_controller.setAccumilatorResetTolerance(1);
         m_pid1.m_controller.setAccumilatorResetTolerance(1);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
@@ -185,11 +186,15 @@ public class Arm implements Subsystem {
         dashboard.addData("arm2 FF power",arm2FF);
         dashboard.addData("arm1 velocity",profileArm1.stats.vel);
         dashboard.addData("arm1 acc",profileArm1.stats.acc);
-
         dashboard.addData("arm2 velocity",profileArm2.stats.vel);
         dashboard.addData("arm2 acc",profileArm2.stats.acc);
-        dashboard.addData("servo angle ",servoAngleFF);
+        dashboard.addData("arm2 amps",arm2.motorEx.getCurrent(CurrentUnit.AMPS));
+        dashboard.addData("arm1 amps",arm1.motorEx.getCurrent(CurrentUnit.AMPS));
+        dashboard.addData("error 1",m_pid1.getPositionError());
+        dashboard.addData("error 2",m_pid2.getPositionError());
 
+        dashboard.addData("servo angle ",servoAngleFF);
+        dashboard.update();
 //        dashboard.addData("Arm2Mass distance from radious",arm2MassFromRadius);
 //        dashboard.addData("CoM 1",l1ff*first_arm_weight);
 //        dashboard.addData("CoM 2 *cos",Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle)*l2ff*second_arm_weight);
@@ -199,7 +204,6 @@ public class Arm implements Subsystem {
 //        dashboard.addData("cos(first)",Util.cosInDegrees(current_first_joint_angle));
 //        dashboard.addData("adjusted com1",first_arm_weight * l1ff  + arm2MassFromRadius * Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle));
 //        dashboard.addData("*cos(forst) adjusted com1",(first_arm_weight * l1ff  + arm2MassFromRadius * Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle))*Util.cosInDegrees(current_first_joint_angle));
-        dashboard.update();
 
     }
     public void calculateMotorOutput(){
@@ -485,10 +489,13 @@ public class Arm implements Subsystem {
 
     }
 
-    public Command goTo(Positions pos) {
-        Supplier<Command> gt = () ->
-                new InstantCommand(()->setStateBoth(pos)).andThen(new WaitUntilCommand(()-> m_pid1.atGoal()&&m_pid2.atGoal()    ))
+    private Command moveBoth(Positions pos){
+        return new InstantCommand(()->setStateBoth(pos)).andThen(new WaitUntilCommand(()-> m_pid1.atGoal()&&m_pid2.atGoal()))
                 .andThen(new InstantCommand(() -> state = pos));
+    }
+    public Command goTo(Positions pos) {
+        Supplier<Command> gt = ()->moveBoth(pos);
+
         return new ConditionalCommand(//return from PICKUP to front
                         new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atGoal() && m_pid2.atGoal()))
                         .andThen(goToState1(Positions.MIDDLE))
@@ -503,11 +510,9 @@ public class Arm implements Subsystem {
 
     public Command setPickup() {
         return new ConditionalCommand(
-                goToState1(Positions.Mid).alongWith(goToState2(Positions.Mid))
-                .andThen(goToState2(Positions.MIDPICKUP))
-                .andThen(goToState1(Positions.MIDPICKUP))
-                .andThen(goToState2(Positions.PICKUP))
-                .andThen(goToState1(Positions.PICKUP))
+                moveBoth(Positions.Mid)
+                .andThen(moveBoth(Positions.MIDPICKUP))
+                .andThen(moveBoth(Positions.PICKUP))
                 .andThen(new InstantCommand(() -> state = Positions.PICKUP)),
                 goTo(Positions.MIDPICKUP).andThen(goTo(Positions.PICKUP)),
                 () -> !(state == Positions.MIDPICKUP || state == Positions.PICKUP));

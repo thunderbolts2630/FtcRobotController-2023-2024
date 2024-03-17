@@ -360,8 +360,8 @@ public class PIDController {
                 m_totalError =
                         MathUtil.clamp(
                                 m_totalError + m_positionError * m_period,
-                                m_minimumIntegral,
-                                m_maximumIntegral);
+                                m_minimumIntegral/m_ki,
+                                m_maximumIntegral/m_ki);
         }
         if(isInAccumulatorTolerance()){
             m_totalError=0;

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisFeedForward.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.feedForward;
+import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.odometryWheelRadius;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
@@ -22,6 +23,25 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FollowPath extends BTCommand {
+    public class FellowPathConfig{
+        Supplier<Pose2d> pose;
+        BTHolonomicDriveController controller;
+        Supplier<Rotation2d> desiredRotation;
+        Consumer<ChassisSpeeds> outputChassisSpeeds;
+        MecanumDriveKinematics kinematics;
+        Consumer<Pose2d> resetOdometry;
+        Subsystem requirments;
+
+        public FellowPathConfig(Supplier<Pose2d> pose, BTHolonomicDriveController controller, Supplier<Rotation2d> desiredRotation, Consumer<ChassisSpeeds> outputChassisSpeeds, MecanumDriveKinematics kinematics, Consumer<Pose2d> resetOdometry, Subsystem requirments) {
+            this.pose = pose;
+            this.controller = controller;
+            this.desiredRotation = desiredRotation;
+            this.outputChassisSpeeds = outputChassisSpeeds;
+            this.kinematics = kinematics;
+            this.resetOdometry = resetOdometry;
+            this.requirments = requirments;
+        }
+    }
     private final ElapsedTime m_timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     private final Trajectory m_trajectory;
     private final Supplier<Pose2d> m_pose;
@@ -31,6 +51,7 @@ public class FollowPath extends BTCommand {
     private final Supplier<Rotation2d> m_desiredRotation;
     private final Consumer<Pose2d> m_resetOdometry;
     private Telemetry dashboard =FtcDashboard.getInstance().getTelemetry();
+
 
     public FollowPath(
             Trajectory trajectory,
@@ -56,6 +77,21 @@ public class FollowPath extends BTCommand {
                 resetOdometry,
                 requirments
                 );
+    }
+
+    public FollowPath(
+            Trajectory trajectory,
+            FollowPath.FellowPathConfig config
+    ){
+        this(trajectory,
+                config.pose,
+                config.controller,
+                config.desiredRotation,
+                config.outputChassisSpeeds,
+                config.kinematics,
+                config.resetOdometry,
+                config.requirments
+        );
     }
 
     public FollowPath(
@@ -101,7 +137,6 @@ public class FollowPath extends BTCommand {
         m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
         feedForward= new SimpleMotorFeedforward(ffks,ffkv,ffka);
         m_controller.reset();
-        m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
 
 
     }
@@ -120,12 +155,12 @@ public class FollowPath extends BTCommand {
             ChassisSpeeds targetChassisSpeeds =
                     m_controller.calculate(m_pose.get(), desiredState, m_trajectory.getStates().get(m_trajectory.getStates().size() - 1).poseMeters.getRotation());
             m_outputChassisSpeeds.accept(targetChassisSpeeds);
+
+
             dashboard.addData("DfrontVelocity: ", targetChassisSpeeds.vyMetersPerSecond);
             dashboard.addData("DsideVelocity: ", targetChassisSpeeds.vxMetersPerSecond);
             dashboard.addData("DomegaVelocity: ", targetChassisSpeeds.omegaRadiansPerSecond);
             dashboard.update();
-
-
 
         } else {
             ChassisSpeeds targetChassisSpeeds =

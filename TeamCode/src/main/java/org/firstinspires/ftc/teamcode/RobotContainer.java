@@ -21,11 +21,14 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.arcrobotics.ftclib.trajectory.TrajectoryGenerator;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.auto.FollowPath;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
@@ -34,6 +37,9 @@ import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BT.BTController;
+import org.firstinspires.ftc.teamcode.utils.TrajectoryFactory;
+
+import java.util.List;
 
 
 public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
@@ -55,6 +61,12 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
 
     public RobotContainer(HardwareMap map, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
+        //enable bulk read
+        List<LynxModule> allHubs = map.getAll(LynxModule.class);
+        for (LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
         armM1encoderR = new MotorEx(map, "ArmM1encoderR");//3
         armM2encoderL = new MotorEx(map, "ArmM2encoderC");//0
         voltage_sensor =  map.voltageSensor.iterator().next();
@@ -102,7 +114,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setScore()), false, DPAD_DOWN);
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()), false, DPAD_LEFT);
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setLowScore()), false, BUTTON_LEFT);
-//        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setPickup()), false, DPAD_RIGHT);
+        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setPickup()), false, DPAD_RIGHT);
 
     }
 
@@ -492,6 +504,7 @@ public Command leftCloseRedPath() {
                 m_arm.setIdle()
         );
     }
+
 
 
 
