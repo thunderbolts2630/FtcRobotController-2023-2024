@@ -44,7 +44,17 @@ public class BTLynxDCMotorController extends LynxDcMotorController {
         }
 
 
-        getModule().acquireNetworkTransmissionLock();
+    }
+    @Override
+    public synchronized void setMotorPower(int motor, double apiMotorPower) {
+        validateMotor(motor);
+        int motorZ = motor - apiMotorFirst;//
+        double power = Range.clip(apiMotorPower, apiPowerFirst, apiPowerLast);
+        int iPower = 0;
+        power = Range.scale(power, apiPowerFirst, apiPowerLast, LynxSetMotorConstantPowerCommand.apiPowerFirst, LynxSetMotorConstantPowerCommand.apiPowerLast);
+        iPower = (int) power;
+        LynxCommand command = new LynxSetMotorConstantPowerCommand(this.getModule(), motorZ, iPower);
+        // Serialize this guy and remember it
         try {
             if (DEBUG) {
                 RobotLog.vv(TAG, "setMotorPower: mod=%d motor=%d iPower=%d", getModuleAddress(), motorZ, iPower);
@@ -67,30 +77,6 @@ public class BTLynxDCMotorController extends LynxDcMotorController {
         } catch (InterruptedException | RuntimeException e) {
             handleException(e);
         }
-    }
-    @Override
-    public synchronized void setMotorPower(int motor, double apiMotorPower) {
-        validateMotor(motor);
-        int motorZ = motor - apiMotorFirst;//
-        double power = Range.clip(apiMotorPower, apiPowerFirst, apiPowerLast);
-        int iPower = 0;
-        power = Range.scale(power, apiPowerFirst, apiPowerLast, LynxSetMotorConstantPowerCommand.apiPowerFirst, LynxSetMotorConstantPowerCommand.apiPowerLast);
-        iPower = (int) power;
-        LynxCommand command = new LynxSetMotorConstantPowerCommand(this.getModule(), motorZ, iPower);
-        //setting a msg number is ofr retransmissions, might not cause issues
-//        command.setMessageNumber(this.getModule().getNewMessageNumber());
-//        int msgnumCur = command.getMessageNumber();
-
-        // Serialize this guy and remember it
-        LynxDatagram datagram = null; // throws LynxUnsupportedCommandException
-        try {
-            datagram = new LynxDatagram(command);
-        } catch (LynxUnsupportedCommandException e) {
-            throw new RuntimeException(e);
-        }
-        command.setSerialization(datagram);
-        commandsQueue.add(command);
-        bufferLen+=command.getSerialization().getPacketLength();
     }
 
 

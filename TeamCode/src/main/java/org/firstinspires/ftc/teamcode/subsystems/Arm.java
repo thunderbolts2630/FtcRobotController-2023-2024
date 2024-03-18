@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmOffset.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmPID.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.*;
@@ -14,6 +15,8 @@ import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorImpl;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -43,10 +46,9 @@ public class Arm implements Subsystem {
     private HardwareMap map;
     private AnalogInput potentiometer1;
     private AnalogInput potentiometer2;
-    private MotorEx arm1;
-    private MotorEx arm2;
+    private DcMotorImpl arm1,arm2;
     private Servo servo;
-    private BTController m_controller;
+
     VoltageSensor voltageSensor;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
     private ProfiledPIDController m_pid1;
@@ -80,12 +82,12 @@ public class Arm implements Subsystem {
     private double arm2MassFromRadius=0;
 
 
-    public Arm(HardwareMap map,  MotorEx arm1, MotorEx arm2,VoltageSensor voltageSensor) {
+    public Arm(HardwareMap map, DcMotorImpl arm1, DcMotorImpl arm2, VoltageSensor voltageSensor) {
         this.map = map;
         this.arm1 = arm1;
         this.arm2 = arm2;
-        this.arm1.setInverted(false);
-        this.arm2.setInverted(true);
+        this.arm1.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.arm2.setDirection(DcMotorSimple.Direction.FORWARD);
         this.voltageSensor=voltageSensor;
         m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
@@ -104,8 +106,8 @@ public class Arm implements Subsystem {
         servo.setDirection(Servo.Direction.REVERSE);
         dashboard.addData("desiredPT1", 0);
         dashboard.addData("desiredPT2", 0);
-        arm1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        arm2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        arm1.setZeroPowerBehavior(BRAKE);
+        arm2.setZeroPowerBehavior(BRAKE);
         register();
         calculateMotorOutput();
         time=new ElapsedTime();
@@ -122,20 +124,20 @@ public class Arm implements Subsystem {
         firstSpeed=voltageComp*firstSpeed;
         secondSpeed=voltageComp*secondSpeed;
         if (potentiometer1.getVoltage() < 1.1 || potentiometer1.getVoltage() > 3.2 || sensor1LimitReached) {
-            arm1.set(0);
+            arm1.setPower(0);
             sensor1LimitReached = true;
         } else {
-            arm1.set(firstSpeed);
+            arm1.setPower(firstSpeed);
         }
         if (potentiometer2.getVoltage() < 1.1 || potentiometer2.getVoltage() > 3.3 || sensor2LimitReached) {
-            arm2.set(0);
+            arm2.setPower(0);
             sensor2LimitReached = true;
         }else {
-            arm2.set(secondSpeed);
+            arm2.setPower(secondSpeed);
         }
         servo.setPosition(servoPos);
-//        arm2.set(secondSpeed);
-//        arm1.set(firstSpeed);
+//        arm2.setPower(secondSpeed);
+//        arm1.setPower(firstSpeed);
 
     }
 
@@ -188,8 +190,6 @@ public class Arm implements Subsystem {
         dashboard.addData("arm1 acc",profileArm1.stats.acc);
         dashboard.addData("arm2 velocity",profileArm2.stats.vel);
         dashboard.addData("arm2 acc",profileArm2.stats.acc);
-        dashboard.addData("arm2 amps",arm2.motorEx.getCurrent(CurrentUnit.AMPS));
-        dashboard.addData("arm1 amps",arm1.motorEx.getCurrent(CurrentUnit.AMPS));
         dashboard.addData("error 1",m_pid1.getPositionError());
         dashboard.addData("error 2",m_pid2.getPositionError());
 
@@ -403,8 +403,8 @@ public class Arm implements Subsystem {
         return new InstantCommand(() -> {
             disableFeedFoward = !disableFeedFoward;
             if (disableFeedFoward) {
-                arm1.set(0);
-                arm2.set(0);
+                arm1.setPower(0);
+                arm2.setPower(0);
                 servo.getController().pwmDisable();
             }else {
                 servo.getController().pwmEnable();
@@ -445,11 +445,11 @@ public class Arm implements Subsystem {
     public Command tuneAngle2(){
         return new InstantCommand(()->{
             disableFeedFoward =true;
-            arm2.set(0.9);
+            arm2.setPower(0.9);
         })
         .andThen(new WaitUntilCommand(()-> current_second_joint_angle_relative_to_ground >10))
         .andThen(new InstantCommand(()-> {
-            arm2.set(0);
+            arm2.setPower(0);
             disableFeedFoward =false;
         }));
     }
