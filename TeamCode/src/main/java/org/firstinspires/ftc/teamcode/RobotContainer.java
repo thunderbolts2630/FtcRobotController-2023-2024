@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
+import org.firstinspires.ftc.teamcode.subsystems.HardwareCache;
 import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
@@ -83,7 +84,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_climb = new climb(map);
         m_arm = new Arm(map, armM2encoderL, armM1encoderR,voltage_sensor);
         m_pixelDetection=new PixelDetection(map,telemetry);
-
+        new HardwareCache(map);
         oneDriver();
         tune();
     }
