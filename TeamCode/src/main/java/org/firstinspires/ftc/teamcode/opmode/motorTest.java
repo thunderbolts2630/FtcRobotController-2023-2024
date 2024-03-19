@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorImpl;
 
-@TeleOp
+@TeleOp(name = "motor test")
 public class motorTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

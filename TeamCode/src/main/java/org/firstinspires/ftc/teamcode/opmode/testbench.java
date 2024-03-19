@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.BT.hardware.BTLynxDCMotorController;
 import java.util.Collection;
 import java.util.List;
 
-@TeleOp
+@TeleOp(name = "test bench")
 public class testbench extends LinearOpMode {
     int testCounts=1000;
     int i=0;
