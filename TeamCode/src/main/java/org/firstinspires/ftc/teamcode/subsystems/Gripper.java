@@ -23,7 +23,6 @@ public class Gripper implements Subsystem {
     private boolean isOpen1;
     private boolean isOpen0;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
-    ElapsedTime elapsedTime= new ElapsedTime();
 
 
 
@@ -42,7 +41,6 @@ public class Gripper implements Subsystem {
         serv0.getController().pwmEnable();
         isOpen1 = false;
         isOpen0 = false;
-        elapsedTime.reset();
 
     }
     @Override
@@ -50,8 +48,6 @@ public class Gripper implements Subsystem {
         serv0.setPosition(isOpen0?0:0.34);
         serv1.setPosition(isOpen1?0.8:0.34);
 
-        dashboard.addData("loop time",elapsedTime.milliseconds());
-        elapsedTime.reset();
 
 
     }

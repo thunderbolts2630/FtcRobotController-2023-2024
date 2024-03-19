@@ -189,7 +189,6 @@ public class Arm implements Subsystem {
         dashboard.addData("error 2",m_pid2.getPositionError());
 
         dashboard.addData("servo angle ",servoAngleFF);
-        dashboard.update();
 //        dashboard.addData("Arm2Mass distance from radious",arm2MassFromRadius);
 //        dashboard.addData("CoM 1",l1ff*first_arm_weight);
 //        dashboard.addData("CoM 2 *cos",Util.cosInDegrees(current_second_joint_angle-current_first_joint_angle)*l2ff*second_arm_weight);

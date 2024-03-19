@@ -34,7 +34,7 @@ public class Constants {
         @Config
         public static class ArmOffset {
             public static double volt1Offset = 0   ;// the value of the pot1 when the arms like it is at 90 degree: value - 1.2
-            public static double volt2Offset = 0.193 ;
+            public static double volt2Offset = 0.28 ;
         }
         public static final double servoVoltage1 = 0.828;
         public static final double servoVoltage2 = 0.475;

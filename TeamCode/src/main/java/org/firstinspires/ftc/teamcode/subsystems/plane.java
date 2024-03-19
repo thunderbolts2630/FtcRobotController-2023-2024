@@ -15,7 +15,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class plane implements Subsystem {
     private HardwareMap map;
     Servo servoPlane;
-    ElapsedTime elapsedTime=new ElapsedTime();
 
     @Config
     public static class planeCalib{
@@ -26,7 +25,6 @@ public class plane implements Subsystem {
         servoPlane =map.servo.get("plane");
         servoPlane.getController().pwmEnable();
         register();
-        elapsedTime.reset();
     }
     @Override
     public void periodic() {

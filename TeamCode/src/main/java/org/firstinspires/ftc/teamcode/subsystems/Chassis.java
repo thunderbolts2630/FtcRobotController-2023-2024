@@ -103,7 +103,7 @@ public class Chassis implements Subsystem {
                 () -> -metersFormTicks(m_leftEncoder.get()),
                 () -> metersFormTicks(m_rightEncoder.get()),
                 () -> metersFormTicks(m_centerEncoder.get()),
-                () -> gyro.getHeading(),
+                () -> 0,
                 TRACKWIDTH, WHEEL_OFFSET);
         prevPos = odometry.getPose();
         time.reset();
@@ -194,7 +194,7 @@ public class Chassis implements Subsystem {
             drive(desiredXVel, desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(), desiredAngle)));
         }
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
-        dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
+        dashboardTelemetry.addData("pose angle: ", odometry.getPose().getHeading());
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
 
         dashboardTelemetry.addData("FL velocity", motor_FL.getVelocity());

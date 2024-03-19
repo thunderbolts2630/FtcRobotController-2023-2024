@@ -109,7 +109,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         motor_FL=new DcMotorImplEx(btLynxDCControlHub,motorFL.getPortNumber());
         motor_BR=new DcMotorImplEx(btLynxDCControlHub,motorBR.getPortNumber());
         motor_BL=new DcMotorImplEx(btLynxDCControlHub,motorBL.getPortNumber());
-        motor_armM1encoderR =new DcMotorImplEx(btLynxDCExpansionHub, motorArmM2encoderC.getPortNumber());
+        motor_armM2encoderL =new DcMotorImplEx(btLynxDCExpansionHub, motorArmM2encoderC.getPortNumber());
     }
     public void clearSensorsCache(){
         for (LynxModule hub:hubs) {

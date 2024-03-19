@@ -20,6 +20,7 @@ public class BTOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         robotContainer= new RobotContainer(hardwareMap,telemetry,gamepad1,gamepad2);
+        loopTime=new ElapsedTime();
         initialize();
         Robot.enable();
         CommandScheduler.getInstance().enable();
@@ -30,12 +31,16 @@ public class BTOpMode extends LinearOpMode {
             loopTime.reset();
             CommandScheduler.getInstance().run();
             robotContainer.clearSensorsCache();
-            dashboard.update();
             currentLoopTime=loopTime.milliseconds();
             dashboard.addData("loop time ms",currentLoopTime);
+            dashboard.update();
+
             if(currentLoopTime<msloopPeriod){
                 //sleep for the rest of the desired period
                 sleep( (int)msloopPeriod-(int)currentLoopTime);
+            }else {
+                dashboard.addData("loop overrun by",currentLoopTime-msloopPeriod);
+
             }
         }
         CommandScheduler.getInstance().reset();
