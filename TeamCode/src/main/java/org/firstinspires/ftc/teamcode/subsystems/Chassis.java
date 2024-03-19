@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
@@ -30,6 +31,8 @@ import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.RotationPID.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
+import static org.firstinspires.ftc.teamcode.subsystems.Chassis.ChassisMotorsFeedfoward.*;
+import static org.firstinspires.ftc.teamcode.subsystems.Chassis.Tune.ChassisPower;
 
 import java.util.function.DoubleSupplier;
 
@@ -70,6 +73,25 @@ public class Chassis implements Subsystem {
     private double desiredXVel;
     private double desiredYVel;
     private double desiredAngle;
+    public static class ChassisMotorsFeedfoward{
+        @Config
+        public static class chassisFL{
+            public static double ks=0;
+            public static double kv=1;
+        }@Config
+        public static class chassisFR{
+            public static double ks=0;
+            public static double kv=1;
+        }@Config
+        public static class chassisBL{
+            public static double ks=0;
+            public static double kv=1;
+        }@Config
+        public static class chassisBR{
+            public static double ks=0;
+            public static double kv=1;
+        }
+    }
 
 
     public Chassis(HardwareMap map, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder,VoltageSensor voltage_sensor) {
@@ -133,11 +155,14 @@ public class Chassis implements Subsystem {
     }
     public void setMotors(double FL, double FR, double BL, double BR) {
         double compensation = 12.0/voltage_sensor.getVoltage();
-        motor_FR.set(compensation*FR);
-        motor_FL.set(compensation*FL);
-        motor_BR.set(compensation*BR);
-        motor_BL.set(compensation*BL);
+        motor_FR.set(compensation*applyFeedFoward(chassisFR.ks,chassisFR.kv, FR));
+        motor_FL.set(compensation*applyFeedFoward(chassisFL.ks,chassisFL.kv, FL));
+        motor_BR.set(compensation*applyFeedFoward(chassisBR.ks,chassisBR.kv, BR));
+        motor_BL.set(compensation*applyFeedFoward(chassisBL.ks,chassisBL.kv, BL));
         dashboardTelemetry.addData("compensation", compensation);
+    }
+    public double applyFeedFoward(double ks, double kv, double velocity){
+        return ks * Math.signum(velocity) + kv * velocity;
     }
 
     ElapsedTime driveTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
@@ -190,7 +215,7 @@ public class Chassis implements Subsystem {
         m_rotationpid.setPID(rkp,rki,rkd);
         m_rotationpid.setTolerance(tolerance);
         m_rotationpid.setIzone(rotIzone);
-        odometry.updatePose();
+//        odometry.updatePose();//todo: uncomment when starting to use odometry
         calcVA();
         if(auto){
             drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),desiredAngle)));
@@ -199,12 +224,20 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
 
+        dashboardTelemetry.addData("motor_BL",motor_BL.getVelocity());
+        dashboardTelemetry.addData("motor_BR",motor_BR.getVelocity());
+        dashboardTelemetry.addData("motor_FR",motor_FR.getVelocity());
+        dashboardTelemetry.addData("motor_FL",motor_FL.getVelocity());
 
         RobotXAcc = odometry.getAcceleration();
         RobotContainer.armAccAdjustment = RobotXAcc;
         dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
         dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
-
+        dashboardTelemetry.update();
+//        setMotors(ChassisPower,ChassisPower,ChassisPower,ChassisPower);
+    }@Config
+    public static class Tune{
+        public static double ChassisPower=0;
     }
 
     public void calcVA() {

@@ -12,7 +12,9 @@ import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.*;
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_X;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -88,8 +90,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         oneDriver();
         tune();
     }
+
     public void tune(){
-        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
+//        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
     }
 
     //bind commands to trigger
