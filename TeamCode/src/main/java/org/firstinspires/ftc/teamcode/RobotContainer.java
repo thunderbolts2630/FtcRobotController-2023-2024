@@ -17,23 +17,19 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorImpl;
+import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.auto.Path.FollowPath;
-import org.firstinspires.ftc.teamcode.subsystems.Arm;
-import org.firstinspires.ftc.teamcode.subsystems.Chassis;
-//import org.firstinspires.ftc.teamcode.subsystems.Gripper;
-import org.firstinspires.ftc.teamcode.subsystems.Gripper;
+import org.firstinspires.ftc.teamcode.subsystems.*;
 import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
-import org.firstinspires.ftc.teamcode.subsystems.climb;
-import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BT.BTController;
 import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
 import org.firstinspires.ftc.teamcode.utils.BT.hardware.BTLynxDCMotorController;
@@ -48,24 +44,22 @@ import javax.annotation.Nullable;
 
 public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     Chassis m_chassis;
-    BTController m_controller;
-    BTController m_controller2;
+
     Gripper m_gripper;
     plane m_plane;
     climb m_climb;
     public Arm m_arm;
-    Gamepad gamepad1;
-    Gamepad gamepad2;
+    Gamepad gamepad1,gamepad2;
+    BTController m_controller, m_controller2;
     VoltageSensor voltage_sensor;
     public PixelDetection m_pixelDetection;
     public static double armAccAdjustment = 0;
-    DcMotorImpl motor_FR,motor_BR,motor_BL,motor_FL, motor_armM2encoderL, motor_armM1encoderR,motor_climb;
-
-
+    DcMotorImplEx motor_FR,motor_BR,motor_BL,motor_FL, motor_armM2encoderL, motor_armM1encoderR,motor_climb;
+    MotorEx encoderCenter;
+    List<LynxModule> hubs;
 
     public RobotContainer(HardwareMap map, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
         initializeDevices(map);
-        //enable bulk read
 
         voltage_sensor =  map.voltageSensor.iterator().next();
 
@@ -75,16 +69,18 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2 = new BTController(gamepad2);
 
         m_gripper = new Gripper(map);
-        m_chassis = new Chassis(map, motor_armM2encoderL.encoder, motor_armM1encoderR.encoder,voltage_sensor);
+        m_chassis = new Chassis(map,motor_FL,  motor_FR, motor_BL,  motor_BR ,motor_armM2encoderL::getCurrentPosition ,motor_armM1encoderR::getCurrentPosition,encoderCenter::getCurrentPosition,voltage_sensor::getVoltage);
         m_plane = new plane(map);
-        m_climb = new climb(map);
-        m_arm = new Arm(map, motor_armM2encoderL, motor_armM1encoderR,voltage_sensor);
+        m_climb = new climb(map,motor_climb);
+        m_arm = new Arm(map, motor_armM2encoderL, motor_armM1encoderR,voltage_sensor::getVoltage);
         m_pixelDetection=new PixelDetection(map,telemetry);
 
         oneDriver();
         tune();
     }
     public void initializeDevices(HardwareMap hardwareMap){
+        encoderCenter= new MotorEx(hardwareMap, "encoderLeft");
+        //all the motors that will have their controllers replaced with out own implementation. our implementation doesn't wait for the motor to ACK to setting constant power
         DcMotor motorFR= hardwareMap.dcMotor.get( "motor_FR");
         DcMotor motorFL= hardwareMap.dcMotor.get("motor_FL");
         DcMotor motorBL= hardwareMap.dcMotor.get("motor_BL");
@@ -92,8 +88,11 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         DcMotor motorArmM1encoderR= hardwareMap.dcMotor.get("ArmM1encoderR");
         DcMotor motorArmM2encoderC= hardwareMap.dcMotor.get("ArmM2encoderC");
         DcMotor motorClimb= hardwareMap.dcMotor.get("climb_motor");
-        List<LynxModule> hubs= hardwareMap.getAll(LynxModule.class);
-        hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO));
+        //enable bulk read allowing to rea all sensors with a single hardware command. (reduces a lot of delay)
+        hubs= hardwareMap.getAll(LynxModule.class);
+        hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
+
+        //create two new instances of our DC motor controller implementation, one for each hub
         BTLynxDCMotorController btLynxDCControlHub;
         BTLynxDCMotorController btLynxDCExpansionHub;
         LynxModule ControlHub = hardwareMap.get(LynxModule.class,"Control Hub");
@@ -104,16 +103,23 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         } catch (RobotCoreException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        motor_FR=new DcMotorImpl(btLynxDCControlHub,motorFR.getPortNumber());
-        motor_FL=new DcMotorImpl(btLynxDCControlHub,motorFL.getPortNumber());
-        motor_BR=new DcMotorImpl(btLynxDCControlHub,motorBR.getPortNumber());
-        motor_BL=new DcMotorImpl(btLynxDCControlHub,motorBL.getPortNumber());
-        motor_armM1encoderR =new DcMotorImpl(btLynxDCExpansionHub, motorArmM1encoderR.getPortNumber());
-        motor_armM1encoderR =new DcMotorImpl(btLynxDCExpansionHub, motorArmM2encoderC.getPortNumber());
-        motor_climb= new DcMotorImpl(btLynxDCExpansionHub,motorClimb.getPortNumber());
+
+        motor_FR=new DcMotorImplEx(btLynxDCControlHub,motorFR.getPortNumber());
+        motor_FL=new DcMotorImplEx(btLynxDCControlHub,motorFL.getPortNumber());
+        motor_BR=new DcMotorImplEx(btLynxDCControlHub,motorBR.getPortNumber());
+        motor_BL=new DcMotorImplEx(btLynxDCControlHub,motorBL.getPortNumber());
+        motor_armM1encoderR =new DcMotorImplEx(btLynxDCExpansionHub, motorArmM1encoderR.getPortNumber());
+        motor_armM1encoderR =new DcMotorImplEx(btLynxDCExpansionHub, motorArmM2encoderC.getPortNumber());
+        motor_climb= new DcMotorImplEx(btLynxDCExpansionHub,motorClimb.getPortNumber());
     }
+    public void clearSensorsCache(){
+        for (LynxModule hub:hubs) {
+            hub.clearBulkCache();
+        }
+    }
+
     public void tune(){
-        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
+//        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
     }
 
     //bind commands to trigger

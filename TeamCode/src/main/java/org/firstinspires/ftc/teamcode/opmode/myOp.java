@@ -5,14 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
-@TeleOp
-public class myOp extends CommandOpMode {
-    RobotContainer m_robot;
-    @Override
-    public void initialize() {
-        m_robot= new RobotContainer(hardwareMap, telemetry,gamepad1,gamepad2);
-        enable();
+@TeleOp(name = "myOP")
+public class myOp extends BTOpMode {
+    //empty, used for there to be a TeleOp of BTOpMode;
 
-    }
 
 }

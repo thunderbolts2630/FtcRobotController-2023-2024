@@ -13,16 +13,12 @@ import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorImpl;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.RobotContainer;
-import org.firstinspires.ftc.teamcode.utils.BT.BTController;
 import org.firstinspires.ftc.teamcode.utils.Math.ProfileVelAcc;
 import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
@@ -34,7 +30,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.Util;
@@ -49,7 +44,7 @@ public class Arm implements Subsystem {
     private DcMotorImpl arm1,arm2;
     private Servo servo;
 
-    VoltageSensor voltageSensor;
+    DoubleSupplier voltageSensor;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
     private ProfiledPIDController m_pid1;
     private ProfiledPIDController m_pid2;
@@ -82,7 +77,7 @@ public class Arm implements Subsystem {
     private double arm2MassFromRadius=0;
 
 
-    public Arm(HardwareMap map, DcMotorImpl arm1, DcMotorImpl arm2, VoltageSensor voltageSensor) {
+    public Arm(HardwareMap map, DcMotorImpl arm1, DcMotorImpl arm2, DoubleSupplier voltageSensor) {
         this.map = map;
         this.arm1 = arm1;
         this.arm2 = arm2;
@@ -120,7 +115,7 @@ public class Arm implements Subsystem {
         dashboard.addData("arm motor first",firstSpeed);
         dashboard.addData("arm motor second",secondSpeed);
         dashboard.addData("arm motor serc",servoPos);
-        double voltageComp=12/voltageSensor.getVoltage();
+        double voltageComp=12/voltageSensor.getAsDouble();
         firstSpeed=voltageComp*firstSpeed;
         secondSpeed=voltageComp*secondSpeed;
         if (potentiometer1.getVoltage() < 1.1 || potentiometer1.getVoltage() > 3.2 || sensor1LimitReached) {

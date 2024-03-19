@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.FunctionalCommand;
@@ -8,6 +10,8 @@ import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
+import com.qualcomm.robotcore.hardware.DcMotorImplEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -32,30 +36,30 @@ public class climb  implements Subsystem{
     ElapsedTime m_elapsedTime;
 
     private HardwareMap map;
-    private MotorEx climb_motor;
+    private DcMotorImplEx climb_motor;
     private boolean isUp;
 
 
-    public climb(HardwareMap map) {
+    public climb(HardwareMap map, DcMotorImplEx motorClimb) {
         this.map = map;
         m_elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
         m_pidfController = new PIDFController(kp, ki, kd, kf);
-        climb_motor = new MotorEx(map, "climb_motor");
+        climb_motor = motorClimb;
         m_sysConstraints = new TrapezoidProfile.Constraints(climb_max_speed, climb_max_accel);
         isUp = false;
-        climb_motor.setInverted(false);
-        climb_motor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        climb_motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        climb_motor.setZeroPowerBehavior(BRAKE);
         register();
     }
 
 
     @Override
     public void periodic() {
-        FtcDashboard.getInstance().getTelemetry().addData("climb encoder", climb_motor.getCurrentPosition());
+//        FtcDashboard.getInstance().getTelemetry().addData("climb encoder", climb_motor.getCurrentPosition());
     }
 
     public void stopMotors() {
-        climb_motor.set(0);
+        climb_motor.setPower(0);
     }
     public BTCommand climb_manual(DoubleSupplier speed){
         return new RunCommand(()->{
@@ -65,58 +69,15 @@ public class climb  implements Subsystem{
             }else {
                 value=speed.getAsDouble();
             }
-            climb_motor.set(value);
+            climb_motor.setPower(value);
             FtcDashboard.getInstance().getTelemetry().addData("climb asafsd",value);
 
         });
     }
-    public Command climb_down(){
-        TrapezoidProfile.State goal_down = new TrapezoidProfile.State(0, 0);
-        if((climb_motor.encoder.getPosition() <= 0)){
-            stopMotors();
-        }
-        isUp = false;
-        return climb(goal_down);
-    }
-    public Command climb_up() {
-        TrapezoidProfile.State goal_up = new TrapezoidProfile.State(max_ticks, 0);
-        if((climb_motor.encoder.getPosition() >= max_ticks)){
-            stopMotors();
-        }
-        isUp = true;
-        return climb(goal_up);
-    }
 
-    public Command climb(TrapezoidProfile.State goal) {
 
-        Runnable init = () -> {
-            TrapezoidProfile.State initPose = new TrapezoidProfile.State(climb_motor.encoder.getPosition(),
-                    climb_motor.encoder.getRawVelocity());
-            m_profile = new TrapezoidProfile(m_sysConstraints,goal , initPose);
-            m_elapsedTime.reset();
-        };
-        Runnable loop = () -> {
-            climb_motor.set(m_pidfController.calculate(
-                    climb_motor.encoder.getPosition(),
-                    m_profile.calculate(m_elapsedTime.time()).position
-            ));
-        };
 
-        BooleanSupplier atGoal = () -> climb_motor.encoder.getPosition() == goal.position;
-        Consumer<Boolean> stopMotors = interrupt -> stopMotors();
-        return new FunctionalCommand(init, loop, stopMotors, atGoal, (Subsystem) this);
 
-    }
-//    public Command toggleClimb(){
-
-//        return new RunCommand(()->{
-//          if(isUp){
-//            climb_down();
-//        }else{
-//            climb_up();
-//        }
-//         });
-//      }
 }
 
 

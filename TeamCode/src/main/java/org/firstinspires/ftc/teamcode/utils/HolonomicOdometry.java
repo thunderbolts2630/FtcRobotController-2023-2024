@@ -100,10 +100,7 @@ public class HolonomicOdometry   {
     }
 
     public void reset(BTPose2d btPose2d) {
-        previousAngle=BTRotation2d.fromDegrees(0);
-        prevLeftEncoder=0;
-        prevRightEncoder=0;
-        prevHorizontalEncoder=0;
+        previousAngle=btPose2d.getRotation();
         robotPose=btPose2d;
     }
 
