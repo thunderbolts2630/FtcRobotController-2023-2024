@@ -9,9 +9,11 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorImpl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImpl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.BT.hardware.BTLynxDCMotorController;
+import org.firstinspires.ftc.teamcode.utils.BT.hardware.BTLynxServoController;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +31,7 @@ public class testbench extends LinearOpMode {
         ElapsedTime elapsedTime= new ElapsedTime();
         Servo grip1= hardwareMap.servo.get("gripper1");
         Servo grip0= hardwareMap.servo.get("gripper0");
+        Servo armserv= hardwareMap.servo.get("armServo");
         DcMotor motor= hardwareMap.get(DcMotor.class,"motor_FR");
         DcMotor motor1= hardwareMap.dcMotor.get("motor_BR");
         DcMotor motor2= hardwareMap.dcMotor.get("motor_BL");
@@ -36,6 +39,7 @@ public class testbench extends LinearOpMode {
         DcMotor motor4 =  hardwareMap.dcMotor.get( "climb_motor");
         DcMotor motor5 = hardwareMap.dcMotor.get( "ArmM1encoderR");//3
         DcMotor motor6 = hardwareMap.dcMotor.get( "ArmM2encoderC");//0
+        DcMotor motor7 = hardwareMap.dcMotor.get( "encoderLeft");//0
         List<LynxModule> hubs= hardwareMap.getAll(LynxModule.class);
         hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
         AnalogInput potentiometer1 = hardwareMap.get(AnalogInput.class, "pt1");//port 3
@@ -45,9 +49,11 @@ public class testbench extends LinearOpMode {
 
         BTLynxDCMotorController btLynxDCMotorController;
         BTLynxDCMotorController btlExpa;
+        BTLynxServoController btServoController;
         try {
             btLynxDCMotorController= new BTLynxDCMotorController(hardwareMap.appContext, usedModuleControl);
             btlExpa= new BTLynxDCMotorController(hardwareMap.appContext,usedModuleControlExpansion);
+            btServoController=new BTLynxServoController(hardwareMap.appContext, usedModuleControl);
         } catch (RobotCoreException e) {
             telemetry.addLine(e.getMessage());
             telemetry.update();
@@ -63,13 +69,14 @@ public class testbench extends LinearOpMode {
         DcMotorImpl bettermotor1=new DcMotorImpl(btLynxDCMotorController,motor1.getPortNumber());
         DcMotorImpl bettermotor3=new DcMotorImpl(btLynxDCMotorController,motor3.getPortNumber());
         DcMotorImpl bettermotor2=new DcMotorImpl(btLynxDCMotorController,motor2.getPortNumber());
-//        DcMotorImpl bettermotor4=new DcMotorImpl(btlExpa,motor4.getPortNumber());
         DcMotorImpl bettermotor5=new DcMotorImpl(btlExpa,motor5.getPortNumber());
-        DcMotorImpl bettermotor6=new DcMotorImpl(btlExpa,motor6.getPortNumber());
-
+        Servo bettergrip0 = new ServoImpl(btServoController,grip0.getPortNumber());
+        Servo bettergrip1 = new ServoImpl(btServoController,grip1.getPortNumber());
+        Servo betterArmServo = new ServoImpl(btServoController,armserv.getPortNumber());
         Runnable runnable=()->{
-            grip0.setPosition(0.1+0.001*Math.sin(elapsedTime.milliseconds()));
-            grip1.setPosition(0.5+0.001*Math.sin(elapsedTime.milliseconds()));
+            bettergrip1.setPosition(0.3+0.001*Math.sin(elapsedTime.milliseconds()));
+            bettergrip0.setPosition(0.3+0.001*Math.sin(elapsedTime.milliseconds()));
+            betterArmServo.setPosition(0.3+0.01*Math.sin(elapsedTime.milliseconds()));
             ser1=grip1.getPosition();
             ser0=bettermotor.getCurrentPosition();
             v=potentiometer1.getVoltage();
@@ -78,9 +85,9 @@ public class testbench extends LinearOpMode {
             ser0=bettermotor.getCurrentPosition();
             v=bettermotor1.getCurrentPosition();
             v=bettermotor.getCurrentPosition();
-//            v=bettermotor5.getCurrentPosition();
-            v=bettermotor6.getCurrentPosition();
-//            v=motor4.getCurrentPosition();
+            v=bettermotor5.getCurrentPosition();
+            v=motor7.getCurrentPosition();
+            v=motor4.getCurrentPosition();
             t=bettermotor2.getCurrentPosition();
             bettermotor2.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
             bettermotor.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));

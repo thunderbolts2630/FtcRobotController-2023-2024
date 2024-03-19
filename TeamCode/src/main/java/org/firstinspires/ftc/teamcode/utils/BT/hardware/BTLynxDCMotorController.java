@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.BT.hardware;
 
+
 import android.content.Context;
 
 import com.qualcomm.hardware.lynx.LynxDcMotorController;
@@ -13,6 +14,7 @@ import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorConstantPowerCommand
 import com.qualcomm.hardware.lynx.commands.core.LynxSetMotorTargetVelocityCommand;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.configuration.LynxConstants;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -27,11 +29,11 @@ public class BTLynxDCMotorController extends LynxDcMotorController {
     boolean[] motorsEnabled;
     public BTLynxDCMotorController(Context context, LynxModule module) throws RobotCoreException, InterruptedException {
         super(context, module);
-        motorsEnabled=new boolean[4];
+        motorsEnabled=new boolean[LynxConstants.NUMBER_OF_MOTORS];
         for (int i = 0; i < 4; i++) {
             motorsEnabled[i]=false;
         }
-        commandsQueue=new ArrayList<>(4);
+        commandsQueue=new ArrayList<>(LynxConstants.NUMBER_OF_MOTORS);
         bufferLen=0;
     }
 
@@ -63,10 +65,10 @@ public class BTLynxDCMotorController extends LynxDcMotorController {
             try {
 
                 command.getModule().sendCommand(command);//by sending the command directly to the lynx module we bypass waits for response
+                command.pretendFinish();
             } catch (LynxUnsupportedCommandException e) {
                 throw new RuntimeException(e);
             } finally {
-                command.pretendFinish();
                 command.releaseNetworkLock();
             }
 

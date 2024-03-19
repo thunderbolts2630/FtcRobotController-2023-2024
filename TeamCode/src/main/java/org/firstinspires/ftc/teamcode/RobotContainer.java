@@ -85,9 +85,10 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         DcMotor motorFL= hardwareMap.dcMotor.get("motor_FL");
         DcMotor motorBL= hardwareMap.dcMotor.get("motor_BL");
         DcMotor motorBR= hardwareMap.dcMotor.get("motor_BR");
-        DcMotor motorArmM1encoderR= hardwareMap.dcMotor.get("ArmM1encoderR");
         DcMotor motorArmM2encoderC= hardwareMap.dcMotor.get("ArmM2encoderC");
-        DcMotor motorClimb= hardwareMap.dcMotor.get("climb_motor");
+        //after some test it looks like we can only replace the controller of one DcMotor in the expansion hub
+        motor_armM1encoderR= hardwareMap.get(DcMotorImplEx.class,"ArmM1encoderR");
+        motor_climb= hardwareMap.get(DcMotorImplEx.class,"climb_motor");
         //enable bulk read allowing to rea all sensors with a single hardware command. (reduces a lot of delay)
         hubs= hardwareMap.getAll(LynxModule.class);
         hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
@@ -108,9 +109,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         motor_FL=new DcMotorImplEx(btLynxDCControlHub,motorFL.getPortNumber());
         motor_BR=new DcMotorImplEx(btLynxDCControlHub,motorBR.getPortNumber());
         motor_BL=new DcMotorImplEx(btLynxDCControlHub,motorBL.getPortNumber());
-        motor_armM1encoderR =new DcMotorImplEx(btLynxDCExpansionHub, motorArmM1encoderR.getPortNumber());
         motor_armM1encoderR =new DcMotorImplEx(btLynxDCExpansionHub, motorArmM2encoderC.getPortNumber());
-        motor_climb= new DcMotorImplEx(btLynxDCExpansionHub,motorClimb.getPortNumber());
     }
     public void clearSensorsCache(){
         for (LynxModule hub:hubs) {
