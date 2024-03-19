@@ -89,8 +89,8 @@ public class Arm implements Subsystem {
         this.voltageSensor=voltageSensor;
         m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-        m_pid1.setTolerance(4);
-        m_pid2.setTolerance(4);
+        m_pid1.setTolerance(7);
+        m_pid2.setTolerance(7);
         m_pid2.m_controller.setAccumilatorResetTolerance(1);
         m_pid1.m_controller.setAccumilatorResetTolerance(1);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
