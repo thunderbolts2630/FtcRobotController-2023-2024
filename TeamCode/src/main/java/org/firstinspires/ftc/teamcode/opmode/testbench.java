@@ -34,8 +34,8 @@ public class testbench extends LinearOpMode {
         DcMotor motor2= hardwareMap.dcMotor.get("motor_BL");
         DcMotor motor3= hardwareMap.dcMotor.get("motor_BR");
         DcMotor motor4 =  hardwareMap.dcMotor.get( "climb_motor");
-        MotorEx motor5 = new MotorEx(hardwareMap, "ArmM1encoderR");//3
-        MotorEx motor6 = new MotorEx(hardwareMap, "ArmM2encoderC");//0
+        DcMotor motor5 = hardwareMap.dcMotor.get( "ArmM1encoderR");//3
+        DcMotor motor6 = hardwareMap.dcMotor.get( "ArmM2encoderC");//0
         List<LynxModule> hubs= hardwareMap.getAll(LynxModule.class);
         hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
         AnalogInput potentiometer1 = hardwareMap.get(AnalogInput.class, "pt1");//port 3
@@ -63,28 +63,32 @@ public class testbench extends LinearOpMode {
         DcMotorImpl bettermotor1=new DcMotorImpl(btLynxDCMotorController,motor1.getPortNumber());
         DcMotorImpl bettermotor3=new DcMotorImpl(btLynxDCMotorController,motor3.getPortNumber());
         DcMotorImpl bettermotor2=new DcMotorImpl(btLynxDCMotorController,motor2.getPortNumber());
-        DcMotorImpl bettermotor4=new DcMotorImpl(btlExpa,motor4.getPortNumber());
+//        DcMotorImpl bettermotor4=new DcMotorImpl(btlExpa,motor4.getPortNumber());
+        DcMotorImpl bettermotor5=new DcMotorImpl(btlExpa,motor5.getPortNumber());
+        DcMotorImpl bettermotor6=new DcMotorImpl(btlExpa,motor6.getPortNumber());
 
         Runnable runnable=()->{
-//            grip0.setPosition(0.1+0.001*Math.sin(elapsedTime.milliseconds()));
-//            grip1.setPosition(0.5+0.001*Math.sin(elapsedTime.milliseconds()));
+            grip0.setPosition(0.1+0.001*Math.sin(elapsedTime.milliseconds()));
+            grip1.setPosition(0.5+0.001*Math.sin(elapsedTime.milliseconds()));
             ser1=grip1.getPosition();
-            ser0=motor.getCurrentPosition();
+            ser0=bettermotor.getCurrentPosition();
             v=potentiometer1.getVoltage();
             v=potentiometer2.getVoltage();
             ser1=grip1.getPosition();
-            ser0=motor.getCurrentPosition();
+            ser0=bettermotor.getCurrentPosition();
             v=bettermotor1.getCurrentPosition();
             v=bettermotor.getCurrentPosition();
-            v=motor5.getCurrentPosition();
-            v=motor6.getCurrentPosition();
-            v=motor4.getCurrentPosition();
+//            v=bettermotor5.getCurrentPosition();
+            v=bettermotor6.getCurrentPosition();
+//            v=motor4.getCurrentPosition();
             t=bettermotor2.getCurrentPosition();
             bettermotor2.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
             bettermotor.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
             bettermotor3.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
             bettermotor1.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
-            bettermotor4.setPower(0.09+0.009*Math.sin(elapsedTime.seconds()));
+            motor4.setPower(0.01+0.009*Math.sin(elapsedTime.seconds()));
+            bettermotor5.setPower(0.01+0.009*Math.sin(elapsedTime.seconds()));
+//            bettermotor6.setPower(0.01+0.009*Math.sin(elapsedTime.seconds()));
             hubs.forEach(module -> module.clearBulkCache());
         };
 
@@ -96,13 +100,7 @@ public class testbench extends LinearOpMode {
         }
         telemetry.addData("loop time with auto",elapsedTime.seconds()/testCounts);
         hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.OFF));
-        i=0;
-        elapsedTime.reset();
-        while (opModeIsActive()&&i<testCounts){
-            runnable.run();
-            i++;
-        }
-        telemetry.addData("loop time bulk OFF",elapsedTime.seconds()/testCounts);
+
         telemetry.update();
         while (opModeIsActive()){
             v=0;
