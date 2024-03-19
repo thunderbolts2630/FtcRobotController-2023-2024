@@ -33,18 +33,21 @@ public class testbench extends LinearOpMode {
         DcMotor motor1= hardwareMap.dcMotor.get("motor_BR");
         DcMotor motor2= hardwareMap.dcMotor.get("motor_BL");
         DcMotor motor3= hardwareMap.dcMotor.get("motor_BR");
-        MotorEx motor4 =  new MotorEx(hardwareMap, "climb_motor");
+        DcMotor motor4 =  hardwareMap.dcMotor.get( "climb_motor");
         MotorEx motor5 = new MotorEx(hardwareMap, "ArmM1encoderR");//3
         MotorEx motor6 = new MotorEx(hardwareMap, "ArmM2encoderC");//0
         List<LynxModule> hubs= hardwareMap.getAll(LynxModule.class);
-        hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO));
+        hubs.forEach(lynxModule -> lynxModule.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
         AnalogInput potentiometer1 = hardwareMap.get(AnalogInput.class, "pt1");//port 3
         AnalogInput potentiometer2 = hardwareMap.get(AnalogInput.class, "pt2");//port 1
         LynxModule usedModuleControl = hardwareMap.get(LynxModule.class,"Control Hub");//Expansion Hub 2 is the other name
+        LynxModule usedModuleControlExpansion = hardwareMap.get(LynxModule.class,"Expansion Hub 2");//Expansion Hub 2 is the other name
 
         BTLynxDCMotorController btLynxDCMotorController;
+        BTLynxDCMotorController btlExpa;
         try {
             btLynxDCMotorController= new BTLynxDCMotorController(hardwareMap.appContext, usedModuleControl);
+            btlExpa= new BTLynxDCMotorController(hardwareMap.appContext,usedModuleControlExpansion);
         } catch (RobotCoreException e) {
             telemetry.addLine(e.getMessage());
             telemetry.update();
@@ -60,6 +63,7 @@ public class testbench extends LinearOpMode {
         DcMotorImpl bettermotor1=new DcMotorImpl(btLynxDCMotorController,motor1.getPortNumber());
         DcMotorImpl bettermotor3=new DcMotorImpl(btLynxDCMotorController,motor3.getPortNumber());
         DcMotorImpl bettermotor2=new DcMotorImpl(btLynxDCMotorController,motor2.getPortNumber());
+        DcMotorImpl bettermotor4=new DcMotorImpl(btlExpa,motor4.getPortNumber());
 
         Runnable runnable=()->{
 //            grip0.setPosition(0.1+0.001*Math.sin(elapsedTime.milliseconds()));
@@ -80,7 +84,8 @@ public class testbench extends LinearOpMode {
             bettermotor.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
             bettermotor3.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
             bettermotor1.setPower(0.1+0.05*Math.sin(elapsedTime.seconds()));
-
+            bettermotor4.setPower(0.09+0.009*Math.sin(elapsedTime.seconds()));
+            hubs.forEach(module -> module.clearBulkCache());
         };
 
         waitForStart();
