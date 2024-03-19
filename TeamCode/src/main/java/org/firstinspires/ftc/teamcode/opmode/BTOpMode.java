@@ -28,6 +28,8 @@ public class BTOpMode extends LinearOpMode {
     RobotContainer robotContainer;
     ElapsedTime loopTime;
     Telemetry dashboard=FtcDashboard.getInstance().getTelemetry();
+    public static double msloopPeriod=20; //the desired loop time in ms
+    private double currentLoopTime=0;
     @Override
     public void runOpMode() throws InterruptedException {
         robotContainer= new RobotContainer(hardwareMap,telemetry,gamepad1,gamepad2);
@@ -41,8 +43,13 @@ public class BTOpMode extends LinearOpMode {
             loopTime.reset();
             CommandScheduler.getInstance().run();
             robotContainer.clearSensorsCache();
-            dashboard.addData("loop time ms",loopTime.milliseconds());
             dashboard.update();
+            currentLoopTime=loopTime.milliseconds();
+            dashboard.addData("loop time ms",currentLoopTime);
+            if(currentLoopTime<msloopPeriod){
+                //sleep for the rest of the desired period
+                sleep( (int)msloopPeriod-(int)currentLoopTime);
+            }
         }
         CommandScheduler.getInstance().reset();
     }
