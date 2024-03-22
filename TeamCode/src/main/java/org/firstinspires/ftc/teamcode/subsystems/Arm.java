@@ -496,15 +496,16 @@ public class Arm implements Subsystem {
     public Command goTo(Positions pos) {
         Supplier<Command> gt = ()->moveBoth(pos);
 
-        return new ConditionalCommand(//return from PICKUP to front
-                        new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atGoal() && m_pid2.atGoal()))
-                        .andThen(goToState1(Positions.MIDDLE))
-                        .andThen(goToState2(Positions.MIDDLE))
-                        .andThen(new InstantCommand(() -> state = Positions.MIDDLE))
+        ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
+                        goToState1(Positions.PICKUP_BAKC_LAST_STEP)
+                        .andThen(goToState2(Positions.PICKUP_BAKC_LAST_STEP))
+                        .andThen(new InstantCommand(() -> state = Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(gt.get()),
                 gt.get(),
                 () -> state == Positions.PICKUP || state == Positions.MIDPICKUP
         );
+        command.addRequirements(this);
+        return command;
 
     }
 
