@@ -17,6 +17,7 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BT.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -229,12 +230,17 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("motor_FR",motor_FR.getVelocity());
         dashboardTelemetry.addData("motor_FL",motor_FL.getVelocity());
 
+        dashboardTelemetry.addData("motor_BL current",motor_BL.motorEx.getCurrent(CurrentUnit.AMPS));
+        dashboardTelemetry.addData("motor_BR current",motor_BR.motorEx.getCurrent(CurrentUnit.AMPS));
+        dashboardTelemetry.addData("motor_FR current",motor_FR.motorEx.getCurrent(CurrentUnit.AMPS));
+        dashboardTelemetry.addData("motor_FL current",motor_FL.motorEx.getCurrent(CurrentUnit.AMPS));
+
         RobotXAcc = odometry.getAcceleration();
         RobotContainer.armAccAdjustment = RobotXAcc;
         dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
         dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
         dashboardTelemetry.update();
-//        setMotors(ChassisPower,ChassisPower,ChassisPower,ChassisPower);
+        setMotors(ChassisPower,ChassisPower,ChassisPower,ChassisPower);
     }@Config
     public static class Tune{
         public static double ChassisPower=0;

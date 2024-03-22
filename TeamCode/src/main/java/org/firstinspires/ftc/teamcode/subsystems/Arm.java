@@ -497,8 +497,8 @@ public class Arm implements Subsystem {
         Supplier<Command> gt = ()->moveBoth(pos);
 
         ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
-                        goToState1(Positions.PICKUP_BAKC_LAST_STEP)
-                        .andThen(goToState2(Positions.PICKUP_BAKC_LAST_STEP))
+                        new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atGoal() && m_pid2.atGoal()))
+                        .andThen(moveBoth(Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(new InstantCommand(() -> state = Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(gt.get()),
                 gt.get(),
