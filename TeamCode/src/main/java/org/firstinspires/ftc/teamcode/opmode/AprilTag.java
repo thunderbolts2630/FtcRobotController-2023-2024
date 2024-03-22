@@ -32,12 +32,14 @@ package org.firstinspires.ftc.teamcode.opmode;
 import android.annotation.SuppressLint;
 import android.util.Size;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
@@ -71,6 +73,7 @@ public class AprilTag extends LinearOpMode {
     private ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     private double counter = 0;
     private int startTime;
+    Telemetry  telemetry= FtcDashboard.getInstance().getTelemetry();
 
     @Override
     public void runOpMode() {
@@ -147,7 +150,7 @@ public class AprilTag extends LinearOpMode {
 
 
     @SuppressLint("DefaultLocale")
-    public Pose2d telemetryAprilTag(Pose2d position) {
+    public void telemetryAprilTag(Pose2d posedst) {
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
@@ -158,7 +161,7 @@ public class AprilTag extends LinearOpMode {
 //                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
                 rotation = new Rotation2d(detection.ftcPose.bearing);
                 distancefromwall = Math.sin(detection.ftcPose.bearing+Math.toRadians(Constants.cameraAngle))*(detection.ftcPose.range-0.035);
-                position = new Pose2d(detection.ftcPose.x,detection.ftcPose.y,rotation);
+                posedst = new Pose2d(detection.ftcPose.x,detection.ftcPose.y,rotation);
                 telemetry.addLine(String.format("XYZ %6.3f %6.3f %6.3f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
 //                telemetry.addLine(String.format("PRY %6.3f %6.3f %6.3f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
 //                telemetry.addLine(String.format("RBE %6.3f %6.3f %6.3f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
@@ -175,7 +178,6 @@ public class AprilTag extends LinearOpMode {
 //        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
 //        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
 //        telemetry.addLine("RBE = Range, Bearing & Elevation");
-        return position;
     }   // end method telemetryAprilTag()
     private void getCameraSetting() {
         // Ensure Vision Portal has been setup.

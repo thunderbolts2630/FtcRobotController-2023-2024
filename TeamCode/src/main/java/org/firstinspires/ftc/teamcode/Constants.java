@@ -6,12 +6,17 @@ import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.ChassisF
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.Robot;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.geometry.Transform2d;
+import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
+import org.firstinspires.ftc.teamcode.utils.geometry.BTTransform2d;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTTranslation2d;
 
 public class Constants {
@@ -29,6 +34,8 @@ public class Constants {
     public static final double hex_stall_torque = 0.173; //N * meter
 
     public static final double neo_Kt = hex_stall_torque / hex_stall_current;
+    public static final double cameraDistanceFromCenterOfRobot=0;//todo:check
+    public static final Transform2d cameraRelativeToRobotTransform=new Transform2d(new Translation2d(0,cameraDistanceFromCenterOfRobot),Rotation2d.fromDegrees(0));
 
     public static class ArmConstants {
         @Config

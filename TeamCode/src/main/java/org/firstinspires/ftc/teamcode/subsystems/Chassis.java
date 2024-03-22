@@ -34,6 +34,7 @@ import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ChassisConstants.PIDConstants.*;
 import static org.firstinspires.ftc.teamcode.subsystems.Chassis.ChassisMotorsFeedfoward.*;
 import static org.firstinspires.ftc.teamcode.subsystems.Chassis.Tune.ChassisPower;
+import static org.firstinspires.ftc.teamcode.subsystems.Chassis.Tune.useTune;
 
 import java.util.function.DoubleSupplier;
 
@@ -184,12 +185,12 @@ public class Chassis implements Subsystem {
 
     }
 
-    public BTCommand fieldRelativeDrive(DoubleSupplier frontVel, DoubleSupplier sidewayVel, DoubleSupplier retaliation) {
+    public BTCommand fieldRelativeDrive(DoubleSupplier frontVel, DoubleSupplier sidewayVel, DoubleSupplier rotation) {
         return new RunCommand(() -> {
 
             BTTranslation2d vector = new BTTranslation2d(sidewayVel.getAsDouble(), frontVel.getAsDouble());
             BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(gyro.getHeading()));
-            drive(rotated.getY(), rotated.getX(),  retaliation.getAsDouble());
+            drive(rotated.getY(), rotated.getX(),  rotation.getAsDouble());
         }, this);
     }
     public Command fieldRelativeDrive(double frontVel, double sidewayVel, double retaliation) {
@@ -240,9 +241,12 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
         dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
         dashboardTelemetry.update();
-        setMotors(ChassisPower,ChassisPower,ChassisPower,ChassisPower);
+        if (useTune==1) {
+            setMotors(ChassisPower, ChassisPower, ChassisPower, ChassisPower);
+        }
     }@Config
     public static class Tune{
+        public static double useTune=0;
         public static double ChassisPower=0;
     }
 

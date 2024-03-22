@@ -447,7 +447,7 @@ public class Arm implements Subsystem {
             disableFeedFoward =true;
             arm2.set(0.9);
         })
-        .andThen(new WaitUntilCommand(()-> current_second_joint_angle_relative_to_ground >10))
+        .andThen(new WaitUntilCommand(()-> current_second_joint_angle_relative_to_ground >5||current_second_joint_angle_relative_to_ground <-185))
         .andThen(new InstantCommand(()-> {
             arm2.set(0);
             disableFeedFoward =false;
