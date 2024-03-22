@@ -78,19 +78,19 @@ public class Chassis implements Subsystem {
     public static class ChassisMotorsFeedfoward{
         @Config
         public static class chassisFL{
-            public static double ks=0;
+            public static double ks=0.085;//0.085 is a value from kookybotz
             public static double kv=1;
         }@Config
         public static class chassisFR{
-            public static double ks=0;
+            public static double ks=0.085;//0.085 is a value from kookybotz
             public static double kv=1;
         }@Config
         public static class chassisBL{
-            public static double ks=0;
+            public static double ks=0.085;//0.085 is a value from kookybotz
             public static double kv=1;
         }@Config
         public static class chassisBR{
-            public static double ks=0;
+            public static double ks=0.085;//0.085 is a value from kookybotz
             public static double kv=1;
         }
     }
@@ -170,7 +170,9 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("compensation", compensation);
     }
     public double applyFeedFoward(double ks, double kv, double velocity){
-        return ks * Math.signum(velocity) + kv * velocity;
+
+        double s=velocity<0.01? 0: ks*Math.signum(velocity);// this is from kookybotz
+        return s + kv * velocity;
     }
 
     ElapsedTime driveTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);

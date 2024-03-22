@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.geometry.*;
@@ -8,7 +9,7 @@ import java.util.function.DoubleSupplier;
 public class HolonomicOdometry   {
 
     private double prevLeftEncoder, prevRightEncoder, prevHorizontalEncoder;
-    private BTRotation2d previousAngle;
+    private Rotation2d previousAngle;
     private double centerWheelOffset;
     protected BTPose2d robotPose = new BTPose2d();
     private double dx;  // not null
@@ -76,8 +77,11 @@ public class HolonomicOdometry   {
         double deltaRightEncoder = rightEncoderPos - prevRightEncoder;
         double deltaHorizontalEncoder = horizontalEncoderPos - prevHorizontalEncoder;
 
-        BTRotation2d angle = BTRotation2d.fromDegrees(gyroAngle);
-
+        Rotation2d angle = previousAngle.plus(
+                new Rotation2d(
+                        (deltaLeftEncoder - deltaRightEncoder) / m_trackWidth
+                )
+        );
         prevLeftEncoder = leftEncoderPos;
         prevRightEncoder = rightEncoderPos;
         prevHorizontalEncoder = horizontalEncoderPos;
@@ -95,7 +99,7 @@ public class HolonomicOdometry   {
 
         previousAngle = angle;
         previousTime = time.time();
-        robotPose = new BTPose2d(newPose.getTranslation(), angle);
+        robotPose = new BTPose2d(newPose.getTranslation(), BTRotation2d.fromDegrees(angle.getDegrees()));
         isFirstTime = false;
     }
 
