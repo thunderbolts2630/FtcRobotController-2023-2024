@@ -113,6 +113,12 @@ public class Chassis implements Subsystem {
             hasReset=true;
         }
         gyro.invertGyro();
+
+        motor_FL.setInverted(false);
+        motor_BL.setInverted(false);
+        motor_BR.setInverted(false);
+        motor_FR.setInverted(false);
+
         motor_FR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
