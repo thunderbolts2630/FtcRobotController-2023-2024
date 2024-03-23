@@ -86,7 +86,8 @@ public class Arm implements Subsystem {
     MovingAvrage arm2accavgWin=new MovingAvrage(4);
     MovingAvrage arm1velavgWin=new MovingAvrage(4);
     MovingAvrage arm1accavgWIn=new MovingAvrage(4);
-
+    double normalPIDTolernace=10;
+    double MidPIDTolernace=20;
 
     private double servoAngleFF = 0;
     private double arm2MassFromRadius=0;
@@ -100,10 +101,10 @@ public class Arm implements Subsystem {
         this.voltageSensor=voltageSensor;
         m_pid2 = new PIDController(a2KP, a2KI, a2KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new PIDController(a1KP, a1KI, a1KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-        m_pid1.setTolerance(10);
-        m_pid2.setTolerance(10);
-//        m_pid2.setAccumilatorResetTolerance(0);
-//        m_pid1.setAccumilatorResetTolerance(0);
+        m_pid1.setTolerance(normalPIDTolernace);
+        m_pid2.setTolerance(normalPIDTolernace);
+        m_pid2.setAccumilatorResetTolerance(0.1);
+        m_pid1.setAccumilatorResetTolerance(0.1);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
 //        m_pid2.setTolerance(0.1);
 //        m_pid1.setTolerance(0.1);
@@ -487,6 +488,12 @@ public class Arm implements Subsystem {
 //        m_pid1.reset(current_first_joint_angle_relative_to_ground);
         m_pid1.setSetpoint(desired_first_joint_angle);
         servo.setPosition(pos.servo);
+        if(pos==Positions.MIDPICKUP||pos==Positions.PICKUP_BAKC_LAST_STEP){
+            m_pid1.setTolerance(MidPIDTolernace);
+        }
+        else {
+            m_pid1.setTolerance(normalPIDTolernace);
+        }
         goalIsSet1 = true;
     }
 
@@ -497,6 +504,13 @@ public class Arm implements Subsystem {
         m_pid2.setSetpoint(desired_second_joint_angle);
         servo_desired_position = pos.servo;
         goalIsSet2 = true;
+
+        if(pos==Positions.MIDPICKUP||pos==Positions.PICKUP_BAKC_LAST_STEP){
+            m_pid2.setTolerance(MidPIDTolernace);
+        }
+        else {
+            m_pid2.setTolerance(normalPIDTolernace);
+        }
     }
 
     private void setStateBoth(Positions pos) {
@@ -515,6 +529,15 @@ public class Arm implements Subsystem {
         m_pid2.setSetpoint(pos.angle2);
         state = pos;
 
+
+        if(pos==Positions.MIDPICKUP||pos==Positions.PICKUP_BAKC_LAST_STEP){
+            m_pid1.setTolerance(MidPIDTolernace);
+            m_pid2.setTolerance(MidPIDTolernace);
+        }
+        else {
+            m_pid1.setTolerance(normalPIDTolernace);
+            m_pid2.setTolerance(normalPIDTolernace);
+        }
     }
     private Command setServo(Positions pos,int msTimeout){
         return new InstantCommand(()->servo_desired_position=pos.servo).andThen(new WaitCommand(msTimeout));
@@ -531,7 +554,8 @@ public class Arm implements Subsystem {
                 ()->pos==Positions.PICKUP_FRONT);
 
         ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
-                        new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atSetpoint() && m_pid2.atSetpoint()))
+                        new InstantCommand(()->setState1(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atSetpoint()))
+                        .andThen(new InstantCommand(()->setState2(Positions.MIDPICKUP))).andThen(new WaitUntilCommand(()->m_pid2.atSetpoint()))
                         .andThen(moveBoth(Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(new InstantCommand(() -> state = Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(gt.get()),
