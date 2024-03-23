@@ -120,7 +120,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setHighScore()), false, DPAD_UP);
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setScore()), false, DPAD_DOWN);
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()), false, DPAD_LEFT);
-        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setLowScore()), false, BUTTON_LEFT);
+        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setFrontPickup()), false, BUTTON_LEFT);
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setPickup()), false, DPAD_RIGHT);
 
     }

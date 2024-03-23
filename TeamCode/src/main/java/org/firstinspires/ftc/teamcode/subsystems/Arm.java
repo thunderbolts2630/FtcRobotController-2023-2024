@@ -262,6 +262,7 @@ public class Arm implements Subsystem {
         calculateMotorOutput();
         updateMotorsOutput();
         displayTelemtry();
+        servo.setPosition(calib.armServo);
 
 
     }
@@ -443,11 +444,13 @@ public class Arm implements Subsystem {
 
     public Command setMiddle() {
         return goTo(Positions.MIDDLEPLUS);
-
     }
 
     public Command setLowScore() {
         return goTo(Positions.LOWSCORE);
+
+    }   public Command setFrontPickup() {
+        return goTo(Positions.PICKUP_FRONT);
 
     }
 
