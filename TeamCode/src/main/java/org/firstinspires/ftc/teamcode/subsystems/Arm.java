@@ -99,8 +99,8 @@ public class Arm implements Subsystem {
         this.voltageSensor=voltageSensor;
         m_pid2 = new PIDController(a2KP, a2KI, a2KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new PIDController(a1KP, a1KI, a1KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-        m_pid1.setTolerance(7);
-        m_pid2.setTolerance(7);
+        m_pid1.setTolerance(15);
+        m_pid2.setTolerance(15);
         m_pid2.setAccumilatorResetTolerance(1);
         m_pid1.setAccumilatorResetTolerance(1);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
@@ -443,11 +443,13 @@ public class Arm implements Subsystem {
 
     public Command setMiddle() {
         return goTo(Positions.MIDDLEPLUS);
-
     }
 
     public Command setLowScore() {
         return goTo(Positions.LOWSCORE);
+
+    }   public Command setFrontPickup() {
+        return goTo(Positions.PICKUP_FRONT);
 
     }
 
