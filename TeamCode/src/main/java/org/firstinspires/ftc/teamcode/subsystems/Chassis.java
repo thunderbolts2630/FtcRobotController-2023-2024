@@ -96,7 +96,7 @@ public class Chassis implements Subsystem {
     }
 
 
-    public Chassis(HardwareMap map, MotorEx.Encoder leftEncoder, MotorEx.Encoder rightEncoder,VoltageSensor voltage_sensor) {
+    public Chassis(HardwareMap map, MotorEx.Encoder center, MotorEx.Encoder rightEncoder,VoltageSensor voltage_sensor) {
         this.map = map;
         motor_FL = new MotorEx(map, "motor_FL");//1
         motor_FR = new MotorEx(map, "motor_FR");//2
@@ -123,8 +123,8 @@ public class Chassis implements Subsystem {
         motor_BR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_FL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        m_leftEncoder = new MotorEx(map, "encoderLeft").encoder;
-        m_centerEncoder = leftEncoder;
+        m_leftEncoder =center;
+        m_centerEncoder =  new MotorEx(map, "encoderLeft").encoder;// was switched dont have time ot solve 
         m_rightEncoder = rightEncoder;
         m_centerEncoder.reset();
         m_leftEncoder.reset();
@@ -225,7 +225,7 @@ public class Chassis implements Subsystem {
         m_rotationpid.setPID(rkp,rki,rkd);
         m_rotationpid.setTolerance(tolerance);
         m_rotationpid.setIzone(rotIzone);
-//        odometry.updatePose();//todo: uncomment when starting to use odometry
+        odometry.updatePose();//todo: uncomment when starting to use odometry
         calcVA();
         if(auto){
             drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),desiredAngle)));
@@ -233,6 +233,10 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
         dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
+
+        dashboardTelemetry.addData("left encoder", m_leftEncoder.getPosition());
+        dashboardTelemetry.addData("center encoder", m_centerEncoder.getPosition());
+        dashboardTelemetry.addData("right encoder", m_rightEncoder.getPosition());
 
         dashboardTelemetry.addData("motor_BL",motor_BL.getVelocity());
         dashboardTelemetry.addData("motor_BR",motor_BR.getVelocity());

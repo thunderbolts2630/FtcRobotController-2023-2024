@@ -148,7 +148,7 @@ public class FollowPath extends BTCommand {
         Trajectory.State desiredState = m_trajectory.sample(curTime);
         dashboard.addData("state velocity", desiredState.velocityMetersPerSecond);
         if (m_desiredRotation.get() == null){
-            ChassisSpeeds targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, m_trajectory.getStates().get(m_trajectory.getStates().size() - 1).poseMeters.getRotation());
+            ChassisSpeeds targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, desiredState.poseMeters.getRotation());
             dashboard.addData("DfrontVelocity: ", targetChassisSpeeds.vyMetersPerSecond);
             dashboard.addData("DsideVelocity: ", targetChassisSpeeds.vxMetersPerSecond);
             dashboard.addData("DomegaVelocity: ", targetChassisSpeeds.omegaRadiansPerSecond);

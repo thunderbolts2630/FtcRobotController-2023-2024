@@ -60,7 +60,7 @@ public class HolonomicOdometry   {
      * This handles all the calculations for you.
      */
     public void updatePose() {
-        update(m_left.getAsDouble(), m_right.getAsDouble(), m_horizontal.getAsDouble(), m_gyro.getAsDouble());
+        update(m_left.getAsDouble(), m_right.getAsDouble(), m_horizontal.getAsDouble(), 0);
     }
 
     public void setPose(BTPose2d pose) {
