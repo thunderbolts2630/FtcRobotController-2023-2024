@@ -300,17 +300,17 @@ public class Chassis implements Subsystem {
         return odometry.getPose();
     }
 
-    public Command goToDegrees(double desiredAngle){
-        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngle)).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))));//-90
+    public Command goToDegrees(double desiredAngleChange){
+        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngleChange+m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees())).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))));//-90
 
     }
 
-   public Command goToX(double desiredX){
-       return new InstantCommand(()->m_pidX.setSetpoint(desiredX)).andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)));
+   public Command goToX(double desiredXChange){
+       return new InstantCommand(()->m_pidX.setSetpoint(desiredXChange+odometry.getPose().getX())).andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)));
    }
 
-public Command goToY(double desiredY){
-       return new InstantCommand(()->m_pidY.setSetpoint(desiredY)).andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0))));
+public Command goToY(double desiredYChange){
+       return new InstantCommand(()->m_pidY.setSetpoint(desiredYChange+odometry.getPose().getY())).andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0))));
    }
 
 }
