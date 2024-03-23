@@ -100,10 +100,10 @@ public class Arm implements Subsystem {
         this.voltageSensor=voltageSensor;
         m_pid2 = new PIDController(a2KP, a2KI, a2KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
         m_pid1 = new PIDController(a1KP, a1KI, a1KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
-        m_pid1.setTolerance(15);
-        m_pid2.setTolerance(15);
-        m_pid2.setAccumilatorResetTolerance(1);
-        m_pid1.setAccumilatorResetTolerance(1);
+        m_pid1.setTolerance(10);
+        m_pid2.setTolerance(10);
+//        m_pid2.setAccumilatorResetTolerance(0);
+//        m_pid1.setAccumilatorResetTolerance(0);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
 //        m_pid2.setTolerance(0.1);
 //        m_pid1.setTolerance(0.1);
@@ -298,6 +298,9 @@ public class Arm implements Subsystem {
         if((arm1FF>0 && arm1PIDresult<0 ) ||(arm1FF<0 &&arm1PIDresult>0) ){
             arm1FF*=ArmProfile.FFprecent;
         }
+        if(!goalIsSet1){
+            arm1PIDresult=0;
+        }
 //        dashboard.addData("desired,current discrepancy", current_first_joint_angle-desired_first_joint_angle);
         return arm1FF+arm1PIDresult;
 
@@ -312,6 +315,9 @@ public class Arm implements Subsystem {
         arm2FF = calculateFeedForwardSecondJoint();
         if((arm2FF>0 && arm2PIDresult<0 ) ||(arm2FF<0 &&arm2PIDresult>0) ){
             arm2FF*=ArmProfile.FFprecent;
+        }
+        if(!goalIsSet2){
+            arm2PIDresult=0;
         }
 //        dashboard.addData("current to desired angle discrepancy 2", current_second_joint_angle-desired_second_joint_angle);
         return arm2FF+arm2PIDresult;
@@ -511,7 +517,7 @@ public class Arm implements Subsystem {
 
     }
     private Command setServo(Positions pos,int msTimeout){
-        return new InstantCommand(()->servo.setPosition(pos.servo)).andThen(new WaitCommand(msTimeout));
+        return new InstantCommand(()->servo_desired_position=pos.servo).andThen(new WaitCommand(msTimeout));
     }
 
     private Command moveBoth(Positions pos){
@@ -519,7 +525,10 @@ public class Arm implements Subsystem {
                 .andThen(new InstantCommand(() -> state = pos));
     }
     public Command goTo(Positions pos) {
-        Supplier<Command> gt =()-> new ConditionalCommand(setServo(pos,80).andThen(moveBoth(pos)),moveBoth(pos),()->pos==Positions.PICKUP_FRONT);
+        Supplier<Command> gt =()-> new ConditionalCommand(
+                setServo(pos,100).andThen(moveBoth(Positions.MID_PICKUP_FRONT)).andThen(new WaitCommand(100)).andThen(moveBoth(pos)),
+                moveBoth(pos),
+                ()->pos==Positions.PICKUP_FRONT);
 
         ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
                         new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atSetpoint() && m_pid2.atSetpoint()))
