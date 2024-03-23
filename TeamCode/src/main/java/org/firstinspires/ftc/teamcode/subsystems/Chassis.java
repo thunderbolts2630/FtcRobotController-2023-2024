@@ -301,7 +301,7 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(double desiredAngleChange){
-        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngleChange+m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees())).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))));//-90
+        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngleChange+m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))));//-90
 
     }
 
