@@ -216,23 +216,28 @@ public class Constants {
         public static final PIDController PIDx = new PIDController(kpX,kiX,kdX);
         @Config
         public static class PIDConstants {
+            public static double Xkp = 0;
+            public static double Xki = 0;
+            public static double Xkd = 0;
+
             /*
-            values from kookybotz's
-            public static double xP = 0.0335;
-            public static double xD = 0.006;
+                        values from kookybotz's
 
-            public static double yP = 0.0335;
-            public static double yD = 0.006;
+                        public static double xP = 0.0335;
+                        public static double xD = 0.006;
 
-            public static double hP = 1;
-            public static double hD = 0.03;
+                        public static double yP = 0.0335;
+                        public static double yD = 0.006;
 
-            public static double kStatic = 0.05;
+                        public static double hP = 1;
+                        public static double hD = 0.03;
 
-            public static PIDFController xController = new PIDFController(xP, 0.0, xD, 0);
-            public static PIDFController yController = new PIDFController(yP, 0.0, yD, 0);
-            public static PIDFController hController = new PIDFController(hP, 0.0, hD, 0);
-             */
+                        public static double kStatic = 0.05;
+
+                        public static PIDFController xController = new PIDFController(xP, 0.0, xD, 0);
+                        public static PIDFController yController = new PIDFController(yP, 0.0, yD, 0);
+                        public static PIDFController hController = new PIDFController(hP, 0.0, hD, 0);
+                         */
             @Config
             public static class PIDFront {
                 public static double kpX = 0;
