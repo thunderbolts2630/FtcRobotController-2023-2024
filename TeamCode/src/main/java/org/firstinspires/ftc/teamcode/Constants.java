@@ -89,7 +89,7 @@ public class Constants {
   */
         public enum Positions{
             SCORE(98,-180,0.43,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
-            IDLE(61,-181,0.44,new TrapezoidProfile.Constraints(50,50),new TrapezoidProfile.Constraints(50,50)),
+            IDLE(61,-181,0.32,new TrapezoidProfile.Constraints(50,50),new TrapezoidProfile.Constraints(50,50)),
             MIDDLEPLUS(95,-113,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             PICKUP_BAKC_LAST_STEP(95,-123,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             HIGHSCORE(102,-210,0.32,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 3/17 too fast
