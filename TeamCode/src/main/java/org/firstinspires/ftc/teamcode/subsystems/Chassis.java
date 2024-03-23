@@ -116,8 +116,8 @@ public class Chassis implements Subsystem {
 
         motor_FL.setInverted(false);
         motor_BL.setInverted(false);
-        motor_BR.setInverted(false);
-        motor_FR.setInverted(false);
+        motor_BR.setInverted(true);
+        motor_FR.setInverted(true);
 
         motor_FR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         motor_BR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -126,11 +126,8 @@ public class Chassis implements Subsystem {
         m_leftEncoder =center;
         m_centerEncoder =  new MotorEx(map, "encoderLeft").encoder;// was switched dont have time ot solve 
         m_rightEncoder = rightEncoder;
-        m_centerEncoder.reset();
-        m_leftEncoder.reset();
-        m_rightEncoder.reset();
         odometry = new BTposeEstimator(
-                () -> -metersFormTicks(m_leftEncoder.getPosition()),
+                () -> metersFormTicks(m_leftEncoder.getPosition()),//center and left switched
                 () -> metersFormTicks(m_rightEncoder.getPosition()),
                 () -> metersFormTicks(m_centerEncoder.getPosition()),
                 () -> gyro.getHeading(),
@@ -154,9 +151,7 @@ public class Chassis implements Subsystem {
 
     public void resetOdmetry(Pose2d rst){
         odometry.reset(new BTPose2d(rst));
-        m_centerEncoder.reset();
-        m_leftEncoder.reset();
-        m_rightEncoder.reset();
+
         gyro.reset();
         odometry.reset(new BTPose2d(rst));
 
@@ -231,7 +226,8 @@ public class Chassis implements Subsystem {
             drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),desiredAngle)));
         }
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
-        dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
+//        dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
+        dashboardTelemetry.addData("pose odometry angle: ", odometry.getPose().getRotation().getDegrees());
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
 
         dashboardTelemetry.addData("left encoder", m_leftEncoder.getPosition());
@@ -289,19 +285,22 @@ public class Chassis implements Subsystem {
         drive(chassisSpeeds.vyMetersPerSecond,chassisSpeeds.vxMetersPerSecond,chassisSpeeds.omegaRadiansPerSecond);
 
     }
-    private void drive(double frontVel, double sidewayVel, double retaliation) {
-
-        dashboardTelemetry.addData("front vel in drive",frontVel);
-        dashboardTelemetry.addData("side vel in drive",sidewayVel);
-        dashboardTelemetry.addData("rot vel in drive",retaliation);
-        double r = Math.hypot(retaliation, sidewayVel);
-        double robotAngle = Math.atan2(retaliation, sidewayVel) - Math.PI / 4;//shifts by 90 degrees so that 0 is to the right
-        double rightX = frontVel;
-        final double v1 = r * Math.cos(robotAngle) + rightX;
-        final double v2 = r * Math.sin(robotAngle) - rightX;
-        final double v3 = r * Math.sin(robotAngle) + rightX;
-        final double v4 = r * Math.cos(robotAngle) - rightX;
-        setMotors(v1, v2, v3, v4);
+    private void drive(double frontVel, double sidewayVel, double rotation) {
+        double leftFrontPower  = frontVel + sidewayVel + rotation;
+        double rightFrontPower = frontVel - sidewayVel - rotation;
+        double leftBackPower   = frontVel - sidewayVel + rotation;
+        double rightBackPower  = frontVel + sidewayVel - rotation;
+//        dashboardTelemetry.addData("front vel in drive",frontVel);
+//        dashboardTelemetry.addData("side vel in drive",sidewayVel);
+//        dashboardTelemetry.addData("rot vel in drive",rotation);
+//        double r = Math.hypot(rotation, sidewayVel);
+//        double robotAngle = Math.atan2(rotation, sidewayVel) - Math.PI / 4;//shifts by 90 degrees so that 0 is to the right
+//        double rightX = frontVel;
+//        final double v1 = r * Math.cos(robotAngle) + rightX;
+//        final double v2 = r * Math.sin(robotAngle) - rightX;
+//        final double v3 = r * Math.sin(robotAngle) + rightX;
+//        final double v4 = r * Math.cos(robotAngle) - rightX;
+        setMotors(leftFrontPower, rightFrontPower, leftBackPower,rightBackPower);
     }
 
     public Pose2d getPosition() {

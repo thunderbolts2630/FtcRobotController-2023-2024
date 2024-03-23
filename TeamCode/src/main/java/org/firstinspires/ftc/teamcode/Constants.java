@@ -185,7 +185,7 @@ public class Constants {
         public static final double odometryWheelRadius = 0.0176; //meters
         public static final int tickPerRevolution = 8192;
         public static final double TimeToAprilTagCheck = 1;
-        public static final double TRACKWIDTH = 0.29; //wheelbase, change value
+        public static final double TRACKWIDTH = 0.17; //wheelbase, change value
         public static final double WHEEL_OFFSET = 1;
         public static final double TICKS_TO_CM = 38.862;
         public static final double RobotMaxVelFront = 1.63; // m/s

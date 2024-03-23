@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FollowPath extends BTCommand {
-    public static class FellowPathConfig{
+    public static class FollowPathConfig {
         Supplier<Pose2d> pose;
         BTHolonomicDriveController controller;
         Supplier<Rotation2d> desiredRotation;
@@ -32,7 +32,7 @@ public class FollowPath extends BTCommand {
         Consumer<Pose2d> resetOdometry;
         Subsystem requirments;
 
-        public FellowPathConfig(Supplier<Pose2d> pose, BTHolonomicDriveController controller, Supplier<Rotation2d> desiredRotation, Consumer<ChassisSpeeds> outputChassisSpeeds, Consumer<Pose2d> resetOdometry, Subsystem requirments) {
+        public FollowPathConfig(Supplier<Pose2d> pose, BTHolonomicDriveController controller, Supplier<Rotation2d> desiredRotation, Consumer<ChassisSpeeds> outputChassisSpeeds, Consumer<Pose2d> resetOdometry, Subsystem requirments) {
             this.pose = pose;
             this.controller = controller;
             this.desiredRotation = desiredRotation;
@@ -78,7 +78,7 @@ public class FollowPath extends BTCommand {
 
     public FollowPath(
             Trajectory trajectory,
-            FollowPath.FellowPathConfig config
+            FollowPathConfig config
     ){
         this(trajectory,
                 config.pose,

@@ -12,14 +12,13 @@ import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.*;
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_X;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.arcrobotics.ftclib.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -40,6 +39,7 @@ import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
+import org.firstinspires.ftc.teamcode.utils.TrajectoryFactory;
 
 import java.util.List;
 
@@ -93,8 +93,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     public void tune(){
 //        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
-
+            m_controller2.assignCommand(followPath(TrajectoryFactory._forward),false,BUTTON_UP);
     }
+
 
     //bind commands to trigger
     public void oneDriver(){
@@ -124,9 +125,12 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     }
 
-    public FollowPath.FellowPathConfig fellowPathConfigGen(Chassis m_chassis, @Nullable Rotation2d desiredRotation) {
+    public FollowPath followPath(Trajectory fromTrajectoryFactory){
+        return new FollowPath(fromTrajectoryFactory,fellowPathConfigGen(m_chassis,null));
+    }
+    public FollowPath.FollowPathConfig fellowPathConfigGen(Chassis m_chassis, @Nullable Rotation2d desiredRotation) {
         BTHolonomicDriveController controller =new BTHolonomicDriveController(new PIDController(0,0,0),new PIDController(0,0,0),new ProfiledPIDController(0,0,0,new TrapezoidProfile.Constraints(0,0)));
-        return new FollowPath.FellowPathConfig(
+        return new FollowPath.FollowPathConfig(
                 m_chassis::getPosition,
                 controller,
                 ()->desiredRotation,

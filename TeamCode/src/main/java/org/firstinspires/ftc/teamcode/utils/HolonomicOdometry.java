@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
+
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -6,7 +8,7 @@ import org.firstinspires.ftc.teamcode.utils.geometry.*;
 
 import java.util.function.DoubleSupplier;
 
-public class HolonomicOdometry   {
+public class HolonomicOdometry {
 
     private double prevLeftEncoder, prevRightEncoder, prevHorizontalEncoder;
     private Rotation2d previousAngle;
@@ -36,47 +38,66 @@ public class HolonomicOdometry   {
     public HolonomicOdometry(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder,
                              DoubleSupplier horizontalEncoder, DoubleSupplier gyroAngle, double trackWidth, double centerWheelOffset) {
         this(trackWidth, centerWheelOffset);
+
         m_left = leftEncoder;
         m_right = rightEncoder;
         m_horizontal = horizontalEncoder;
         m_gyro = gyroAngle;
+        prevLeftEncoder = leftEncoder.getAsDouble();
+        prevRightEncoder = rightEncoder.getAsDouble();
+        prevHorizontalEncoder = horizontalEncoder.getAsDouble();
 
     }
 
     public HolonomicOdometry(BTPose2d initialPose, double trackwidth, double centerWheelOffset) {
         this.m_trackWidth = trackwidth;
         previousAngle = initialPose.getRotation();
-        robotPose=initialPose;
+        robotPose = initialPose;
         this.centerWheelOffset = centerWheelOffset;
         time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
         previousTime = time.time();
     }
 
     public HolonomicOdometry(double trackwidth, double centerWheelOffset) {
-        this(new BTPose2d(), trackwidth, centerWheelOffset);
+        this(new BTPose2d(0, 0, BTRotation2d.fromDegrees(0)), trackwidth, centerWheelOffset);
     }
 
     /**
      * This handles all the calculations for you.
      */
     public void updatePose() {
-        update(m_left.getAsDouble(), m_right.getAsDouble(), m_horizontal.getAsDouble(), 0);
+        update(m_left.getAsDouble(), m_right.getAsDouble(), m_horizontal.getAsDouble());
     }
 
     public void setPose(BTPose2d pose) {
         previousAngle = pose.getRotation();
         robotPose = pose;
 
-        prevLeftEncoder = 0;
-        prevRightEncoder = 0;
-        prevHorizontalEncoder = 0;
+
     }
 
-    public void update(double leftEncoderPos, double rightEncoderPos, double horizontalEncoderPos,double gyroAngle) {
+    public void updateAngleByGyro() {
+        previousAngle = Rotation2d.fromDegrees(m_gyro.getAsDouble());
+        robotPose = new BTPose2d(robotPose.getX(), robotPose.getY(), BTRotation2d.fromDegrees(m_gyro.getAsDouble()));
+    }
+
+    boolean flag = true;
+
+    public void update(double leftEncoderPos, double rightEncoderPos, double horizontalEncoderPos) {
         double deltaLeftEncoder = leftEncoderPos - prevLeftEncoder;
         double deltaRightEncoder = rightEncoderPos - prevRightEncoder;
         double deltaHorizontalEncoder = horizontalEncoderPos - prevHorizontalEncoder;
+        if (flag) {
+            FtcDashboard.getInstance().getTelemetry().addData("delta  right", deltaRightEncoder);
 
+            FtcDashboard.getInstance().getTelemetry().addData("delta  left", deltaLeftEncoder);
+            FtcDashboard.getInstance().getTelemetry().addData("delta  center", deltaHorizontalEncoder);
+            FtcDashboard.getInstance().getTelemetry().addData("delta  left-right", (deltaLeftEncoder - deltaRightEncoder) / m_trackWidth);
+            flag = false;
+            deltaHorizontalEncoder=0;
+            deltaRightEncoder=0;
+            deltaLeftEncoder=0;
+        }
         Rotation2d angle = previousAngle.plus(
                 new Rotation2d(
                         (deltaLeftEncoder - deltaRightEncoder) / m_trackWidth
@@ -104,28 +125,29 @@ public class HolonomicOdometry   {
     }
 
     public void reset(BTPose2d btPose2d) {
-        previousAngle=BTRotation2d.fromDegrees(0);
-        prevLeftEncoder=0;
-        prevRightEncoder=0;
-        prevHorizontalEncoder=0;
-        robotPose=btPose2d;
+        previousAngle = BTRotation2d.fromDegrees(0);
+        prevLeftEncoder = 0;
+        prevRightEncoder = 0;
+        prevHorizontalEncoder = 0;
+        robotPose = btPose2d;
     }
 
-    public double getVelocity(){
+    public double getVelocity() {
         double velocity;
-        if (!isFirstTime){
+        if (!isFirstTime) {
             velocity = 0;
-        }else{
-            velocity = dx/dt;
+        } else {
+            velocity = dx / dt;
         }
         return velocity;
     }
-    public double getAcceleration(){
+
+    public double getAcceleration() {
         double acceleration;
-        if(!isFirstTime){
+        if (!isFirstTime) {
             acceleration = 0;
-        }else{
-            acceleration = dv/dt;
+        } else {
+            acceleration = dv / dt;
         }
         return acceleration;
     }
