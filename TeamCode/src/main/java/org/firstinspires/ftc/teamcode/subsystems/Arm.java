@@ -526,7 +526,7 @@ public class Arm implements Subsystem {
     }
     public Command goTo(Positions pos) {
         Supplier<Command> gt =()-> new ConditionalCommand(
-                setServo(pos,100).andThen(moveBoth(Positions.MID_PICKUP_FRONT)).andThen(new WaitCommand(100)).andThen(moveBoth(pos)),
+                setServo(pos,60).andThen(moveBoth(Positions.MID_PICKUP_FRONT)).andThen(new WaitCommand(20)).andThen(moveBoth(pos)),
                 moveBoth(pos),
                 ()->pos==Positions.PICKUP_FRONT);
 
