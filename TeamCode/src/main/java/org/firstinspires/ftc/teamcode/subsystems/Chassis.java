@@ -64,6 +64,7 @@ public class Chassis implements Subsystem {
     private double maxAccelerationX = 0;
     private double maxAccelerationTheta = 0;
     private double maxAccelerationY = 0;
+    private PIDController m_pidX;
     private Motor.Encoder m_leftEncoder;
     private Motor.Encoder m_centerEncoder;
     private Motor.Encoder m_rightEncoder;
@@ -71,10 +72,7 @@ public class Chassis implements Subsystem {
     public int test = 0;
 
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-    private boolean auto = false;
-    private double desiredXVel;
-    private double desiredYVel;
-    private double desiredAngle;
+
     public static class ChassisMotorsFeedfoward{
         @Config
         public static class chassisFL{
@@ -113,6 +111,7 @@ public class Chassis implements Subsystem {
             hasReset=true;
         }
         gyro.invertGyro();
+        m_pidX = new PIDController(Xkp,Xki,Xkd);
 
         motor_FL.setInverted(false);
         motor_BL.setInverted(false);
@@ -196,23 +195,14 @@ public class Chassis implements Subsystem {
             drive(rotated.getY(), rotated.getX(),  rotation.getAsDouble());
         }, this);
     }
-    public Command fieldRelativeDrive(double frontVel, double sidewayVel, double retaliation) {
-        return new InstantCommand(() -> {
-            auto = true;
-            BTTranslation2d vector = new BTTranslation2d(sidewayVel, frontVel);
-            BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(-gyro.getHeading()));
-            desiredXVel=rotated.getY();
-            desiredYVel = rotated.getX();
-            desiredAngle = retaliation;
-        }, this);
-    }
+
 
     public Command stopMotor() {
         return new InstantCommand(()->{
-            auto = false;
             setMotors(0,0,0,0);
         });
     }
+
 
     @Override
     public void periodic() {
@@ -221,10 +211,10 @@ public class Chassis implements Subsystem {
         m_rotationpid.setTolerance(tolerance);
         m_rotationpid.setIzone(rotIzone);
         odometry.updatePose();//todo: uncomment when starting to use odometry
+        m_pidX.setPID(Xkp,Xki,Xkd);
+
         calcVA();
-        if(auto){
-            drive(desiredXVel,desiredYVel, m_rotFF.calculate(m_rotationpid.calculate(gyro.getHeading(),desiredAngle)));
-        }
+
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
 //        dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
         dashboardTelemetry.addData("pose odometry angle: ", odometry.getPose().getRotation().getDegrees());
@@ -307,15 +297,18 @@ public class Chassis implements Subsystem {
         return odometry.getPose();
     }
 
-    public Command goToDegrees(double degrees){
-        return new InstantCommand(()->{
-            m_rotationpid.setSetpoint(degrees);//-90
-        });
+    public Command goToDegrees(double desiredAngle){
+        return new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees(),desiredAngle)));//-90
+
     }
 
-    public Command test(){
-        return new InstantCommand(()->test=1);
-    }
+   public Command goToX(double desiredX){
+       return new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX(),desiredX),0,0));
+   }
+
+public Command goToY(double desiredY){
+       return new RunCommand(()->drive(0,m_pidX.calculate(odometry.getPose().getY(),desiredY),0));
+   }
 
 }
 
