@@ -11,6 +11,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -509,13 +510,16 @@ public class Arm implements Subsystem {
         state = pos;
 
     }
+    private Command setServo(Positions pos,int msTimeout){
+        return new InstantCommand(()->servo.setPosition(pos.servo)).andThen(new WaitCommand(msTimeout));
+    }
 
     private Command moveBoth(Positions pos){
         return new InstantCommand(()->setStateBoth(pos)).andThen(new WaitUntilCommand(()-> m_pid1.atSetpoint()&&m_pid2.atSetpoint()))
                 .andThen(new InstantCommand(() -> state = pos));
     }
     public Command goTo(Positions pos) {
-        Supplier<Command> gt = ()->moveBoth(pos);
+        Supplier<Command> gt =()-> new ConditionalCommand(setServo(pos,80).andThen(moveBoth(pos)),moveBoth(pos),()->pos==Positions.PICKUP_FRONT);
 
         ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
                         new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atSetpoint() && m_pid2.atSetpoint()))
