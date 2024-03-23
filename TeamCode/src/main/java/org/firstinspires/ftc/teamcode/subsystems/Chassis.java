@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.RobotContainer;
+import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
 import org.firstinspires.ftc.teamcode.utils.BT.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.BT.BTCommand;
@@ -72,6 +73,7 @@ public class Chassis implements Subsystem {
     public int test = 0;
 
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+    private PIDController m_pidY;
 
     public static class ChassisMotorsFeedfoward{
         @Config
@@ -112,6 +114,7 @@ public class Chassis implements Subsystem {
         }
         gyro.invertGyro();
         m_pidX = new PIDController(Xkp,Xki,Xkd);
+        m_pidY = new PIDController(Ykp,Yki,Ykd);
 
         motor_FL.setInverted(false);
         motor_BL.setInverted(false);
@@ -298,16 +301,16 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(double desiredAngle){
-        return new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees(),desiredAngle)));//-90
+        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngle)).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))));//-90
 
     }
 
    public Command goToX(double desiredX){
-       return new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX(),desiredX),0,0));
+       return new InstantCommand(()->m_pidX.setSetpoint(desiredX)).andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)));
    }
 
 public Command goToY(double desiredY){
-       return new RunCommand(()->drive(0,m_pidX.calculate(odometry.getPose().getY(),desiredY),0));
+       return new InstantCommand(()->m_pidY.setSetpoint(desiredY)).andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0))));
    }
 
 }

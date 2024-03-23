@@ -219,6 +219,9 @@ public class Constants {
             public static double Xkp = 0;
             public static double Xki = 0;
             public static double Xkd = 0;
+            public static double Ykp = 0;
+            public static double Yki = 0;
+            public static double Ykd = 0;
 
             /*
                         values from kookybotz's
