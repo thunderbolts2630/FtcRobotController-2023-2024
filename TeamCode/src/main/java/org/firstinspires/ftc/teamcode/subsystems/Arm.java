@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.*;
 import static org.firstinspires.ftc.teamcode.Constants.*;
 import static org.firstinspires.ftc.teamcode.Constants.ArmConstants.ArmWights.*;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -20,8 +21,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.RobotContainer;
 import org.firstinspires.ftc.teamcode.utils.BT.BTController;
+import org.firstinspires.ftc.teamcode.utils.Math.MovingAvrage;
 import org.firstinspires.ftc.teamcode.utils.Math.ProfileVelAcc;
 import org.firstinspires.ftc.teamcode.utils.Math.SlewRateLimiter;
+import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
@@ -49,8 +52,8 @@ public class Arm implements Subsystem {
     private BTController m_controller;
     VoltageSensor voltageSensor;
     private Telemetry dashboard = FtcDashboard.getInstance().getTelemetry();
-    private ProfiledPIDController m_pid1;
-    private ProfiledPIDController m_pid2;
+    private PIDController m_pid1;
+    private PIDController m_pid2;
     private double desired_first_joint_angle = 90;
     private double desired_second_joint_angle = -90;
     private Translation2d current_desired_point;
@@ -75,10 +78,17 @@ public class Arm implements Subsystem {
     ProfileVelAcc profileArm1;
     ProfileVelAcc profileArm2;
     ElapsedTime time;
+    MovingAvrage arm2velavgWin=new MovingAvrage(4);
+    double arm2velavg=0;
+
+    double arm2accavg=0;
+    MovingAvrage arm2accavgWin=new MovingAvrage(4);
+    MovingAvrage arm1velavgWin=new MovingAvrage(4);
+    MovingAvrage arm1accavgWIn=new MovingAvrage(4);
+
 
     private double servoAngleFF = 0;
     private double arm2MassFromRadius=0;
-
 
     public Arm(HardwareMap map,  MotorEx arm1, MotorEx arm2,VoltageSensor voltageSensor) {
         this.map = map;
@@ -87,12 +97,12 @@ public class Arm implements Subsystem {
         this.arm1.setInverted(false);
         this.arm2.setInverted(true);
         this.voltageSensor=voltageSensor;
-        m_pid2 = new ProfiledPIDController(a2KP, a2KI, a2KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
-        m_pid1 = new ProfiledPIDController(a1KP, a1KI, a1KD, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
+        m_pid2 = new PIDController(a2KP, a2KI, a2KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
+        m_pid1 = new PIDController(a1KP, a1KI, a1KD);//, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1, ArmProfile.maxAcceleration1));
         m_pid1.setTolerance(7);
         m_pid2.setTolerance(7);
-        m_pid2.m_controller.setAccumilatorResetTolerance(1);
-        m_pid1.m_controller.setAccumilatorResetTolerance(1);
+        m_pid2.setAccumilatorResetTolerance(1);
+        m_pid1.setAccumilatorResetTolerance(1);
         rateLimiter = new SlewRateLimiter(0.3, -0.3, 0);
 //        m_pid2.setTolerance(0.1);
 //        m_pid1.setTolerance(0.1);
@@ -177,10 +187,10 @@ public class Arm implements Subsystem {
         dashboard.addData("pot2:", current_pot2_voltage);
         dashboard.addData("angle first ", current_first_joint_angle_relative_to_ground);
         dashboard.addData("angle second", current_second_joint_angle_relative_to_ground);
-        dashboard.addData("setpoint1", m_pid1.getSetpoint().position);
-        dashboard.addData("setpoint2", m_pid2.getSetpoint().position);
-        dashboard.addData("goal1", m_pid1.getGoal().position);
-        dashboard.addData("goal2", m_pid2.getGoal().position);
+        dashboard.addData("setpoint1", m_pid1.getSetpoint());
+        dashboard.addData("setpoint2", m_pid2.getSetpoint());
+//        dashboard.addData("goal1", m_pid1.getGoal().position);
+//        dashboard.addData("goal2", m_pid2.getGoal().position);
         dashboard.addData("state", state.ordinal());
         dashboard.addData("arm1 FF power",arm1FF);
         dashboard.addData("arm2 FF power",arm2FF);
@@ -230,10 +240,10 @@ public class Arm implements Subsystem {
         m_pid2.setPID(a2KP, a2KI, a2KD);
 
         if (!goalIsSet1) {
-            m_pid1.setGoal(current_first_joint_angle_relative_to_ground);
+            m_pid1.setSetpoint(current_first_joint_angle_relative_to_ground);
         }
         if (!goalIsSet2) {
-            m_pid2.setGoal(current_second_joint_angle_relative_to_ground);
+            m_pid2.setSetpoint(current_second_joint_angle_relative_to_ground);
         }
 
     }
@@ -247,7 +257,8 @@ public class Arm implements Subsystem {
         profileArm1.calculate(current_first_joint_angle_relative_to_ground, time.milliseconds());//for mesaurement, deleter after profile measurements
         profileArm2.calculate(current_second_joint_angle_relative_to_ground, time.milliseconds());
 
-
+        arm2velavg=arm2velavgWin.calculate(profileArm1.stats.vel);
+        arm2accavg=arm2accavgWin.calculate(profileArm1.stats.acc);
         calculateMotorOutput();
         updateMotorsOutput();
         displayTelemtry();
@@ -282,7 +293,10 @@ public class Arm implements Subsystem {
         armAccBasedOffset1 = ((resistance *
                 (RobotContainer.armAccAdjustment * Util.sinInDegrees(current_first_joint_angle_relative_to_ground))
                 / (first_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
-        arm1FF = calculateFeedForwardFirstJoint();
+        arm1FF = calculateFeedForwardFirstJoint()*ArmProfile.FFprecent;
+        if((arm1FF>0 && arm1PIDresult<0 ) ||(arm1FF<0 &&arm1PIDresult>0) ){
+            arm1FF*=ArmProfile.FFprecent;
+        }
 //        dashboard.addData("desired,current discrepancy", current_first_joint_angle-desired_first_joint_angle);
         return arm1FF+arm1PIDresult;
 
@@ -295,6 +309,9 @@ public class Arm implements Subsystem {
                 (RobotContainer.armAccAdjustment * Util.sinInDegrees(current_second_joint_angle_relative_to_ground))
                 / (second_gear_ratio * neo_Kt)) / motorMaxVolt) / ffConv;
         arm2FF = calculateFeedForwardSecondJoint();
+        if((arm2FF>0 && arm2PIDresult<0 ) ||(arm2FF<0 &&arm2PIDresult>0) ){
+            arm2FF*=ArmProfile.FFprecent;
+        }
 //        dashboard.addData("current to desired angle discrepancy 2", current_second_joint_angle-desired_second_joint_angle);
         return arm2FF+arm2PIDresult;
 
@@ -409,8 +426,8 @@ public class Arm implements Subsystem {
             }else {
                 servo.getController().pwmEnable();
             }
-            m_pid1.reset(current_first_joint_angle_relative_to_ground);
-            m_pid2.reset(current_second_joint_angle_relative_to_ground);
+//            m_pid1.reset(current_first_joint_angle_relative_to_ground);
+//            m_pid2.reset(current_second_joint_angle_relative_to_ground);
         });
     }
 
@@ -418,8 +435,8 @@ public class Arm implements Subsystem {
         return new InstantCommand(() -> {
             disableFeedFoward = false;
             servo.getController().pwmEnable();
-            m_pid1.reset(current_first_joint_angle_relative_to_ground);
-            m_pid2.reset(current_second_joint_angle_relative_to_ground);
+//            m_pid1.reset(current_first_joint_angle_relative_to_ground);
+//            m_pid2.reset(current_second_joint_angle_relative_to_ground);
         });
     }
 
@@ -438,9 +455,9 @@ public class Arm implements Subsystem {
         return goTo(Positions.IDLE);
     }
 
-    public boolean ArmAtGoal() {
-        return m_pid1.atGoal() && m_pid2.atGoal();
-    }
+//    public boolean ArmAtGoal() {
+//        return m_pid1.atGoal() && m_pid2.atGoal();
+//    }
     //use this to move the arm from -90 degrees to 20 degrees at 0.9 DutyCycle and then hold with FeedFoward
     public Command tuneAngle2(){
         return new InstantCommand(()->{
@@ -449,55 +466,57 @@ public class Arm implements Subsystem {
         })
         .andThen(new WaitUntilCommand(()-> current_second_joint_angle_relative_to_ground >5||current_second_joint_angle_relative_to_ground <-185))
         .andThen(new InstantCommand(()-> {
+            dashboard.addData("ARM2 VEL AVG:",arm2velavg);
+            dashboard.addData("ARM2 ACC AVG:",arm2accavg);
             arm2.set(0);
             disableFeedFoward =false;
         }));
     }
     private void setState1(Positions pos) {
-        m_pid1.setConstraints(pos.constraints1);
+//        m_pid1.setConstraints(pos.constraints1);
         desired_first_joint_angle = pos.angle1;
-        m_pid1.reset(current_first_joint_angle_relative_to_ground);
-        m_pid1.setGoal(desired_first_joint_angle);
+//        m_pid1.reset(current_first_joint_angle_relative_to_ground);
+        m_pid1.setSetpoint(desired_first_joint_angle);
         servo.setPosition(pos.servo);
         goalIsSet1 = true;
     }
 
     public void setState2(Positions pos) {
-        m_pid2.setConstraints(pos.constraints2);
+//        m_pid2.setConstraints(pos.constraints2);
         desired_second_joint_angle = pos.angle2;
-        m_pid2.reset(current_second_joint_angle_relative_to_ground);
-        m_pid2.setGoal(desired_second_joint_angle);
+//        m_pid2.reset(current_second_joint_angle_relative_to_ground);
+        m_pid2.setSetpoint(desired_second_joint_angle);
         servo_desired_position = pos.servo;
         goalIsSet2 = true;
     }
 
     private void setStateBoth(Positions pos) {
-        m_pid1.setConstraints(pos.constraints2);
+//        m_pid1.setConstraints(pos.constraints2);
         desired_first_joint_angle = pos.angle1;
-        m_pid1.reset(current_first_joint_angle_relative_to_ground);
-        m_pid1.setGoal(pos.angle1);
+//        m_pid1.reset(current_first_joint_angle_relative_to_ground);
+        m_pid1.setSetpoint(pos.angle1);
         servo.setPosition(pos.servo);
         goalIsSet1 = true;
 
-        m_pid2.setConstraints(pos.constraints1);
+//        m_pid2.setConstraints(pos.constraints1);
         desired_second_joint_angle = pos.angle2;
-        m_pid2.reset(current_second_joint_angle_relative_to_ground);
+//        m_pid2.reset(current_second_joint_angle_relative_to_ground);
         servo_desired_position = pos.servo;
         goalIsSet2 = true;
-        m_pid2.setGoal(pos.angle2);
+        m_pid2.setSetpoint(pos.angle2);
         state = pos;
 
     }
 
     private Command moveBoth(Positions pos){
-        return new InstantCommand(()->setStateBoth(pos)).andThen(new WaitUntilCommand(()-> m_pid1.atGoal()&&m_pid2.atGoal()))
+        return new InstantCommand(()->setStateBoth(pos)).andThen(new WaitUntilCommand(()-> m_pid1.atSetpoint()&&m_pid2.atSetpoint()))
                 .andThen(new InstantCommand(() -> state = pos));
     }
     public Command goTo(Positions pos) {
         Supplier<Command> gt = ()->moveBoth(pos);
 
         ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
-                        new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atGoal() && m_pid2.atGoal()))
+                        new InstantCommand(()->setStateBoth(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atSetpoint() && m_pid2.atSetpoint()))
                         .andThen(moveBoth(Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(new InstantCommand(() -> state = Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(gt.get()),
@@ -524,11 +543,11 @@ public class Arm implements Subsystem {
     }
 
     public Command goToState1(Positions pos) {
-        return new InstantCommand(() -> setState1(pos)).andThen(new WaitUntilCommand(() -> m_pid1.atGoal()));
+        return new InstantCommand(() -> setState1(pos)).andThen(new WaitUntilCommand(() -> m_pid1.atSetpoint()));
     }
 
     public Command goToState2(Positions pos) {
-        return new InstantCommand(() -> setState2(pos)).andThen(new WaitUntilCommand(() -> m_pid2.atGoal()));
+        return new InstantCommand(() -> setState2(pos)).andThen(new WaitUntilCommand(() -> m_pid2.atSetpoint()));
     }
 
     public Command setHighScore() {

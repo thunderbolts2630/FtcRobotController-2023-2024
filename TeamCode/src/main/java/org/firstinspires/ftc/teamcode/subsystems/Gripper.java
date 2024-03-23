@@ -47,8 +47,8 @@ public class Gripper implements Subsystem {
     }
     @Override
     public void periodic() {
-        serv0.setPosition(isOpen0?0:0.34);
-        serv1.setPosition(isOpen1?0.8:0.34);
+        serv0.setPosition(isOpen0?0:0.36);
+        serv1.setPosition(isOpen1?0.8:0.32);
 
         dashboard.addData("loop time",elapsedTime.milliseconds());
         elapsedTime.reset();

@@ -154,6 +154,7 @@ public class Constants {
 
             public static double maxVelocity2=150;
             public static double maxAcceleration2=150;
+            public static double FFprecent=0.9;
         }
         public static double ffConv=12;
 

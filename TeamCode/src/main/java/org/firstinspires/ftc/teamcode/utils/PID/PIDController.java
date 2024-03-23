@@ -4,6 +4,8 @@
 
 package org.firstinspires.ftc.teamcode.utils.PID;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.utils.Math.*;
 /** Implements a PID control loop. */
 public class PIDController {
@@ -54,6 +56,7 @@ public class PIDController {
     private boolean m_haveSetpoint;
     private boolean m_resetAccumilatorAtSetPoint;
     private double m_AccumilatorTolerance;
+    private ElapsedTime time;
 
 
     /**
@@ -84,6 +87,9 @@ public class PIDController {
         if (period <= 0) {
             throw new IllegalArgumentException("Controller period must be a non-zero positive number!");
         }
+        time=new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        time.reset();
+        time.startTime();
         m_period = period;
         m_resetAccumilatorAtSetPoint=false;
         m_AccumilatorTolerance=0;
@@ -343,6 +349,8 @@ public class PIDController {
      * @return The next controller output.
      */
     public double calculate(double measurement) {
+        double dt=time.seconds();
+        time.reset();
         m_measurement = measurement;
         m_prevError = m_positionError;
         m_haveMeasurement = true;
@@ -354,12 +362,12 @@ public class PIDController {
             m_positionError = m_setpoint - m_measurement;
         }
 
-        m_velocityError = (m_positionError - m_prevError) / m_period;
+        m_velocityError = (m_positionError - m_prevError) / dt;
 
         if(Math.abs(measurement-m_setpoint)<m_izone){
                 m_totalError =
                         MathUtil.clamp(
-                                m_totalError + m_positionError * m_period,
+                                m_totalError + m_positionError * dt,
                                 m_minimumIntegral/m_ki,
                                 m_maximumIntegral/m_ki);
         }

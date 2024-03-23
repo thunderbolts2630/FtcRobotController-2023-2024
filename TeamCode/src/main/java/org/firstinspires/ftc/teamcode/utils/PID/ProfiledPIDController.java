@@ -4,6 +4,8 @@
 
 package org.firstinspires.ftc.teamcode.utils.PID;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.utils.Math.*;
 
 /**
@@ -30,7 +32,7 @@ public class ProfiledPIDController  {
    */
   public ProfiledPIDController(
       double Kp, double Ki, double Kd, TrapezoidProfile.Constraints constraints) {
-    this(Kp, Ki, Kd, constraints, 0.02);
+    this(Kp, Ki, Kd, constraints, 0.03);
   }
 
   /**
