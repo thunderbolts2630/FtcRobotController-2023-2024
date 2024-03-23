@@ -218,12 +218,14 @@ public class Constants {
         public static final PIDController PIDx = new PIDController(kpX,kiX,kdX);
         @Config
         public static class PIDConstants {
-            public static double Xkp = 0;
-            public static double Xki = 0;
+            public static double Xkp = 0.85;
+            public static double Xki = 1;
             public static double Xkd = 0;
             public static double Ykp = 0;
             public static double Yki = 0;
             public static double Ykd = 0;
+            public static double XiZone=0.1;
+            public static double YiZone=0.05;
 
             /*
                         values from kookybotz's

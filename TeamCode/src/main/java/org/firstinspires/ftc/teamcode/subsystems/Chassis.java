@@ -219,6 +219,7 @@ public class Chassis implements Subsystem {
         m_rotationpid.setPID(Ykp,Yki,Ykd);
         m_pidX.setPID(Xkp,Xki,Xkd);
         m_rotationpid.setTolerance(tolerance);
+        m_pidX.setIzone(XiZone);
         m_rotationpid.setIzone(rotIzone);
         odometry.updatePose();//todo: uncomment when starting to use odometry
         m_pidX.setPID(Xkp,Xki,Xkd);
@@ -229,6 +230,8 @@ public class Chassis implements Subsystem {
 //        dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
         dashboardTelemetry.addData("pose odometry angle: ", odometry.getPose().getRotation().getDegrees());
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
+        dashboardTelemetry.addData("x error:", m_pidX.getSetpoint()-odometry.getPose().getX());
+        dashboardTelemetry.addData("Y error:", m_pidY.getSetpoint()-odometry.getPose().getY());
 
         dashboardTelemetry.addData("left encoder", m_leftEncoder.getPosition());
         dashboardTelemetry.addData("center encoder", m_centerEncoder.getPosition());
@@ -308,16 +311,16 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(double desiredAngleChange){
-        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngleChange+m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).until(()->m_rotationpid.atSetpoint()));
+        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngleChange+m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).until(()->m_rotationpid.atSetpoint())).andThen(stopMotor());
 
     }
 
    public Command goToX(double desiredXChange){
-       return new InstantCommand(()->m_pidX.setSetpoint(desiredXChange+odometry.getPose().getX())).andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)).until(()->m_pidX.atSetpoint()));
+       return new InstantCommand(()->m_pidX.setSetpoint(desiredXChange+odometry.getPose().getX())).andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)).until(()->m_pidX.atSetpoint())).andThen(stopMotor());
    }
 
 public Command goToY(double desiredYChange){
-       return new InstantCommand(()->m_pidY.setSetpoint(desiredYChange+odometry.getPose().getY())).andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atSetpoint())));
+       return new InstantCommand(()->m_pidY.setSetpoint(desiredYChange+odometry.getPose().getY())).andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atSetpoint()))).andThen(stopMotor());
    }
 
 }
