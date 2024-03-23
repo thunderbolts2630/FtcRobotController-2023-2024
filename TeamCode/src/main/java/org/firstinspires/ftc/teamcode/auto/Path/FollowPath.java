@@ -128,7 +128,8 @@ public class FollowPath extends BTCommand {
 //                in.get("kI"),
 //                in.get("kD")
 //        );
-        m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);
+
+        m_resetOdometry.accept(m_trajectory.sample(0).poseMeters);//todo: this could (should?) be removed when combining multiple follow path, can also use the gyro
         m_controller.reset();
         m_controller.m_thetaController.setPID(PIDTheta.kpT,PIDTheta.kiT,PIDTheta.kdT);
         m_controller.m_thetaController.setConstraints(new TrapezoidProfile.Constraints(PIDTheta.maxVelocity,PIDTheta.maxAcceleration));
@@ -169,11 +170,14 @@ public class FollowPath extends BTCommand {
         afterFF.vyMetersPerSecond= chassisSpeeds.vyMetersPerSecond/RobotMaxVelFront;
         afterFF.vxMetersPerSecond=chassisSpeeds.vxMetersPerSecond/RobotMaxVelSide;
         afterFF.omegaRadiansPerSecond=chassisSpeeds.omegaRadiansPerSecond/robotThetaVelocityMax;
-
+        //this last line might not be needed
         afterFF.vxMetersPerSecond=chassisSpeeds.vxMetersPerSecond+calculateFF(afterFF.vxMetersPerSecond);
         return  afterFF;
     }
     private double calculateFF(double velocity) {
+        if(velocity<ffminVel) {
+            return velocity;
+        }
         return ffks * Math.signum(velocity) + ffkv * velocity ;
     }
 

@@ -93,6 +93,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     public void tune(){
 //        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
+
     }
 
     //bind commands to trigger
@@ -122,6 +123,19 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setPickup()), false, DPAD_RIGHT);
 
     }
+
+    public FollowPath.FellowPathConfig fellowPathConfigGen(Chassis m_chassis, @Nullable Rotation2d desiredRotation) {
+        BTHolonomicDriveController controller =new BTHolonomicDriveController(new PIDController(0,0,0),new PIDController(0,0,0),new ProfiledPIDController(0,0,0,new TrapezoidProfile.Constraints(0,0)));
+        return new FollowPath.FellowPathConfig(
+                m_chassis::getPosition,
+                controller,
+                ()->desiredRotation,
+                m_chassis::chassisSpeedDrive,
+                m_chassis::resetOdmetry,
+                m_chassis
+        );
+    }
+
 
     public Command FarBlueAutoSimple() {
         return new SequentialCommandGroup(
@@ -509,19 +523,6 @@ public Command leftCloseRedPath() {
                 m_arm.setIdle()
         );
     }
-
-    public FollowPath.FellowPathConfig fellowPathConfigGen(Chassis m_chassis, @Nullable Rotation2d desiredRotation) {
-        BTHolonomicDriveController controller =new BTHolonomicDriveController(new PIDController(0,0,0),new PIDController(0,0,0),new ProfiledPIDController(0,0,0,new TrapezoidProfile.Constraints(0,0)));
-        return new FollowPath.FellowPathConfig(
-                m_chassis::getPosition,
-                controller,
-                ()->desiredRotation,
-                m_chassis::chassisSpeedDrive,
-                m_chassis::resetOdmetry,
-                m_chassis
-        );
-    }
-
 
 
 }
