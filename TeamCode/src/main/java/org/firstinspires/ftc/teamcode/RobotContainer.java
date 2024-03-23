@@ -93,7 +93,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     public void tune(){
         m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
-            m_controller2.assignCommand(followPath(TrajectoryFactory._forward),,BUTTON_UP);
+        m_controller2.assignCommand(m_chassis.goToX(1),false,BUTTON_UP);
+        m_controller2.assignCommand(m_chassis.goToY(1),false,BUTTON_DOWN);
+        m_controller2.assignCommand(m_chassis.goToDegrees(90),false,BUTTON_LEFT);
     }
 
 

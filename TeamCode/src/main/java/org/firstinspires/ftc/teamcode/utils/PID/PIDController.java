@@ -213,6 +213,7 @@ public class PIDController {
     public void setSetpoint(double setpoint) {
         m_setpoint = setpoint;
         m_haveSetpoint = true;
+        m_haveMeasurement=false;
 
         if (m_continuous) {
             double errorBound = (m_maximumInput - m_minimumInput) / 2.0;
