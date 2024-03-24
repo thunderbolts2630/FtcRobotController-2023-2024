@@ -88,18 +88,19 @@ public class Constants {
         }
   */
         public enum Positions{
-            SCORE(98,-180,0.4,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
-            IDLE(61,-176,0.32,new TrapezoidProfile.Constraints(50,50),new TrapezoidProfile.Constraints(50,50)),
+            SCORE(98,-180,0.97,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
+            IDLE(61,-166,0.32,new TrapezoidProfile.Constraints(50,50),new TrapezoidProfile.Constraints(50,50)),
             MIDDLEPLUS(95,-113,0.48,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
             PICKUP_BAKC_LAST_STEP(95,-123,0.2,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1), new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2,ArmProfile.maxAcceleration2)),
-            HIGHSCORE(102,-210,0.32,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 3/17 too fast
+            HIGHSCORE(102,-210,0.87,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 3/17 too fast
             PICKUP(63,-78,0.65, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             PICKUP_FRONT(158,-125,0.96, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
-            MID_PICKUP_FRONT(120,-105,0.96, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
+            MID_PICKUP_FRONT(120,-130,1, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDPICKUP(80,-40,0.2, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
             MIDDLE(90,-90,0.23, new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),// 2/14 checked
-            LOWSCORE(98,-165,0.55,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
-            Mid(90,-100,0.23,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2));
+            LOWSCORE(98,-165,0.45,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
+            Mid(90,-100,0.23,new TrapezoidProfile.Constraints(ArmProfile.maxVelocity1,ArmProfile.maxAcceleration1),new TrapezoidProfile.Constraints(ArmProfile.maxVelocity2, ArmProfile.maxAcceleration2)),
+           OPENDOORWAY(61,-200,0.32,new TrapezoidProfile.Constraints(50,50),new TrapezoidProfile.Constraints(50,50));
             public double angle1;
     public double angle2;
     public double servo;
@@ -194,38 +195,35 @@ public class Constants {
         public static final double RobotMaxVelFront = 1.63; // m/s
         public static final double RobotMaxVelSide = 0.89; // m/s
         public static final double RobotMaxAccFront = 1.47; // m/s^2
-        public static final BTTranslation2d FRW = new BTTranslation2d(0.145,0.137);
-        public static final BTTranslation2d BRW = new BTTranslation2d(0.145,-0.137 );
-        public static final BTTranslation2d FLW = new BTTranslation2d(-0.145,0.137);
-        public static final BTTranslation2d BLW = new BTTranslation2d(-0.145,-0.137);
-        public static SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(ffks,ffkv,ffka);
+        public static final BTTranslation2d FRW = new BTTranslation2d(0.145, 0.137);
+        public static final BTTranslation2d BRW = new BTTranslation2d(0.145, -0.137);
+        public static final BTTranslation2d FLW = new BTTranslation2d(-0.145, 0.137);
+        public static final BTTranslation2d BLW = new BTTranslation2d(-0.145, -0.137);
+        public static SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(ffks, ffkv, ffka);
 
         @Config
-        public static class ChassisFeedForward{
+        public static class ChassisFeedForward {
             public static double ffks = 0;//was 0.12
             public static double ffkv = 1;
             public static double ffka = 0;
-            public static double ffminVel=0.1;
+            public static double ffminVel = 0.1;
         }
 
-        public static final MecanumDriveKinematics kinematics = new MecanumDriveKinematics(FLW,FRW,BLW,BRW);
-        public static final double  robotThetaVelocityMax= 180; //degree per sec
-        public static final double  robotThetaAccMax= 180; //degree per sec^2
+        public static final MecanumDriveKinematics kinematics = new MecanumDriveKinematics(FLW, FRW, BLW, BRW);
+        public static final double robotThetaVelocityMax = 180; //degree per sec
+        public static final double robotThetaAccMax = 180; //degree per sec^2
 
-        public static final PIDController PIDy = new PIDController(kpY,kiY,kdY);
-        public static final ProfiledPIDController PIDt = new ProfiledPIDController(kpT,kiT,kdT,
-                new TrapezoidProfile.Constraints(RobotMaxVelFront,RobotMaxAccFront));
-        public static final PIDController PIDx = new PIDController(kpX,kiX,kdX);
+
         @Config
         public static class PIDConstants {
-            public static double Xkp = 0.85;
-            public static double Xki = 1;
-            public static double Xkd = 0;
+            public static double Xkp = 3;
+            public static double Xki = 0.05;
+            public static double Xkd = 0.5;
             public static double Ykp = 0;
             public static double Yki = 0;
             public static double Ykd = 0;
-            public static double XiZone=0.1;
-            public static double YiZone=0.05;
+            public static double XiZone = 0.1;
+            public static double YiZone = 0.05;
 
             /*
                         values from kookybotz's
@@ -245,18 +243,7 @@ public class Constants {
                         public static PIDFController yController = new PIDFController(yP, 0.0, yD, 0);
                         public static PIDFController hController = new PIDFController(hP, 0.0, hD, 0);
                          */
-            @Config
-            public static class PIDFront {
-                public static double kpX = 0;
-                public static double kiX = 0;
-                public static double kdX = 0;
-            }
-            @Config
-            public static class PIDSide {
-                public static double kpY = 0;
-                public static double kiY = 0;
-                public static double kdY = 0;
-            }
+
             @Config
             public static class PIDTheta {
                 public static double kpT = 0;
@@ -265,37 +252,21 @@ public class Constants {
                 public static double maxVelocity = 0;
                 public static double maxAcceleration = 0;
             }
-
-            public static double kpX = 0;
-            public static double kiX = 0;
-            public static double kdX = 0;
-            public static double kpY = 0;
-            public static double kiY = 0;
-            public static double kdY = 0;
-            public static double kpT = 0;
-            public static double kiT = 0;
-            public static double kdT = 0;
-            public static double kp = 0;
-            public static double ki = 0;
-            public static double kd = 0;
-            public static double kff = 0;
         }
     }
 
 
+        final public static double cameraAngle = 0;
 
-
-
-    final public static double cameraAngle = 0;
-    public static class  Climb{
-        public static final double climb_max_speed = 0;// todo: this is not calibrated
-        public static final double climb_max_accel = 0;// todo: this is not calibrated
-        public static final double kp = 0;// todo: this is not calibrated
-        public static final double ki = 0;// todo: this is not calibrated
-        public static final double kd = 0;// todo: this is not calibrated
-        public static final double kf = 0;// todo: this is not calibrated
-        public static final int max_ticks = 3000;
-        public static final int min_ticks = -300;
+        public static class Climb {
+            public static final double climb_max_speed = 0;// todo: this is not calibrated
+            public static final double climb_max_accel = 0;// todo: this is not calibrated
+            public static final double kp = 0;// todo: this is not calibrated
+            public static final double ki = 0;// todo: this is not calibrated
+            public static final double kd = 0;// todo: this is not calibrated
+            public static final double kf = 0;// todo: this is not calibrated
+            public static final int max_ticks = 3000;
+            public static final int min_ticks = -300;}
 
 
 //    public enum ArmStates {
@@ -312,5 +283,5 @@ public class Constants {
 //        }
 //    }
 //
-}
-}
+        }
+

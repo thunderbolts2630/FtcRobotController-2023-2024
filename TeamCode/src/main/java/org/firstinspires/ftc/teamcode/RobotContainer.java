@@ -12,6 +12,7 @@ import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.DPAD_
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.*;
 import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_X;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -25,7 +26,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.auto.Path.FollowPath;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
@@ -39,7 +39,6 @@ import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
 import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
-import org.firstinspires.ftc.teamcode.utils.TrajectoryFactory;
 
 import java.util.List;
 
@@ -61,7 +60,14 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     VoltageSensor voltage_sensor;
     public PixelDetection m_pixelDetection;
     public static double armAccAdjustment = 0;
-    public static RobotContainer m_instance;
+    public double slowDrive=1;
+    @Config
+    public static class PidTest{
+        public static double desiredX = 0;
+        public static double desiredY = 0;
+        public static double desiredDegrees = 0;
+
+    }
 
 
     public RobotContainer(HardwareMap map, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
@@ -99,47 +105,35 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
 
 
+    public double squareInput(double input){
+        return Math.signum(input)*Math.pow(input,2);
+    }
     //bind commands to trigger
     public void oneDriver(){
 
         m_controller.assignCommand(m_chassis.fieldRelativeDrive(
-                        () -> -m_controller.left_y.getAsDouble(),
-                        m_controller.left_x,
-                        () -> m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble()),
+                        () -> squareInput(-m_controller.left_y.getAsDouble()),
+                        () -> squareInput(m_controller.left_x.getAsDouble()),
+                        () -> squareInput(m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble())),
                 true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
         m_controller.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
 
 
-        m_controller.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_RIGHT);
-        m_controller.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_LEFT);
+        m_controller.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_RIGHT);
+        m_controller.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_LEFT);
 //
-        m_controller.assignCommand(m_plane.shootPlane(), true, BUTTON_DOWN);
-        m_controller.assignCommand(m_plane.resetPlane(), true, BUTTON_UP);
+        m_controller.assignCommand(m_plane.shootPlane(), false, BUTTON_DOWN);
+        m_controller.assignCommand(m_plane.resetPlane(), false, BUTTON_UP);
 
         m_controller.assignCommand(m_arm.toggleFF(), false, BUTTON_RIGHT);
 
+        m_controller.assignCommand(m_arm.openDoorway(),false,BUTTON_DOWN);
+        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setHighScore()).alongWith(m_chassis.setDriveSpeed(0.5)), false, DPAD_UP);
+        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setScore()).alongWith(m_chassis.setDriveSpeed(0.5)), false, DPAD_DOWN);
+        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()).alongWith(m_chassis.setDriveSpeed(1)), false, DPAD_LEFT);
+        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setFrontPickup()).alongWith(m_chassis.setDriveSpeed(0.8)), false, DPAD_RIGHT);
+        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setLowScore()).alongWith(m_chassis.setDriveSpeed(0.5)), false, BUTTON_LEFT);
 
-        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setHighScore()), false, DPAD_UP);
-        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setScore()), false, DPAD_DOWN);
-        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()), false, DPAD_LEFT);
-        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setFrontPickup()), false, BUTTON_LEFT);
-        m_controller.assignCommand(m_gripper.closeBoth().andThen(m_arm.setPickup()), false, DPAD_RIGHT);
-
-    }
-
-    public FollowPath followPath(Trajectory fromTrajectoryFactory){
-        return new FollowPath(fromTrajectoryFactory,fellowPathConfigGen(m_chassis,null));
-    }
-    public FollowPath.FollowPathConfig fellowPathConfigGen(Chassis m_chassis, @Nullable Rotation2d desiredRotation) {
-        BTHolonomicDriveController controller =new BTHolonomicDriveController(new PIDController(0,0,0),new PIDController(0,0,0),new ProfiledPIDController(0,0,0,new TrapezoidProfile.Constraints(0,0)));
-        return new FollowPath.FollowPathConfig(
-                m_chassis::getPosition,
-                controller,
-                ()->desiredRotation,
-                m_chassis::chassisSpeedDrive,
-                m_chassis::resetOdmetry,
-                m_chassis
-        );
     }
 
 

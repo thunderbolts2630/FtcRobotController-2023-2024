@@ -549,13 +549,12 @@ public class Arm implements Subsystem {
     }
     public Command goTo(Positions pos) {
         Supplier<Command> gt =()-> new ConditionalCommand(
-                setServo(pos,90).andThen(moveBoth(Positions.MID_PICKUP_FRONT)).andThen(new WaitCommand(20)).andThen(moveBoth(pos)),
+                setServo(pos,150).andThen(goToState1(Positions.MID_PICKUP_FRONT).andThen(goToState1(Positions.MID_PICKUP_FRONT))).andThen(new WaitCommand(20)).andThen(moveBoth(pos)),
                 moveBoth(pos),
                 ()->pos==Positions.PICKUP_FRONT);
 
-        ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
-                        setServo(Positions.PICKUP_BAKC_LAST_STEP,40)
-                        .andThen(moveBoth(Positions.MIDPICKUP))
+        ConditionalCommand command= new ConditionalCommand(//return from PICKUP to fron
+                        moveBoth(Positions.MIDPICKUP)
                         .andThen(goToState1(Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(goToState2(Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(new InstantCommand(() -> state = Positions.PICKUP_BAKC_LAST_STEP))
@@ -596,6 +595,9 @@ public class Arm implements Subsystem {
         return goTo(Positions.HIGHSCORE);
     }
 
+    public Command openDoorway() {
+        return goTo(Positions.OPENDOORWAY);
+    }
 }
 
 

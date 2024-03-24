@@ -25,6 +25,8 @@ import org.firstinspires.ftc.teamcode.utils.BT.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.BT.BTCommand;
 import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
+import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
+import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
 import org.firstinspires.ftc.teamcode.utils.RunCommand;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTPose2d;
 import org.firstinspires.ftc.teamcode.utils.geometry.BTRotation2d;
@@ -46,7 +48,6 @@ public class Chassis implements Subsystem {
     private VoltageSensor voltage_sensor;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
-    private PIDFController m_pidcontroller;
     private PIDController m_rotationpid;
     private SimpleMotorFeedforward m_rotFF;
     private double prevTime = 0;
@@ -60,13 +61,17 @@ public class Chassis implements Subsystem {
     private MotorEx motor_BR;
     private RevIMU gyro;
     private BTPose2d m_postitionFromTag;
-    private double maxVelocityX = 0;
-    private double maxVelocityY = 0;
-    private double maxVelocityTheta = 0;
-    private double maxAccelerationX = 0;
-    private double maxAccelerationTheta = 0;
-    private double maxAccelerationY = 0;
-    private PIDController m_pidX;
+    double slowDriver=1;
+    @Config
+    public static class SpeedsAndAcc {
+        public static double maxVelocityX = 1.6;
+        public static double maxVelocityY = 0.88;
+        public static double maxVelocityTheta = 0;
+        public static double maxAccelerationX = 1;
+        public static double maxAccelerationTheta = 0;
+        public static double maxAccelerationY = 1;
+    }
+    private ProfiledPIDController m_pidX;
     private Motor.Encoder m_leftEncoder;
     private Motor.Encoder m_centerEncoder;
     private Motor.Encoder m_rightEncoder;
@@ -74,7 +79,7 @@ public class Chassis implements Subsystem {
     public int test = 0;
 
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-    private PIDController m_pidY;
+    private ProfiledPIDController m_pidY;
 
     public Command fieldRelativeDrive(double i, double v, double i1) {
         return new InstantCommand();
@@ -118,8 +123,8 @@ public class Chassis implements Subsystem {
             hasReset=true;
         }
         gyro.invertGyro();
-        m_pidX = new PIDController(Xkp,Xki,Xkd);
-        m_pidY = new PIDController(Ykp,Yki,Ykd);
+        m_pidX = new ProfiledPIDController(Xkp,Xki,Xkd,new TrapezoidProfile.Constraints(SpeedsAndAcc.maxVelocityX,SpeedsAndAcc.maxAccelerationX));
+        m_pidY = new ProfiledPIDController(Ykp,Yki,Ykd,new TrapezoidProfile.Constraints(SpeedsAndAcc.maxVelocityY,SpeedsAndAcc.maxAccelerationY));
 
         motor_FL.setInverted(false);
         motor_BL.setInverted(false);
@@ -144,7 +149,6 @@ public class Chassis implements Subsystem {
         time.startTime();
         m_rotFF = new SimpleMotorFeedforward(rks,1);
         prevTime = time.time();
-        m_pidcontroller = new PIDFController(kp, ki, kd, kff);
         m_rotationpid = new PIDController(rkp,rki,rkd);
         m_rotationpid.enableContinuousInput(-180,180);
         m_rotationpid.setTolerance(tolerance);
@@ -199,12 +203,15 @@ public class Chassis implements Subsystem {
         return new RunCommand(() -> {
 
             BTTranslation2d vector = new BTTranslation2d(sidewayVel.getAsDouble(), frontVel.getAsDouble());
-            BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(gyro.getHeading()));
+            BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(gyro.getHeading())).times(slowDriver);
             drive(rotated.getY(), rotated.getX(),  rotation.getAsDouble());
         }, this);
     }
 
 
+    public Command setDriveSpeed(double precent){
+        return new InstantCommand(()->slowDriver=precent);
+    }
     public Command stopMotor() {
         return new InstantCommand(()->{
             setMotors(0,0,0,0);
@@ -214,15 +221,15 @@ public class Chassis implements Subsystem {
 
     @Override
     public void periodic() {
-        m_pidcontroller.setPIDF(kp, ki, kd, kff);
         m_rotationpid.setPID(rkp,rki,rkd);
         m_rotationpid.setPID(Ykp,Yki,Ykd);
-        m_pidX.setPID(Xkp,Xki,Xkd);
         m_rotationpid.setTolerance(tolerance);
         m_pidX.setIzone(XiZone);
         m_rotationpid.setIzone(rotIzone);
         odometry.updatePose();//todo: uncomment when starting to use odometry
         m_pidX.setPID(Xkp,Xki,Xkd);
+        m_pidX.setConstraints(new TrapezoidProfile.Constraints(SpeedsAndAcc.maxVelocityX,SpeedsAndAcc.maxAccelerationX));
+
 
         calcVA();
 
@@ -230,8 +237,8 @@ public class Chassis implements Subsystem {
 //        dashboardTelemetry.addData("pose gyro angle: ", gyro.getHeading());
         dashboardTelemetry.addData("pose odometry angle: ", odometry.getPose().getRotation().getDegrees());
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
-        dashboardTelemetry.addData("x error:", m_pidX.getSetpoint()-odometry.getPose().getX());
-        dashboardTelemetry.addData("Y error:", m_pidY.getSetpoint()-odometry.getPose().getY());
+        dashboardTelemetry.addData("x error:", (m_pidX.getGoal().position-odometry.getPose().getX())*100);
+        dashboardTelemetry.addData("Y error:", (m_pidY.getGoal().position-odometry.getPose().getY())*100);
 
         dashboardTelemetry.addData("left encoder", m_leftEncoder.getPosition());
         dashboardTelemetry.addData("center encoder", m_centerEncoder.getPosition());
@@ -311,16 +318,23 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(double desiredAngleChange){
-        return new InstantCommand(()->m_rotationpid.setSetpoint(desiredAngleChange+m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).until(()->m_rotationpid.atSetpoint())).andThen(stopMotor());
+        return new InstantCommand(()->m_rotationpid.setSetpoint(degrees +m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).until(()->m_rotationpid.atSetpoint())).andThen(stopMotor());
 
     }
 
    public Command goToX(double desiredXChange){
-       return new InstantCommand(()->m_pidX.setSetpoint(desiredXChange+odometry.getPose().getX())).andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)).until(()->m_pidX.atSetpoint())).andThen(stopMotor());
+       return new InstantCommand(()->{
+           m_pidX.reset(odometry.getPose().getX());
+           m_pidX.setGoal(RobotContainer.PidTest.desiredX+odometry.getPose().getX());
+        })
+           .andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)).until(()->m_pidX.atGoal())).andThen(stopMotor());
    }
 
 public Command goToY(double desiredYChange){
-       return new InstantCommand(()->m_pidY.setSetpoint(desiredYChange+odometry.getPose().getY())).andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atSetpoint()))).andThen(stopMotor());
+       return new InstantCommand(()->{m_pidY.reset(odometry.getPose().getY());
+           m_pidY.setGoal(RobotContainer.PidTest.desiredY+odometry.getPose().getY());
+            })
+               .andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atGoal()))).andThen(stopMotor());
    }
 
 }

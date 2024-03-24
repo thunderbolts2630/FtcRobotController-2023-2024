@@ -161,6 +161,7 @@ public class ProfiledPIDController  {
    * @param goal The desired goal position.
    */
   public void setGoal(double goal) {
+
     m_goal = new TrapezoidProfile.State(goal, 0);
   }
 
