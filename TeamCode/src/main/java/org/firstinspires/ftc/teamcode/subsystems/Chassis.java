@@ -355,7 +355,7 @@ public Command goToY(double desiredYChange){
        return new InstantCommand(()->{
            resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
            m_pidY.reset();
-           m_pidY.setSetpoint(RobotContainer.PidTest.desiredY +odometry.getPose().getY());
+           m_pidY.setSetpoint(desiredYChange +odometry.getPose().getY());
             })
            .andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atSetpoint()))).andThen(stopMotor());
    }
