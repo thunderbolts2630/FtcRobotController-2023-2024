@@ -549,14 +549,15 @@ public class Arm implements Subsystem {
     }
     public Command goTo(Positions pos) {
         Supplier<Command> gt =()-> new ConditionalCommand(
-                setServo(pos,60).andThen(moveBoth(Positions.MID_PICKUP_FRONT)).andThen(new WaitCommand(20)).andThen(moveBoth(pos)),
+                setServo(pos,90).andThen(moveBoth(Positions.MID_PICKUP_FRONT)).andThen(new WaitCommand(20)).andThen(moveBoth(pos)),
                 moveBoth(pos),
                 ()->pos==Positions.PICKUP_FRONT);
 
         ConditionalCommand command= new ConditionalCommand(//return from PICKUP to front
-                        new InstantCommand(()->setState1(Positions.MIDPICKUP)).andThen(new WaitUntilCommand(()->m_pid1.atSetpoint()))
-                        .andThen(new InstantCommand(()->setState2(Positions.MIDPICKUP))).andThen(new WaitUntilCommand(()->m_pid2.atSetpoint()))
-                        .andThen(moveBoth(Positions.PICKUP_BAKC_LAST_STEP))
+                        setServo(Positions.PICKUP_BAKC_LAST_STEP,40)
+                        .andThen(moveBoth(Positions.MIDPICKUP))
+                        .andThen(goToState1(Positions.PICKUP_BAKC_LAST_STEP))
+                        .andThen(goToState2(Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(new InstantCommand(() -> state = Positions.PICKUP_BAKC_LAST_STEP))
                         .andThen(gt.get()),
                 gt.get(),
@@ -569,7 +570,9 @@ public class Arm implements Subsystem {
 
     public Command setPickup() {
         return new ConditionalCommand(
-                (moveBoth(Positions.MIDPICKUP))
+                setServo(Positions.PICKUP_BAKC_LAST_STEP,40)
+                .andThen(moveBoth(Positions.PICKUP_BAKC_LAST_STEP))
+                .andThen(moveBoth(Positions.MIDPICKUP))
                 .andThen(moveBoth(Positions.PICKUP))
                 .andThen(new InstantCommand(() -> state = Positions.PICKUP)),
                 goTo(Positions.MIDPICKUP).andThen(goTo(Positions.PICKUP)),
