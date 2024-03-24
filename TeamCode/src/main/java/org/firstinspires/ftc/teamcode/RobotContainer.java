@@ -135,7 +135,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     public Command farBlueCenterAutoBT() {
         return new SequentialCommandGroup(
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(90)))),
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
                 m_gripper.closeGripper1(),
                 m_gripper.closeGripper0(),
                 m_chassis.goToX(0.325),

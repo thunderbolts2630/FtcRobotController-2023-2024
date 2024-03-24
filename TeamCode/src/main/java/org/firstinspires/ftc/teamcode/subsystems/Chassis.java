@@ -80,7 +80,7 @@ public class Chassis implements Subsystem {
     public int test = 0;
 
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-    private ProfiledPIDController m_pidY;
+    private PIDController m_pidY;
 
     public Command fieldRelativeDrive(double i, double v, double i1) {
         return new InstantCommand();
@@ -125,7 +125,7 @@ public class Chassis implements Subsystem {
         }
         gyro.invertGyro();
         m_pidX = new ProfiledPIDController(Xkp,Xki,Xkd,new TrapezoidProfile.Constraints(SpeedsAndAcc.maxVelocityX,SpeedsAndAcc.maxAccelerationX));
-        m_pidY = new ProfiledPIDController(Ykp,Yki,Ykd,new TrapezoidProfile.Constraints(SpeedsAndAcc.maxVelocityY,SpeedsAndAcc.maxAccelerationY));
+        m_pidY = new PIDController(Ykp,Yki,Ykd);
 
         motor_FL.setInverted(false);
         motor_BL.setInverted(false);
@@ -159,6 +159,7 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("frontVelocityAuto", 0);
         dashboardTelemetry.addData("sideVelocityAuto", 0);
         dashboardTelemetry.addData("OmegaSpeedAuto", 0);
+        m_pidY.setAccumilatorResetTolerance(0.1);
 
     }
 
@@ -225,9 +226,12 @@ public class Chassis implements Subsystem {
     public void periodic() {
         m_rotationpid.setPID(rkp,rki,rkd);
         m_pidY.setPID(Ykp,Yki,Ykd);
+        m_pidY.setIntegratorRange(-PIDConstants.yMaxIntegral,PIDConstants.yMaxIntegral);
         m_rotationpid.setTolerance(tolerance);
         m_pidY.setIzone(YiZone);
+        m_pidY.setTolerance(PIDConstants.ytolerance);
         m_pidX.setIzone(XiZone);
+        m_pidY.setTolerance(xtolerance);
         m_rotationpid.setIzone(rotIzone);
         odometry.updatePose();//todo: uncomment when starting to use odometry
         m_pidX.setPID(Xkp,Xki,Xkd);
@@ -241,7 +245,7 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("pose odometry angle: ", odometry.getPose().getRotation().getDegrees());
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
         dashboardTelemetry.addData("x error:", (m_pidX.getGoal().position-odometry.getPose().getX())*100);
-        dashboardTelemetry.addData("Y error:", (m_pidY.getGoal().position-odometry.getPose().getY())*100);
+        dashboardTelemetry.addData("Y error:", (m_pidY.getSetpoint()-odometry.getPose().getY())*100);
         dashboardTelemetry.addData("theta error:", m_rotationpid.getPositionError());
         dashboardTelemetry.addData("theta setpoint", m_rotationpid.getSetpoint().position);
 //
@@ -323,7 +327,12 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(double desiredAngleChange){
-        return new InstantCommand(()->m_rotationpid.setGoal(Rotation2d.fromDegrees(desiredAngleChange).plus(odometry.getPose().getRotation()).getDegrees()))
+        return new InstantCommand(()->
+        {
+            resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+            m_rotationpid.setGoal(Rotation2d.fromDegrees(desiredAngleChange).plus(odometry.getPose().getRotation()).getDegrees());
+
+        })
                 .andThen(new RunCommand(()->{
                     double pidRes=m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees());
                     drive(0,0,pidRes);
@@ -335,6 +344,7 @@ public class Chassis implements Subsystem {
 
    public Command goToX(double desiredXChange){
        return new InstantCommand(()->{
+           resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
            m_pidX.reset(odometry.getPose().getX());
            m_pidX.setGoal(desiredXChange+odometry.getPose().getX());
         })
@@ -343,10 +353,11 @@ public class Chassis implements Subsystem {
 
 public Command goToY(double desiredYChange){
        return new InstantCommand(()->{
-           m_pidY.reset(odometry.getPose().getY());
-           m_pidY.setGoal(desiredYChange+odometry.getPose().getY());
+           resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+           m_pidY.reset();
+           m_pidY.setSetpoint(RobotContainer.PidTest.desiredY +odometry.getPose().getY());
             })
-           .andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atGoal()))).andThen(stopMotor());
+           .andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atSetpoint()))).andThen(stopMotor());
    }
 
 }

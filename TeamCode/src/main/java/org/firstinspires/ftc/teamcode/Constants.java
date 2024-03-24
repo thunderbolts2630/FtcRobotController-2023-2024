@@ -219,11 +219,14 @@ public class Constants {
             public static double Xkp = 3;
             public static double Xki = 0.05;
             public static double Xkd = 0.5;
-            public static double Ykp = 0;
-            public static double Yki = 0;
-            public static double Ykd = 0;
+            public static double Ykp = 4.5;
+            public static double Yki = 8;
+            public static double Ykd = 0.28;
             public static double XiZone = 0.1;
-            public static double YiZone = 0.05;
+            public static double YiZone = 0.06;
+            public static double yMaxIntegral=1;
+            public static double ytolerance=0.015;//1.5 cm
+            public static double xtolerance=0.025;//2 cm
 
             /*
                         values from kookybotz's
