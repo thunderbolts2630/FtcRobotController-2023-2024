@@ -121,13 +121,13 @@ public class Constants {
         }
         @Config
         public static class RotationPID{
-            public static double rkp = 0.0145;
-            public static double rki = 0.0006;
-            public static double rkd = 0;
+            public static double rkp = 0.03;
+            public static double rki = 0.005;
+            public static double rkd = 0.003;
             public static double rks = 0;
             public static double degrees =-100;
-            public static double tolerance = 2;
-            public static double rotIzone = 7;
+            public static double tolerance = 1;
+            public static double rotIzone = 5;
 
         }
 

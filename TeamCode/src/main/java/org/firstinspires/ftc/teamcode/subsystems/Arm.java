@@ -14,6 +14,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Translation2d;
+import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -34,7 +35,9 @@ import org.firstinspires.ftc.teamcode.utils.RunCommand;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -193,19 +196,19 @@ public class Arm implements Subsystem {
         dashboard.addData("setpoint2", m_pid2.getSetpoint());
 //        dashboard.addData("goal1", m_pid1.getGoal().position);
 //        dashboard.addData("goal2", m_pid2.getGoal().position);
-        dashboard.addData("state", state.ordinal());
+//        dashboard.addData("state", state.ordinal());
         dashboard.addData("arm1 FF power",arm1FF);
         dashboard.addData("arm2 FF power",arm2FF);
-        dashboard.addData("arm1 velocity",profileArm1.stats.vel);
-        dashboard.addData("arm1 acc",profileArm1.stats.acc);
-        dashboard.addData("arm2 velocity",profileArm2.stats.vel);
-        dashboard.addData("arm2 acc",profileArm2.stats.acc);
-        dashboard.addData("arm2 amps",arm2.motorEx.getCurrent(CurrentUnit.AMPS));
-        dashboard.addData("arm1 amps",arm1.motorEx.getCurrent(CurrentUnit.AMPS));
+//        dashboard.addData("arm1 velocity",profileArm1.stats.vel);
+//        dashboard.addData("arm1 acc",profileArm1.stats.acc);
+//        dashboard.addData("arm2 velocity",profileArm2.stats.vel);
+//        dashboard.addData("arm2 acc",profileArm2.stats.acc);
+//        dashboard.addData("arm2 amps",arm2.motorEx.getCurrent(CurrentUnit.AMPS));
+//        dashboard.addData("arm1 amps",arm1.motorEx.getCurrent(CurrentUnit.AMPS));
         dashboard.addData("error 1",m_pid1.getPositionError());
         dashboard.addData("error 2",m_pid2.getPositionError());
 
-        dashboard.addData("servo angle ",servoAngleFF);
+//        dashboard.addData("servo angle ",servoAngleFF);
         dashboard.update();
 //        dashboard.addData("Arm2Mass distance from radious",arm2MassFromRadius);
 //        dashboard.addData("CoM 1",l1ff*first_arm_weight);
@@ -264,7 +267,7 @@ public class Arm implements Subsystem {
         calculateMotorOutput();
         updateMotorsOutput();
         displayTelemtry();
-
+//        servo.setPosition(calib.armServo);
 
     }
 

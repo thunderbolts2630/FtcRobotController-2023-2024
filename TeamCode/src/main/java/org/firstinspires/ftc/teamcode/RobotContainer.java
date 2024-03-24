@@ -14,12 +14,14 @@ import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.arcrobotics.ftclib.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -35,14 +37,8 @@ import org.firstinspires.ftc.teamcode.subsystems.pixelDetector.PixelDetection;
 import org.firstinspires.ftc.teamcode.subsystems.climb;
 import org.firstinspires.ftc.teamcode.subsystems.plane;
 import org.firstinspires.ftc.teamcode.utils.BT.BTController;
-import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
-import org.firstinspires.ftc.teamcode.utils.PID.PIDController;
-import org.firstinspires.ftc.teamcode.utils.PID.ProfiledPIDController;
-import org.firstinspires.ftc.teamcode.utils.PID.TrapezoidProfile;
 
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 
 public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
@@ -137,18 +133,25 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
 
 
-    public Command FarBlueAutoSimple() {
+    public Command farBlueCenterAutoBT() {
         return new SequentialCommandGroup(
-
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(5000),
-                m_chassis.fieldRelativeDrive(() -> 0.9, () -> 0, () -> 0).withTimeout(100),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(3000),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(90)))),
+                m_gripper.closeGripper1(),
+                m_gripper.closeGripper0(),
+                m_chassis.goToX(0.325),
+                m_chassis.stopMotor(),
+                m_arm.turnOnFF(),
+                new ParallelRaceGroup(m_arm.setFrontPickup(),new WaitCommand(2000)),
+                m_chassis.goToX(-0.25),
+                m_gripper.openGripper1(),
+                m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT),
+                m_gripper.closeGripper1(),
+                m_arm.setIdle()
 
         );
     }
 
-    public Command CloseBlueAutoSimple() {
+    public Command farBlueRightAutoBT() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(1700),
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)

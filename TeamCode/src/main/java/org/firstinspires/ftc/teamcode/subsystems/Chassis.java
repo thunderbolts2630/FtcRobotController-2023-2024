@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.geometry.Pose2d;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -48,7 +49,7 @@ public class Chassis implements Subsystem {
     private VoltageSensor voltage_sensor;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
-    private PIDController m_rotationpid;
+    private ProfiledPIDController m_rotationpid;
     private SimpleMotorFeedforward m_rotFF;
     private double prevTime = 0;
     private BTTransform2d velocity, prevVelocity = new BTTransform2d(), acceleration, prevAcceleration = new BTTransform2d();
@@ -149,9 +150,10 @@ public class Chassis implements Subsystem {
         time.startTime();
         m_rotFF = new SimpleMotorFeedforward(rks,1);
         prevTime = time.time();
-        m_rotationpid = new PIDController(rkp,rki,rkd);
+        m_rotationpid = new ProfiledPIDController(rkp,rki,rkd,new TrapezoidProfile.Constraints(180,180));
         m_rotationpid.enableContinuousInput(-180,180);
         m_rotationpid.setTolerance(tolerance);
+        m_rotationpid.setIntegratorRange(-1,1);
         register();
         dashboardTelemetry.addData("drive: ", 0);
         dashboardTelemetry.addData("frontVelocityAuto", 0);
@@ -222,8 +224,9 @@ public class Chassis implements Subsystem {
     @Override
     public void periodic() {
         m_rotationpid.setPID(rkp,rki,rkd);
-        m_rotationpid.setPID(Ykp,Yki,Ykd);
+        m_pidY.setPID(Ykp,Yki,Ykd);
         m_rotationpid.setTolerance(tolerance);
+        m_pidY.setIzone(YiZone);
         m_pidX.setIzone(XiZone);
         m_rotationpid.setIzone(rotIzone);
         odometry.updatePose();//todo: uncomment when starting to use odometry
@@ -239,25 +242,27 @@ public class Chassis implements Subsystem {
         dashboardTelemetry.addData("pose x:", odometry.getPose().getX());
         dashboardTelemetry.addData("x error:", (m_pidX.getGoal().position-odometry.getPose().getX())*100);
         dashboardTelemetry.addData("Y error:", (m_pidY.getGoal().position-odometry.getPose().getY())*100);
-
-        dashboardTelemetry.addData("left encoder", m_leftEncoder.getPosition());
-        dashboardTelemetry.addData("center encoder", m_centerEncoder.getPosition());
-        dashboardTelemetry.addData("right encoder", m_rightEncoder.getPosition());
-
-        dashboardTelemetry.addData("motor_BL",motor_BL.getVelocity());
-        dashboardTelemetry.addData("motor_BR",motor_BR.getVelocity());
-        dashboardTelemetry.addData("motor_FR",motor_FR.getVelocity());
-        dashboardTelemetry.addData("motor_FL",motor_FL.getVelocity());
-
-        dashboardTelemetry.addData("motor_BL current",motor_BL.motorEx.getCurrent(CurrentUnit.AMPS));
-        dashboardTelemetry.addData("motor_BR current",motor_BR.motorEx.getCurrent(CurrentUnit.AMPS));
-        dashboardTelemetry.addData("motor_FR current",motor_FR.motorEx.getCurrent(CurrentUnit.AMPS));
-        dashboardTelemetry.addData("motor_FL current",motor_FL.motorEx.getCurrent(CurrentUnit.AMPS));
+        dashboardTelemetry.addData("theta error:", m_rotationpid.getPositionError());
+        dashboardTelemetry.addData("theta setpoint", m_rotationpid.getSetpoint().position);
+//
+//        dashboardTelemetry.addData("left encoder", m_leftEncoder.getPosition());
+//        dashboardTelemetry.addData("center encoder", m_centerEncoder.getPosition());
+//        dashboardTelemetry.addData("right encoder", m_rightEncoder.getPosition());
+//
+//        dashboardTelemetry.addData("motor_BL",motor_BL.getVelocity());
+//        dashboardTelemetry.addData("motor_BR",motor_BR.getVelocity());
+//        dashboardTelemetry.addData("motor_FR",motor_FR.getVelocity());
+//        dashboardTelemetry.addData("motor_FL",motor_FL.getVelocity());
+//
+//        dashboardTelemetry.addData("motor_BL current",motor_BL.motorEx.getCurrent(CurrentUnit.AMPS));
+//        dashboardTelemetry.addData("motor_BR current",motor_BR.motorEx.getCurrent(CurrentUnit.AMPS));
+//        dashboardTelemetry.addData("motor_FR current",motor_FR.motorEx.getCurrent(CurrentUnit.AMPS));
+//        dashboardTelemetry.addData("motor_FL current",motor_FL.motorEx.getCurrent(CurrentUnit.AMPS));
 
         RobotXAcc = odometry.getAcceleration();
         RobotContainer.armAccAdjustment = RobotXAcc;
-        dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
-        dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
+//        dashboardTelemetry.addData("RobotXAcc", RobotXAcc);
+//        dashboardTelemetry.addData("robotVolt", voltage_sensor.getVoltage());
         dashboardTelemetry.update();
         if (useTune==1) {
             setMotors(ChassisPower, ChassisPower, ChassisPower, ChassisPower);
@@ -318,23 +323,30 @@ public class Chassis implements Subsystem {
     }
 
     public Command goToDegrees(double desiredAngleChange){
-        return new InstantCommand(()->m_rotationpid.setSetpoint(degrees +m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).andThen(new RunCommand(()->drive(0,0,m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees()))).until(()->m_rotationpid.atSetpoint())).andThen(stopMotor());
+        return new InstantCommand(()->m_rotationpid.setGoal(Rotation2d.fromDegrees(desiredAngleChange).plus(odometry.getPose().getRotation()).getDegrees()))
+                .andThen(new RunCommand(()->{
+                    double pidRes=m_rotationpid.calculate(odometry.getPose().getRotation().getDegrees());
+                    drive(0,0,pidRes);
+                    dashboard.getTelemetry().addData("theta pid res",pidRes);
+                })
+                .until(()->m_rotationpid.atGoal())).andThen(stopMotor());
 
     }
 
    public Command goToX(double desiredXChange){
        return new InstantCommand(()->{
            m_pidX.reset(odometry.getPose().getX());
-           m_pidX.setGoal(RobotContainer.PidTest.desiredX+odometry.getPose().getX());
+           m_pidX.setGoal(desiredXChange+odometry.getPose().getX());
         })
            .andThen(new RunCommand(()->drive(m_pidX.calculate(odometry.getPose().getX()),0,0)).until(()->m_pidX.atGoal())).andThen(stopMotor());
    }
 
 public Command goToY(double desiredYChange){
-       return new InstantCommand(()->{m_pidY.reset(odometry.getPose().getY());
-           m_pidY.setGoal(RobotContainer.PidTest.desiredY+odometry.getPose().getY());
+       return new InstantCommand(()->{
+           m_pidY.reset(odometry.getPose().getY());
+           m_pidY.setGoal(desiredYChange+odometry.getPose().getY());
             })
-               .andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atGoal()))).andThen(stopMotor());
+           .andThen((new RunCommand(()->drive(0,m_pidY.calculate(odometry.getPose().getY()),0)).until(()->m_pidY.atGoal()))).andThen(stopMotor());
    }
 
 }
