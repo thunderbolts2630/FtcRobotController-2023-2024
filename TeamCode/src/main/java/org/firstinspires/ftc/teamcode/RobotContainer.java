@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.auto.Path.PositionCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 //import org.firstinspires.ftc.teamcode.subsystems.Gripper;
@@ -100,8 +101,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2.assignCommand(m_chassis.goToY(1),false,BUTTON_DOWN).whenInactive(m_chassis.stopMotor());
         m_controller2.assignCommand(m_chassis.goToDegrees(90),false,BUTTON_LEFT).whenInactive(m_chassis.stopMotor());
         m_controller2.assignCommand(m_arm.turnOnFF(),false,BUTTON_RIGHT).whenInactive(m_chassis.stopMotor());
-        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT_CLOSE),false,DPAD_UP);
-        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.IDLE),false,DPAD_DOWN);
+//        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT_CLOSE),false,DPAD_UP);
+//        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.IDLE),false,DPAD_DOWN);
+        m_controller2.assignCommand(new PositionCommand(new Pose2d(-24, 21.5, new Rotation2d(1.52)),m_chassis),true,DPAD_RIGHT);
     }
 
 

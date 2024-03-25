@@ -140,10 +140,10 @@ public class Chassis implements Subsystem {
         m_centerEncoder =  new MotorEx(map, "encoderLeft").encoder;// was switched dont have time ot solve 
         m_rightEncoder = rightEncoder;
         odometry = new BTposeEstimator(
-                () -> metersFormTicks(m_leftEncoder.getPosition()),//center and left switched
-                () -> metersFormTicks(m_rightEncoder.getPosition()),
-                () -> metersFormTicks(m_centerEncoder.getPosition()),
-                () -> gyro.getHeading(),
+                () -> metersFormTicks(m_leftEncoder.getPosition())/39.3701,//center and left switched
+                () -> metersFormTicks(m_rightEncoder.getPosition())/39.3701,//39.3701 converts to inches
+                () -> metersFormTicks(m_centerEncoder.getPosition())/39.3701,
+                () -> Math.toRadians(gyro.getHeading()),
                 TRACKWIDTH, WHEEL_OFFSET);
         prevPos = odometry.getPose();
         time.reset();
@@ -319,7 +319,7 @@ public class Chassis implements Subsystem {
         drive(chassisSpeeds.vyMetersPerSecond,chassisSpeeds.vxMetersPerSecond,chassisSpeeds.omegaRadiansPerSecond);
 
     }
-    private void drive(double frontVel, double sidewayVel, double rotation) {
+    public void drive(double frontVel, double sidewayVel, double rotation) {
         double leftFrontPower  = frontVel + sidewayVel + rotation;
         double rightFrontPower = frontVel - sidewayVel - rotation;
         double leftBackPower   = frontVel - sidewayVel + rotation;
