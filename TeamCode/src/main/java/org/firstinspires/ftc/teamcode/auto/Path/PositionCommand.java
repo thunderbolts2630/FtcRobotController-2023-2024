@@ -36,7 +36,7 @@ public class PositionCommand extends CommandBase {
     private ElapsedTime stable;
 
     public static double STABLE_MS = 250;
-    public static double DEAD_MS = 2500;
+    public static double DEAD_MS = 10000;
 
     private final double  MAX_TRANSLATIONAL_SPEED = 0.5;
     private final double  MAX_ROTATIONAL_SPEED = 0.4;
@@ -50,6 +50,14 @@ public class PositionCommand extends CommandBase {
         xController.reset();
         yController.reset();
         hController.reset();
+    }
+
+    @Override
+    public void initialize() {
+        xController = new PIDFController(xP, 0.0, xD, 0);
+        yController = new PIDFController(yP, 0.0, yD, 0);
+        hController = new PIDFController(hP, 0.0, hD, 0);
+
     }
 
     /**
