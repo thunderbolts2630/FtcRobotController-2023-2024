@@ -566,6 +566,7 @@ public class Arm implements Subsystem {
                 () -> state == Positions.PICKUP || state == Positions.MIDPICKUP
         );
         command.addRequirements(this);
+
         return command;
 
     }

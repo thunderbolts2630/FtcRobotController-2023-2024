@@ -6,8 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RobotContainer;
-@Disabled
-//@Autonomous(name="centerAuto", group = "Linear Opmode")
+@Autonomous(name="centerAuto", group = "Linear Opmode")
 public class centerCloseBlueAuto extends CommandOpMode {
     RobotContainer robotContainer;
 
@@ -15,7 +14,7 @@ public class centerCloseBlueAuto extends CommandOpMode {
     public void initialize() {
         robotContainer = new RobotContainer(hardwareMap, telemetry, gamepad1, gamepad2);
         waitForStart();
-        robotContainer.centerCloseRedPath().schedule();
+        robotContainer.closeBlueCenterAutoBT().schedule();
         enable();
 
     }

@@ -14,11 +14,13 @@ import static org.firstinspires.ftc.teamcode.utils.BT.BTController.Buttons.LEFT_
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.FunctionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -26,6 +28,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
@@ -98,6 +101,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         m_controller2.assignCommand(m_chassis.goToX(1),false,BUTTON_UP).whenInactive(m_chassis.stopMotor());
         m_controller2.assignCommand(m_chassis.goToY(1),false,BUTTON_DOWN).whenInactive(m_chassis.stopMotor());
         m_controller2.assignCommand(m_chassis.goToDegrees(90),false,BUTTON_LEFT).whenInactive(m_chassis.stopMotor());
+        m_controller2.assignCommand(m_arm.turnOnFF(),false,BUTTON_RIGHT).whenInactive(m_chassis.stopMotor());
+        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT_CLOSE),false,DPAD_UP);
+        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.IDLE),false,DPAD_DOWN);
     }
 
 
@@ -135,7 +141,6 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
     public Command farBlueCenterAutoBT() {
         return new SequentialCommandGroup(
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
                 m_gripper.closeGripper1(),
                 m_gripper.closeGripper0(),
                 m_chassis.goToX(0.325),
@@ -150,19 +155,112 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
         );
     }
-
-    public Command farBlueRightAutoBT() {
+ public Command closeBlueCenterAutoBT() {
         return new SequentialCommandGroup(
-                m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(1700),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_gripper.closeGripper1(),
+                m_gripper.closeGripper0(),
+                m_chassis.goToX(0.12),
+                m_chassis.goToY(0.2),
+                m_chassis.goToDegrees(0),
+                m_chassis.stopMotor(),
+                m_arm.turnOnFF(),
+                m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT),
+                new WaitCommand(1000),
+                m_gripper.openGripper0(),
+                m_gripper.closeGripper0(),
+                m_arm.setIdle(),
+                m_chassis.goToY(-0.7),
+                m_chassis.goToDegrees(0),
+                m_chassis.goToX(0.12),
+                m_chassis.goToDegrees(-90),
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(0.22),
+                m_chassis.stopMotor(),
+                withTimeout(m_arm.setLowScore(),2000),
+                m_gripper.openGripper1(),
+                m_gripper.closeGripper1(),
+                m_arm.setIdle(),
+                m_chassis.goToDegrees(90),
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(-0.4),
+                m_chassis.stopMotor()
 
         );
     }
 
-    public Command TestAuto() {
+    public Command withTimeout(Command command,int msTimeout){
+        ElapsedTime time=new ElapsedTime();
+
+        return  new FunctionalCommand(()->{command.initialize(); time.reset();},command::execute,command::end,()->command.isFinished()||time.milliseconds()>msTimeout);
+    }
+    public Command closeBlueRightAutoBT() {
         return new SequentialCommandGroup(
-                m_chassis.fieldRelativeDrive(() -> 0, () -> -0.9, () -> 0).withTimeout(500),
-                m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(1)
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_gripper.closeGripper1(),
+                m_gripper.closeGripper0(),
+                m_chassis.goToY(-0.61),
+                m_chassis.stopMotor(),
+                m_chassis.goToDegrees(0),
+                m_chassis.stopMotor(),
+                m_chassis.goToX(0.2),
+                m_chassis.stopMotor(),
+                withTimeout(m_chassis.goToDegrees(92),3000),
+                m_chassis.stopMotor(),
+                m_arm.turnOnFF(),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT),2000).andThen(new WaitCommand(700)),
+                m_gripper.openGripper0().andThen(new WaitCommand(800)),
+                m_gripper.closeGripper0(),
+                withTimeout(m_arm.setIdle(),1500),
+                withTimeout(m_chassis.goToDegrees(-90),3000),
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(0.2),
+                m_chassis.goToY(0.25),
+                m_chassis.goToDegrees(0),
+                m_chassis.stopMotor(),
+                withTimeout(m_arm.setLowScore(),1200),
+                new WaitCommand(1000),
+                m_gripper.openGripper1().andThen(new WaitCommand(800)),
+                m_gripper.closeGripper1(),
+                m_arm.setIdle(),
+                withTimeout(m_chassis.goToDegrees(90),3000),
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(-0.5),
+                m_chassis.stopMotor()
+
+        );
+    }
+
+    public Command closeBlueLeftAutoBT() {
+        return new SequentialCommandGroup(
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_gripper.closeGripper1(),
+                m_gripper.closeGripper0(),
+                m_chassis.goToY(-0.3),
+                m_chassis.stopMotor(),
+                m_chassis.goToDegrees(0),
+                m_arm.turnOnFF(),
+                m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT_CLOSE),
+                new WaitCommand(1000),
+                m_gripper.openGripper0(),
+                m_gripper.closeGripper0(),
+                m_arm.setIdle(),
+                m_chassis.goToY(-0.4),
+                m_chassis.goToDegrees(0),
+                m_chassis.goToX(0.12),
+                m_chassis.stopMotor(),
+                m_chassis.goToDegrees(-90),
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(0.25),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),1200),
+                m_gripper.openGripper1().andThen(new WaitCommand(800)),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.HIGHLOWERLOWSCORE),1000),
+                m_gripper.closeGripper1(),
+                m_arm.setIdle(),
+                m_chassis.goToDegrees(90),
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(-0.25),
+                m_chassis.stopMotor()
 
         );
     }

@@ -70,7 +70,7 @@ public class HolonomicOdometry {
     }
 
     public void setPose(BTPose2d pose) {
-        previousAngle = pose.getRotation();
+//        previousAngle = pose.getRotation();
         robotPose = pose;
 
 
@@ -98,11 +98,7 @@ public class HolonomicOdometry {
             deltaRightEncoder=0;
             deltaLeftEncoder=0;
         }
-        Rotation2d angle = previousAngle.plus(
-                new Rotation2d(
-                        (deltaLeftEncoder - deltaRightEncoder) / m_trackWidth
-                )
-        );
+        Rotation2d angle = Rotation2d.fromDegrees(m_gyro.getAsDouble());
         prevLeftEncoder = leftEncoderPos;
         prevRightEncoder = rightEncoderPos;
         prevHorizontalEncoder = horizontalEncoderPos;

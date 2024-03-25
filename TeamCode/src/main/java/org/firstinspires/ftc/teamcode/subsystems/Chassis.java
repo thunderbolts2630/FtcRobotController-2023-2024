@@ -5,8 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.Subsystem;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
@@ -19,9 +17,11 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.RobotContainer;
-import org.firstinspires.ftc.teamcode.utils.BT.BTHolonomicDriveController;
 import org.firstinspires.ftc.teamcode.utils.BT.BTposeEstimator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.BT.BTCommand;
@@ -82,9 +82,7 @@ public class Chassis implements Subsystem {
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     private PIDController m_pidY;
 
-    public Command fieldRelativeDrive(double i, double v, double i1) {
-        return new InstantCommand();
-    }
+
 
     public static class ChassisMotorsFeedfoward{
         @Config
@@ -119,6 +117,7 @@ public class Chassis implements Subsystem {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         gyro = new RevIMU(map, "imu");
         gyro.init(parameters);
+
         if(!hasReset) {
             gyro.reset();
             hasReset=true;
@@ -163,6 +162,9 @@ public class Chassis implements Subsystem {
 
     }
 
+    public Orientation gyroHeading(){
+        return gyro.getRevIMU().getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    }
     public void resetOdmetry(Pose2d rst){
         odometry.reset(new BTPose2d(rst));
 
@@ -210,6 +212,14 @@ public class Chassis implements Subsystem {
             drive(rotated.getY(), rotated.getX(),  rotation.getAsDouble());
         }, this);
     }
+    public BTCommand fieldRelativeDrive(double frontVel, double sidewayVel, double rotation) {
+        return new RunCommand(() -> {
+
+            BTTranslation2d vector = new BTTranslation2d(sidewayVel, frontVel);
+            BTTranslation2d rotated = vector.rotateBy(BTRotation2d.fromDegrees(gyro.getHeading())).times(slowDriver);
+            drive(rotated.getY(), rotated.getX(),  rotation);
+        }, this);
+    }
 
 
     public Command setDriveSpeed(double precent){
@@ -238,6 +248,10 @@ public class Chassis implements Subsystem {
         m_pidX.setConstraints(new TrapezoidProfile.Constraints(SpeedsAndAcc.maxVelocityX,SpeedsAndAcc.maxAccelerationX));
 
 
+        Orientation orientation= gyroHeading();
+        dashboardTelemetry.addData("gyro angle first ",orientation.firstAngle);
+        dashboardTelemetry.addData("gyro angle second ",orientation.secondAngle);
+        dashboardTelemetry.addData("gyro angle third ",orientation.thirdAngle);
         calcVA();
 
         dashboardTelemetry.addData("pose y: ", odometry.getPose().getY());
@@ -329,7 +343,6 @@ public class Chassis implements Subsystem {
     public Command goToDegrees(double desiredAngleChange){
         return new InstantCommand(()->
         {
-            resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
             m_rotationpid.setGoal(Rotation2d.fromDegrees(desiredAngleChange).plus(odometry.getPose().getRotation()).getDegrees());
 
         })
@@ -344,7 +357,6 @@ public class Chassis implements Subsystem {
 
    public Command goToX(double desiredXChange){
        return new InstantCommand(()->{
-           resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
            m_pidX.reset(odometry.getPose().getX());
            m_pidX.setGoal(desiredXChange+odometry.getPose().getX());
         })
@@ -353,7 +365,6 @@ public class Chassis implements Subsystem {
 
 public Command goToY(double desiredYChange){
        return new InstantCommand(()->{
-           resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
            m_pidY.reset();
            m_pidY.setSetpoint(desiredYChange +odometry.getPose().getY());
             })
