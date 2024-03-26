@@ -203,7 +203,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_gripper.closeGripper0(),
                 m_chassis.goToY(-0.52),
                 m_chassis.stopMotor(),
-                m_chassis.goToDegrees(0),
+                withTimeout(m_chassis.goToDegrees(0),1000),
                 m_chassis.stopMotor(),
                 m_chassis.goToX(0.6),
                 m_chassis.stopMotor(),
@@ -241,7 +241,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_gripper.closeGripper0(),
                 m_chassis.goToY(-0.52),
                 m_chassis.stopMotor(),
-                m_chassis.goToDegrees(0),
+                withTimeout(m_chassis.goToDegrees(0),1000),
                 m_chassis.stopMotor(),
                 m_chassis.goToX(0.6),
                 m_chassis.stopMotor(),
@@ -284,7 +284,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_chassis.goToX(0.33),
                 m_chassis.goToY(0.29),//flipped
                 m_chassis.stopMotor(),
-                m_chassis.goToDegrees(0),
+                withTimeout(m_chassis.goToDegrees(0),800),
                 m_chassis.stopMotor(),
                 m_chassis.goToX(0.6),
                 m_chassis.stopMotor(),
@@ -363,7 +363,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
                 m_gripper.closeGripper1(),
                 m_gripper.closeGripper0(),
-                m_chassis.goToX(0.25),//added 5 cm
+                m_chassis.goToX(0.19),//removed 1 cm bc the y movement will likely drift it
                 withTimeout(m_chassis.goToY(-0.28),800),//flipped
                 withTimeout(m_chassis.goToDegrees(0),800),
                 m_chassis.stopMotor(),
@@ -380,14 +380,14 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_chassis.goToX(0.7),//after the Y movement the robot is probaly stuck at the wall so i tell it to move 70 cm from the wall
                 withTimeout(m_chassis.goToDegrees(90),1500),//flipped
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(0.62),//moves to towards the wall, unchanged, will probably need change
+                withTimeout(m_chassis.goToX(0.62),2500),//moves to towards the wall, unchanged, will probably need change
                 withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),2000),
                 new WaitCommand(600),
                 m_gripper.openGripper1(),
                 m_chassis.goToX(-0.1),
                 m_gripper.closeGripper1(),
                 m_arm.setIdle(),
-                m_chassis.goToDegrees(-90),//flipped
+                withTimeout(m_chassis.goToDegrees(-90),2500),//flipped
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
                 m_chassis.goToX(-0.8),
                 m_chassis.stopMotor()
