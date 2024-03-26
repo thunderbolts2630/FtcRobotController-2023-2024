@@ -554,7 +554,7 @@ public class Arm implements Subsystem {
         Supplier<Command> gt =()-> new ConditionalCommand(
                 setServo(pos,150).andThen(goToState1(Positions.MID_PICKUP_FRONT).andThen(goToState1(Positions.MID_PICKUP_FRONT))).andThen(new WaitCommand(20)).andThen(moveBoth(pos)),
                 moveBoth(pos),
-                ()->pos==Positions.PICKUP_FRONT);
+                ()->pos==Positions.PICKUP_FRONT||pos==Positions.MID_PICKUP_FRONT_CLOSE||pos==Positions.MID_PICKUP_FRONT);
 
         ConditionalCommand command= new ConditionalCommand(//return from PICKUP to fron
                         moveBoth(Positions.MIDPICKUP)
