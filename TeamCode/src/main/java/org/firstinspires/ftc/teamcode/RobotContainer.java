@@ -159,33 +159,37 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
  public Command closeBlueCenterAutoBT() {
         return new SequentialCommandGroup(
-                new WaitCommand(7000),
+                new WaitCommand(700),
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
                 m_gripper.closeGripper1(),
                 m_gripper.closeGripper0(),
-                m_chassis.goToX(0.1),
-                m_chassis.goToY(0.22),
-                m_chassis.goToDegrees(0),
+                m_chassis.goToX(0.2),
+                withTimeout(m_chassis.goToY(0.28),800),
+                withTimeout(m_chassis.goToDegrees(0),800),
                 m_chassis.stopMotor(),
                 m_arm.turnOnFF(),
-                m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT),2000),
                 new WaitCommand(1000),
                 m_gripper.openGripper0(),
                 m_gripper.closeGripper0(),
                 m_arm.setIdle(),
+                m_chassis.goToX(-0.1),
                 withTimeout(m_chassis.goToY(-0.86),4000),
-                m_chassis.goToDegrees(0),
-                m_chassis.goToX(0.2),
-                m_chassis.goToDegrees(-90),
+                m_chassis.stopMotor(),
+                withTimeout(m_chassis.goToDegrees(0),1000),
+                m_chassis.goToX(0.17),
+                withTimeout(m_chassis.goToDegrees(-90),1500),
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(0.12),
-                withTimeout(m_arm.setLowScore(),2000),
+                m_chassis.goToX(0.62),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),2000),
+                new WaitCommand(600),
                 m_gripper.openGripper1(),
+                m_chassis.goToX(-0.1),
                 m_gripper.closeGripper1(),
                 m_arm.setIdle(),
                 m_chassis.goToDegrees(90),
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(-0.4),
+                m_chassis.goToX(-0.8),
                 m_chassis.stopMotor()
 
         );
@@ -277,32 +281,38 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
                 m_gripper.closeGripper1(),
                 m_gripper.closeGripper0(),
-                new WaitCommand(500),
-                m_chassis.goToX(0.1),//added
-                m_chassis.goToY(0.3),//flipped
+                m_chassis.goToX(0.33),
+                m_chassis.goToY(0.29),//flipped
                 m_chassis.stopMotor(),
                 m_chassis.goToDegrees(0),
+                m_chassis.stopMotor(),
+                m_chassis.goToX(0.6),
+                m_chassis.stopMotor(),
+                withTimeout(m_chassis.goToDegrees(-92),3000),//flipped
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(-0.2),
+                m_chassis.stopMotor(),
                 m_arm.turnOnFF(),
-                m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT_CLOSE),
-                new WaitCommand(1000),
-                m_gripper.openGripper0(),//flipped
-                m_gripper.closeGripper0(),//flipped
-                m_arm.setIdle(),
-                m_chassis.goToY(0.4),//flipped
-                m_chassis.goToDegrees(0),
-                m_chassis.goToX(0.12),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.MIDDLEPLUSPLUS),2000),
+                new WaitCommand(700),
+                m_gripper.openGripper0().andThen(new WaitCommand(800)),
+                m_gripper.closeGripper0(),
+                withTimeout(m_arm.setIdle(),1500),
+                withTimeout(m_chassis.goToDegrees(-180),2500),//flipped
                 m_chassis.stopMotor(),
-                withTimeout(m_chassis.goToDegrees(90),3000),//flipped
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(0.25),
-                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),1200),
-                m_gripper.openGripper1().andThen(new WaitCommand(800)),//flipped
-                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.HIGHLOWERLOWSCORE),1000),
-                m_gripper.closeGripper1(),//flipped
+                m_chassis.goToY(0.08),//
+                withTimeout(m_chassis.goToX(0.15),1200),
+                m_chassis.stopMotor(),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),2000),
+                new WaitCommand(1000),
+                m_gripper.openGripper1().andThen(new WaitCommand(800)),
+                m_chassis.goToX(-0.07),
+                m_gripper.closeGripper1(),
                 m_arm.setIdle(),
-                m_chassis.goToDegrees(-90),//flipped
+                withTimeout(m_chassis.goToDegrees(-90),3000),//flipped
                 new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(-0.25),
+                m_chassis.goToX(-0.5),
                 m_chassis.stopMotor()
 
         );

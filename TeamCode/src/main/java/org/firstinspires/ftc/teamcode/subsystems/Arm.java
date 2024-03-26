@@ -126,7 +126,7 @@ public class Arm implements Subsystem {
         time=new ElapsedTime();
         profileArm1 = new ProfileVelAcc(current_first_joint_angle_relative_to_ground,time.milliseconds());
         profileArm2 = new ProfileVelAcc(current_first_joint_angle_relative_to_ground,time.milliseconds());
-        servo.setPosition(0.3);
+        servo.setPosition(0.4);
     }
 
     public void setMotors(double firstSpeed, double secondSpeed, double servoPos) {
