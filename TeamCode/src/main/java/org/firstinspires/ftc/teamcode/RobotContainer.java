@@ -357,6 +357,43 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
         );
     }
 
+
+    public Command closeRedCenterAutoBT() {
+        return new SequentialCommandGroup(
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_gripper.closeGripper1(),
+                m_gripper.closeGripper0(),
+                m_chassis.goToX(0.25),//added 5 cm
+                withTimeout(m_chassis.goToY(-0.28),800),//flipped
+                withTimeout(m_chassis.goToDegrees(0),800),
+                m_chassis.stopMotor(),
+                m_arm.turnOnFF(),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT),2000),
+                new WaitCommand(1000),
+                m_gripper.openGripper0(),
+                m_gripper.closeGripper0(),
+                m_arm.setIdle(),
+                m_chassis.goToX(-0.1),
+                withTimeout(m_chassis.goToY(0.86),4000),//flipped
+                m_chassis.stopMotor(),
+                withTimeout(m_chassis.goToDegrees(0),1000),
+                m_chassis.goToX(0.7),//after the Y movement the robot is probaly stuck at the wall so i tell it to move 70 cm from the wall
+                withTimeout(m_chassis.goToDegrees(90),1500),//flipped
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(0.62),//moves to towards the wall, unchanged, will probably need change
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),2000),
+                new WaitCommand(600),
+                m_gripper.openGripper1(),
+                m_chassis.goToX(-0.1),
+                m_gripper.closeGripper1(),
+                m_arm.setIdle(),
+                m_chassis.goToDegrees(-90),//flipped
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(-0.8),
+                m_chassis.stopMotor()
+
+        );
+    }
     /*
     public Command FarRedAutoSimple() {
         return new SequentialCommandGroup(
