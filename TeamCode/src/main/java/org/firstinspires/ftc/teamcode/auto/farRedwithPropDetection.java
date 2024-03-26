@@ -21,13 +21,13 @@ public class farRedwithPropDetection extends CommandOpMode {
         Command toRun=robotContainer.centerCloseBluePath();
         switch (robotContainer.m_pixelDetection.propPos){
             case left:
-                toRun=robotContainer.LeftFarRedPath();
+                toRun=robotContainer.farRedLeftAutoBT();
                 break;
             case right:
-                toRun=robotContainer.rightFarRedPath();
+                toRun=robotContainer.farRedRightAutoBT();
                 break;
             case middle:
-                toRun=robotContainer.CenterFarRedPath();
+                toRun=robotContainer.farRedCenterAutoBT();
                 break;
         }
         robotContainer.m_pixelDetection.closeCamera();
