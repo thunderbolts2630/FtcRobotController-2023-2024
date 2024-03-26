@@ -21,13 +21,13 @@ public class closeRedWithPropDetection extends CommandOpMode {
         Command toRun=robotContainer.centerCloseBluePath();
         switch (robotContainer.m_pixelDetection.propPos){
             case left:
-                toRun=robotContainer.leftCloseRedPath();
+                toRun=robotContainer.closeRedLeftAutoBT();
                 break;
             case right:
-                toRun=robotContainer.rightCloseRedPath();
+                toRun=robotContainer.closeRedRightAutoBT();
                 break;
             case middle:
-                toRun=robotContainer.centerCloseRedPath();
+                toRun=robotContainer.closeRedCenterAutoBT();
                 break;
         }
         robotContainer.m_pixelDetection.closeCamera();
