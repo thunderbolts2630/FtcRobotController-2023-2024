@@ -317,7 +317,47 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 
         );
     }
-/*
+
+    public Command closeRedLeftAutoBT() {
+        return new SequentialCommandGroup(
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_gripper.closeGripper1(),
+                m_gripper.closeGripper0(),
+                m_chassis.goToX(0.29),//added
+                m_chassis.goToY(0.32),//flipped
+                m_chassis.stopMotor(),
+                m_chassis.goToDegrees(0),
+                m_chassis.stopMotor(),
+                m_chassis.goToX(0.6),
+                m_chassis.stopMotor(),
+                withTimeout(m_chassis.goToDegrees(-92),3000),//flipped
+                m_chassis.stopMotor(),
+                m_arm.turnOnFF(),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT),2000),
+                new WaitCommand(400),
+                m_gripper.openGripper0().andThen(new WaitCommand(800)),
+                m_gripper.closeGripper0(),
+                withTimeout(m_arm.setIdle(),1500),
+                withTimeout(m_chassis.goToDegrees(-90),3000),//flipped
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(0.57),
+                m_chassis.goToY(-0.03),//flipped
+                withTimeout(m_chassis.goToDegrees(0),2500),
+                m_chassis.stopMotor(),
+                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),1200),
+                new WaitCommand(1000),
+                m_gripper.openGripper1().andThen(new WaitCommand(800)),
+                m_chassis.goToX(-0.07),
+                m_gripper.closeGripper1(),
+                m_arm.setIdle(),
+                withTimeout(m_chassis.goToDegrees(-90),3000),//flipped
+                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
+                m_chassis.goToX(-0.7),
+                m_chassis.stopMotor()
+        );
+    }
+
+    /*
     public Command FarRedAutoSimple() {
         return new SequentialCommandGroup(
                 m_chassis.fieldRelativeDrive(() -> 0, () -> 0, () -> 0).withTimeout(5000),
