@@ -166,6 +166,9 @@ public class Chassis implements Subsystem {
     public Orientation gyroHeading(){
         return gyro.getRevIMU().getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
+    public Command resetGyro(){
+        return new InstantCommand(gyro::reset);
+    }
     public void resetOdmetry(Pose2d rst){
         odometry.reset(new BTPose2d(rst));
 

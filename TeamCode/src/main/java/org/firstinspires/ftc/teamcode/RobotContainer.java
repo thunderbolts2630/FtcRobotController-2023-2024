@@ -95,6 +95,10 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
     }
 
     public void tune(){
+        m_controller2.assignCommand(m_chassis.resetGyro(),false,BUTTON_DOWN);
+        m_controller2.assignCommand(m_chassis.resetGyro(),false,BUTTON_UP);
+        m_controller2.assignCommand(m_chassis.resetGyro(),false,BUTTON_RIGHT);
+        m_controller2.assignCommand(m_chassis.resetGyro(),false,BUTTON_LEFT);
 //        m_controller2.assignCommand(m_arm.tuneAngle2(),false,DPAD_UP);
 //        m_controller2.assignCommand(m_chassis.goToX(1),false,BUTTON_UP).whenInactive(m_chassis.stopMotor());
 //        m_controller2.assignCommand(m_chassis.goToY(1),false,BUTTON_DOWN).whenInactive(m_chassis.stopMotor());
@@ -102,27 +106,27 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
 //        m_controller2.assignCommand(m_arm.turnOnFF(),false,BUTTON_RIGHT).whenInactive(m_chassis.stopMotor());
 //        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.MID_PICKUP_FRONT_CLOSE),false,DPAD_UP);
 //        m_controller2.assignCommand(m_arm.goTo(Constants.ArmConstants.Positions.IDLE),false,DPAD_DOWN);
-        m_controller2.assignCommand(m_chassis.fieldRelativeDrive(
-                        () -> squareInput(-m_controller.left_y.getAsDouble()),
-                        () -> squareInput(m_controller.left_x.getAsDouble()),
-                        () -> squareInput(m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble())),
-                true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
-        m_controller2.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
-
-
-        m_controller2.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_RIGHT);
-        m_controller2.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_LEFT);
-        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()),false,BUTTON_DOWN);
-        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()),false,DPAD_RIGHT);
-
-
-        m_controller2.assignCommand(closeBlueLeftAutoBT(),false,BUTTON_LEFT);
-        m_controller2.assignCommand(closeBlueCenterAutoBT(),false,BUTTON_UP);
-        m_controller2.assignCommand(closeBlueRightAutoBT(),false,BUTTON_RIGHT);
-
-        m_controller2.assignCommand(closeRedLeftAutoBT(),false,DPAD_LEFT);
-        m_controller2.assignCommand(closeRedCenterAutoBT(),false,DPAD_UP);
-        m_controller2.assignCommand(closeRedRightAutoBT(),false,DPAD_RIGHT);
+//        m_controller2.assignCommand(m_chassis.fieldRelativeDrive(
+//                        () -> squareInput(-m_controller.left_y.getAsDouble()),
+//                        () -> squareInput(m_controller.left_x.getAsDouble()),
+//                        () -> squareInput(m_controller.right_trigger.getAsDouble() - m_controller.left_trigger.getAsDouble())),
+//                true, LEFT_X, LEFT_Y, LEFT_TRIGGER, RIGHT_TRIGGER).whenInactive(m_chassis.stopMotor());
+//        m_controller2.assignCommand(m_climb.climb_manual(() -> -m_controller.right_x.getAsDouble()), true, RIGHT_X).whenInactive(m_climb.climb_manual(() -> 0));
+//
+//
+//        m_controller2.assignCommand(m_gripper.toggleGripper1(), false, BUMPER_RIGHT);
+//        m_controller2.assignCommand(m_gripper.toggleGripper0(), false, BUMPER_LEFT);
+//        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()),false,BUTTON_DOWN);
+//        m_controller2.assignCommand(m_gripper.closeBoth().andThen(m_arm.setIdle()),false,DPAD_RIGHT);
+//
+//
+//        m_controller2.assignCommand(closeBlueLeftAutoBT(),false,BUTTON_LEFT);
+//        m_controller2.assignCommand(closeBlueCenterAutoBT(),false,BUTTON_UP);
+//        m_controller2.assignCommand(closeBlueRightAutoBT(),false,BUTTON_RIGHT);
+//
+//        m_controller2.assignCommand(closeRedLeftAutoBT(),false,DPAD_LEFT);
+//        m_controller2.assignCommand(closeRedCenterAutoBT(),false,DPAD_UP);
+//        m_controller2.assignCommand(closeRedRightAutoBT(),false,DPAD_RIGHT);
     }
 
 
@@ -508,30 +512,11 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_gripper.openGripper0(),
                 m_gripper.closeGripper0(),
                 m_arm.setIdle(),
-                withTimeout(m_chassis.goToX(-0.15),2000),
-                m_chassis.goToDegrees(-90),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(0.8),
-                m_chassis.stopMotor(),
-                withTimeout(m_chassis.goToDegrees(90),4000),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(0.44),
-                withTimeout(m_chassis.goToDegrees(-87),3000),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(0.25),
-                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),2000),
-                new WaitCommand(600),
-                m_gripper.openGripper1(),
-                m_chassis.goToX(-0.1),
-                m_gripper.closeGripper1(),
-                m_arm.setIdle(),
-                m_chassis.goToDegrees(90),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                withTimeout(m_chassis.goToX(-0.8),5000),
+                withTimeout(m_chassis.goToDegrees(0),5000),//flipped
                 m_chassis.stopMotor()
 
 
-        );
+                );
     }
 
 
@@ -555,21 +540,7 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_gripper.openGripper0().andThen(new WaitCommand(800)),
                 m_gripper.closeGripper0(),
                 withTimeout(m_arm.setIdle(),1500),
-                withTimeout(m_chassis.goToDegrees(-90),3000),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToX(0.54),
-                m_chassis.goToY(0.1),
-                withTimeout(m_chassis.goToDegrees(0),2500),
-                m_chassis.stopMotor(),
-                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),1200),
-                new WaitCommand(1000),
-                m_gripper.openGripper1().andThen(new WaitCommand(800)),
-                m_chassis.goToX(-0.1),
-                m_gripper.closeGripper1(),
-                m_arm.setIdle(),
-                withTimeout(m_chassis.goToDegrees(90),3000),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                withTimeout(m_chassis.goToX(-0.9),5000),
+                withTimeout(m_chassis.goToDegrees(0),5000),//flipped
                 m_chassis.stopMotor()
 
         );
@@ -597,23 +568,9 @@ public class RobotContainer extends com.arcrobotics.ftclib.command.Robot {
                 m_gripper.openGripper0().andThen(new WaitCommand(800)),
                 m_gripper.closeGripper0(),
                 withTimeout(m_arm.setIdle(),1500),
-                withTimeout(m_chassis.goToDegrees(180),2500),
-                m_chassis.stopMotor(),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                m_chassis.goToY(-0.22),
-                m_chassis.goToX(0.08),
-                m_chassis.stopMotor(),
-                withTimeout(m_arm.goTo(Constants.ArmConstants.Positions.LOWERLOWSCORE),2000),
-                new WaitCommand(1000),
-                m_gripper.openGripper1().andThen(new WaitCommand(800)),
-                m_gripper.closeGripper1(),
-                m_arm.setIdle(),
-                withTimeout(m_chassis.goToDegrees(90),3000),
-                new InstantCommand(()->m_chassis.resetOdmetry(new Pose2d(0,0,Rotation2d.fromDegrees(0)))),
-                withTimeout(m_chassis.goToX(-0.9),5000),
+
+                withTimeout(m_chassis.goToDegrees(0),5000),//flipped
                 m_chassis.stopMotor()
-
-
 
 
 
