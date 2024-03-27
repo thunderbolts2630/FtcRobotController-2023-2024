@@ -27,9 +27,9 @@ class RedPipeline extends OpenCvPipeline {
         public static int show=0;
         public static int preD=10,dilation=5, erosion =20;
         public static int area_max=36000,area_min=6000;
-        public static int left_ROI_min=20,left_ROI_max=320;
-        public static int right_ROI_min=960,right_ROI_max=1280;
-        public static int roi_top=260,roi_bottom=440;
+        public static int left_ROI_min=0,left_ROI_max=360;
+        public static int right_ROI_min=920,right_ROI_max=1280;
+        public static int roi_top=220,roi_bottom=460;
         public static double lH = 115, lS = 110, lV =90;
         public static double hH = 130, hS = 200, hV = 180;
     }

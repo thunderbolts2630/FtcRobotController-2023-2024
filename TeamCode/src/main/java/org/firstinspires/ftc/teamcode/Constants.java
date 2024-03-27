@@ -273,7 +273,7 @@ public class Constants {
             public static final double kd = 0;// todo: this is not calibrated
             public static final double kf = 0;// todo: this is not calibrated
             public static final int max_ticks = 3000;
-            public static final int min_ticks = -300;}
+            public static final int min_ticks = -2300;}
 
 
 //    public enum ArmStates {

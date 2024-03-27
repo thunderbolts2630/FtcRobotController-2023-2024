@@ -27,9 +27,9 @@ class BluePipeline extends OpenCvPipeline {
         public static int show=0;
         public static int preD=7,dilation=1, erosion =7;
         public static int area_max=38000,area_min=6000;
-        public static int left_ROI_min=20,left_ROI_max=320;
-        public static int right_ROI_min=960,right_ROI_max=1280;
-        public static int roi_top=260,roi_bottom=440;
+        public static int left_ROI_min=0,left_ROI_max=360;
+        public static int right_ROI_min=920,right_ROI_max=1280;
+        public static int roi_top=220,roi_bottom=460;
         public static double lH = 0, lS = 50, lV =60;
         public static double hH = 10, hS = 235, hV = 150;
     }
